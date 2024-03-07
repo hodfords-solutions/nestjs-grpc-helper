@@ -1,0 +1,16 @@
+<div class="property">
+    <div [ngClass]="{ 'has-child-property': properties.length }">
+        <span class="variable" (click)="toggleChildProperty()">{{ property().name }}</span>
+        <span class="text-muted"> {{ propertyDetail }}</span>
+        <div>
+            {{ property().option.description }}
+        </div>
+    </div>
+
+    <hr />
+    @if (isShowDetail) {
+        @for (property of properties(); track property.name) {
+            <app-property [property]="property" [document]="document()" />
+        }
+    }
+</div>

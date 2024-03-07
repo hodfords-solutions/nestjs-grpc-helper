@@ -1,0 +1,18 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": ["nestjs", 
+        "hodfords", 
+        "proto", 
+        "protobuf", 
+        "typeorm", 
+        "dtos", 
+        "paramtypes",
+        "ngstack",
+        "popperjs",
+        "highlightjs",
+        "devkit"
+    ],
+    "flagWords": ["hte"],
+    "ignorePaths": ["node_modules/**", "cspell.json", "frontend"]
+}

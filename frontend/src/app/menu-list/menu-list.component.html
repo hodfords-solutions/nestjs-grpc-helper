@@ -1,0 +1,32 @@
+<ul ngbNav #nav="ngbNav" [(activeId)]="documentService.activeId" class="flex-column">
+    @for (menu of menus(); track menu.link) {
+        <li [ngbNavItem]="menu.link">
+            <a ngbNavLink [href]="menu.link" class="package-menu-item" routerLink="." fragment="{{ menu.link }}">{{
+                menu.name
+            }}</a>
+            @if (menu.children && documentService.activeId === menu.link) {
+                <ul ngbNav class="flex-column service-menu">
+                    @for (child of menu.children; track child.link) {
+                        <li [ngbNavItem]="child.link">
+                            <a ngbNavLink [href]="menu.link" routerLink="." fragment="{{ child.link }}">{{
+                                child.name
+                            }}</a>
+                            @if (child.children) {
+                                <ul ngbNav class="flex-column method-menu">
+                                    @for (sub of child.children; track sub.link) {
+                                        <li [ngbNavItem]="sub.link">
+                                            <a ngbNavLink [href]="sub.link" routerLink="." fragment="{{ sub.link }}">{{
+                                                sub.name
+                                            }}</a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+</ul>
+<div [ngbNavOutlet]="nav"></div>

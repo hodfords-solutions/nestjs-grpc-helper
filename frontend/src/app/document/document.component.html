@@ -1,0 +1,19 @@
+<h1>Documentation</h1>
+
+<p class="lead">Microservice document for esg.</p>
+
+<hr />
+
+@for (document of documents(); track document.title) {
+    <div>
+        <h2 id="{{ document.title }}">{{ document.title }}</h2>
+        <p class="lead">{{ document.description }}</p>
+        <pre><code [languages]="['typescript']" [highlight]="preInstallDescription"></code></pre>
+        <pre><code [languages]="['typescript']" [highlight]="document.installDescription"></code></pre>
+        <pre><code [languages]="['typescript']" [highlight]="document.usageDescription"></code></pre>
+        <hr />
+        @for (microservice of document.microservices; track microservice.link) {
+            <app-microservice [microservice]="microservice" [document]="document" />
+        }
+    </div>
+}
