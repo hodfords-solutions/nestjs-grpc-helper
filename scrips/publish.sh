@@ -9,5 +9,6 @@ cd ..
 cp -r libs/sdk-stub dist/libs
 cp package.json dist/libs
 cp .npmrc dist/libs
+cp README.md dist/libs
 cd dist/libs
 npm publish
