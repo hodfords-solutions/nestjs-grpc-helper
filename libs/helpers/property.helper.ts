@@ -66,7 +66,12 @@ export function getPropertiesOfClass(constructor: Function, properties = []): Pr
     if (!propertyStorage.get(constructor)) {
         return properties;
     }
-    properties = properties.concat(propertyStorage.get(constructor));
+    let parentProperties = propertyStorage.get(constructor) || [];
+    for (const property of parentProperties) {
+        if (!properties.some((newProperty) => newProperty.name === property.name)) {
+            properties.push(property);
+        }
+    }
     const parentClass = Object.getPrototypeOf(constructor);
     if (parentClass.name) {
         return getPropertiesOfClass(parentClass, properties);

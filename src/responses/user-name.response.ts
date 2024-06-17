@@ -36,3 +36,16 @@ export class UserAddressResponse extends OmitResponseType(UserFullResponse, ['na
 
 @ExtendType()
 export class UserPartialResponse extends PartialResponseType(UserAddressResponse) {}
+
+export class UserExtendResponse {
+    @Property({ type: String, required: false })
+    @MockMethod('faker.datatype.string', [10])
+    @IsString()
+    @IsOptional()
+    name?: string;
+}
+
+@ExtendType()
+export class UserExtendResponse2 extends UserExtendResponse {}
+@ExtendType()
+export class UserExtendResponse3 extends PickResponseType(UserExtendResponse2, ['name']) {}

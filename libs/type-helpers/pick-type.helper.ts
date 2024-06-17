@@ -11,7 +11,7 @@ export function PickResponseType<T, K extends keyof T>(
 
     abstract class PickTypeClass extends swaggerPickTypes {}
 
-    let properties = propertyStorage.get(classRef);
+    let properties = propertyStorage.get(classRef) || [];
     for (const property of properties) {
         if (keys.includes(property.name as K)) {
             addPropertyToStorage(PickTypeClass, property.name, property.option);

@@ -1,6 +1,6 @@
 {
   "name": "@hodfords/nestjs-grpc-helper",
-  "version": "10.0.4",
+  "version": "10.0.5",
   "description": "Grpc helper for nestjs",
   "author": "",
   "license": "UNLICENSED",
