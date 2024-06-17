@@ -3,6 +3,7 @@ import { UseResponseInterceptor, ResponseModel } from '@hodfords/nestjs-response
 import { UserResponse } from './responses/user.response';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { generateDocumentService } from '@hodfords/nestjs-grpc-helper';
+import { UserNameResponse } from './responses/user-name.response';
 
 @Controller()
 @UseResponseInterceptor()
@@ -17,6 +18,13 @@ export class AppController {
     @ResponseModel(UserResponse, true)
     @HttpCode(HttpStatus.OK)
     getMultiple() {
+        return [{ name: 'test' }, { name: 'test2' }];
+    }
+
+    @Get('user')
+    @ResponseModel(UserNameResponse, true)
+    @HttpCode(HttpStatus.OK)
+    getUserName() {
         return [{ name: 'test' }, { name: 'test2' }];
     }
 
