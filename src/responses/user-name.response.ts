@@ -1,6 +1,5 @@
-import { PickResponseType } from '../../libs/type-helpers/pick-type.helper';
 import { UserResponse } from './user.response';
-import { ExtendType } from '../../libs/decorators/extend-type.decorator';
+import { ExtendType, PickResponseType } from '@hodfords/nestjs-grpc-helper';
 
 @ExtendType()
 export class UserNameResponse extends PickResponseType(UserResponse, ['name', 'type']) {}
