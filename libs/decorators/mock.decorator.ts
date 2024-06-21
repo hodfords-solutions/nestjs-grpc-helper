@@ -1,12 +1,12 @@
 import { MockMethodType } from '../types/mock-option.type';
 import { addPropertyToStorage } from '../helpers/property.helper';
 
-export function MockMethod(method: MockMethodType, args: any[]): PropertyDecorator {
+export function MockMethod(method: MockMethodType, args?: any[]): PropertyDecorator {
     return function (target: Object, propertyName: string): void {
         addPropertyToStorage(target.constructor, propertyName, {
             mock: {
                 method,
-                args
+                args: args || []
             }
         });
     };
