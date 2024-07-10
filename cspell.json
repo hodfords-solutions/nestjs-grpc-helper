@@ -11,7 +11,8 @@
         "ngstack",
         "popperjs",
         "highlightjs",
-        "devkit"
+        "devkit",
+        "npmjs"
     ],
     "flagWords": ["hte"],
     "ignorePaths": ["node_modules/**", "cspell.json", "frontend"]
