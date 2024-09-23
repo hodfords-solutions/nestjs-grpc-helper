@@ -6,17 +6,17 @@ export abstract class PaginationResponse {
     abstract items: any[];
 
     @Property({ type: 'int32' })
-    @MockMethod('faker.datatype.number', [5, 10])
+    @MockMethod('faker.number.int', [5, 10])
     @IsNumber()
     total: number;
 
     @Property({ type: 'int32' })
-    @MockMethod('faker.datatype.number', [5, 10])
+    @MockMethod('faker.number.int', [5, 10])
     @IsNumber()
     lastPage: number;
 
     @Property({ type: 'int32' })
-    @MockMethod('faker.datatype.number', [5, 10])
+    @MockMethod('faker.number.int', [5, 10])
     @IsNumber()
     perPage: number;
 

@@ -1,6 +1,6 @@
 import { getPropertiesOfClass } from './property.helper';
 import { plainToInstance } from 'class-transformer';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { get } from 'lodash';
 import { PropertyOptionType } from '../types/property-option.type';
 

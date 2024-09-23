@@ -5,7 +5,7 @@ import { MockMethod, MockSample } from '../../libs/decorators/mock.decorator';
 
 export class UserResponse {
     @Property({ type: String, required: false })
-    @MockMethod('faker.datatype.string', [10])
+    @MockMethod('faker.name.fullName', [10])
     @IsString()
     @IsOptional()
     name?: string;

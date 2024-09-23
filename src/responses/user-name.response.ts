@@ -11,7 +11,7 @@ export class UserNameResponse extends PickResponseType(UserResponse, ['name', 't
 @ExtendType()
 export class UserAdditionResponse extends PickResponseType(UserNameResponse, ['name']) {
     @Property({ type: String, required: false })
-    @MockMethod('faker.datatype.string', [10])
+    @MockMethod('faker.address.streetAddress')
     @IsString()
     @IsOptional()
     address?: string;
@@ -20,7 +20,7 @@ export class UserAdditionResponse extends PickResponseType(UserNameResponse, ['n
 @ExtendType()
 export class UserFullResponse extends IntersectionResponseType(UserNameResponse, UserAdditionResponse) {
     @Property({ type: String, required: false })
-    @MockMethod('faker.datatype.string', [10])
+    @MockMethod('faker.location.state')
     @IsString()
     @IsOptional()
     state?: string;
@@ -29,7 +29,7 @@ export class UserFullResponse extends IntersectionResponseType(UserNameResponse,
 @ExtendType()
 export class UserAddressResponse extends OmitResponseType(UserFullResponse, ['name', 'type']) {
     @Property({ type: String, required: true })
-    @MockMethod('faker.datatype.string', [10])
+    @MockMethod('faker.location.country')
     @IsString()
     country: string;
 }
@@ -39,7 +39,7 @@ export class UserPartialResponse extends PartialResponseType(UserAddressResponse
 
 export class UserExtendResponse {
     @Property({ type: String, required: false })
-    @MockMethod('faker.datatype.string', [10])
+    @MockMethod('faker.name.fullName')
     @IsString()
     @IsOptional()
     name?: string;
