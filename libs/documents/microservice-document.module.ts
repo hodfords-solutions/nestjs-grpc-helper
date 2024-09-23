@@ -5,7 +5,6 @@ import { ClientsModule } from '@nestjs/microservices';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
 import { GenerateSdkCommand } from '../commands/generate-sdk.command';
-import { DataSource } from 'typeorm';
 
 @Module({})
 export class MicroserviceDocumentModule {

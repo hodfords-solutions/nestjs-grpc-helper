@@ -6,15 +6,6 @@
 <b>nestjs-grpc-helper</b> simplifies gRPC integration in NestJS, allowing seamless communication between services. It enables easy setup of gRPC clients and servers, and supports building SDK packages that any service can import and use, ensuring consistent API interaction across your microservices architecture.
 </p>
 
-## Pre-Installation 🔧
-
-Before using nestjs-grpc-helper, you'll need to install the necessary gRPC dependencies. Follow
-[the official NestJS documentation](https://docs.nestjs.com/microservices/grpc) for gRPC setup by installing the required packages:
-
-```bash
-npm install @grpc/grpc-js @grpc/proto-loader --save
-```
-
 ## Installation 🤖
 
 Install the `nestjs-grpc-helper` package with:
