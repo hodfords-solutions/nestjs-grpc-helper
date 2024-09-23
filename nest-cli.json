@@ -1,23 +1,23 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "sample",
   "projects": {
     "nestjs-grpc-helper": {
       "type": "library",
-      "root": "libs",
+      "root": "lib",
       "entryFile": "index",
-      "sourceRoot": "libs"
+      "sourceRoot": "lib"
     }
   },
   "compilerOptions": {
     "webpack": false,
     "assets": [
       {
-        "include": "../libs/public/**",
+        "include": "../lib/public/**",
         "watchAssets": true
       },
       {
-        "include": "../libs/sdk-stub/**",
+        "include": "../lib/sdk-stub/**",
         "watchAssets": true
       }
     ]

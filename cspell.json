@@ -12,7 +12,9 @@
         "popperjs",
         "highlightjs",
         "devkit",
-        "npmjs"
+        "npmjs",
+        "postbuild",
+        "classpath"
     ],
     "flagWords": ["hte"],
     "ignorePaths": ["node_modules/**", "cspell.json", "frontend"]

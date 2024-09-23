@@ -2,8 +2,10 @@ name: Publish Package to npmjs
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
+  lint:
+    uses: hodfords-solutions/actions/.github/workflows/lint.yaml@main
   build:
     runs-on: ubuntu-latest
     steps:
