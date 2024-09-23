@@ -15,3 +15,8 @@ jobs:
       - run: sh scripts/publish.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  update-docs:
+    uses: hodfords-solutions/actions/.github/workflows/update-doc.yaml@main
+    needs: build
+    secrets:
+      DOC_SSH_PRIVATE_KEY: ${{ secrets.DOC_SSH_PRIVATE_KEY }}
