@@ -19,7 +19,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@hodfords/nestjs-grpc-helper": ["libs"]
+      "@hodfords/nestjs-grpc-helper": ["lib"]
     }
   }
 }
