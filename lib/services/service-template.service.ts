@@ -13,7 +13,7 @@ export class ServiceTemplateService {
         import { ClientGrpc } from '@nestjs/microservices';
         import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
         import { Type } from 'class-transformer';
-        import { Property, sample } from '@hodfords/nestjs-grpc-helper';
+        import { Property, sample, AnyType } from '@hodfords/nestjs-grpc-helper';
         
         ${enumContent}
 
@@ -69,7 +69,7 @@ export class ServiceTemplateService {
     }
 
     propertyTemplate(property, type: string): string {
-        const isPrimitiveType = ['object', 'string', 'number', 'bool', 'boolean'].includes(type);
+        const isPrimitiveType = ['object', 'string', 'number', 'bool', 'boolean', 'any'].includes(type);
         const isEnumType = isEnumProperty(property.option);
         const isNestedType = !isPrimitiveType && !isEnumType;
         let propertyType = '';
@@ -102,9 +102,14 @@ export class ServiceTemplateService {
             }
         }
 
-        const propertyDecorator = `
+        let propertyDecorator = `
             @Property(${propertyOption})
         `;
+        if (type === 'any') {
+            propertyDecorator += `
+            @AnyType()
+            `;
+        }
 
         return `
         ${propertyDecorator}

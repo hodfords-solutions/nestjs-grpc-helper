@@ -191,7 +191,13 @@ export class GenerateMicroserviceService {
         const body =
             methodTemplateService instanceof MockMethodTemplateService
                 ? methodTemplateService.templateBody(response)
-                : methodTemplateService.templateBody(response, constructor.name, propertyKey, parameterName);
+                : methodTemplateService.templateBody(
+                      response,
+                      constructor.name,
+                      propertyKey,
+                      parameterName,
+                      parameterName
+                  );
         const returnType = this.getReturnType(response);
         return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body);
     }
