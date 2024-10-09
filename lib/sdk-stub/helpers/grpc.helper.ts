@@ -10,12 +10,14 @@ import {
     PLATFORM_LANGUAGE_KEY,
     REPORT_LANGUAGE_KEY
 } from '../constants/multi-language-key.constant';
+import { Logger } from '@nestjs/common/services/logger.service';
 
 export class GrpcHelper<Model> {
     private serviceGrpc: any;
     private methodName: string;
     private payload: any;
     private metadata = new Metadata();
+    private logger = new Logger(this.constructor.name);
 
     static with<Model>(
         client: ClientGrpc,
@@ -64,8 +66,12 @@ export class GrpcHelper<Model> {
         return this;
     }
 
-    data(data: any): GrpcHelper<Model> {
-        this.payload = data;
+    data(data: any, parameterModel?: any): GrpcHelper<Model> {
+        if (parameterModel) {
+            this.payload = plainToInstance(parameterModel, data, { groups: ['__sendData'] });
+        } else {
+            this.payload = data;
+        }
         return this;
     }
 
@@ -81,12 +87,12 @@ export class GrpcHelper<Model> {
                 data = data.items || [];
             }
             if (Array.isArray(data)) {
-                return plainToInstance(this.model, data);
+                return plainToInstance(this.model, data, { groups: ['__getData'] });
             } else {
-                return [plainToInstance(this.model, data)];
+                return [plainToInstance(this.model, data, { groups: ['__getData'] })];
             }
         } catch (exception) {
-            console.log(this.methodName, exception);
+            this.logger.error(exception);
             throw exception;
         }
     }
@@ -119,7 +125,7 @@ export class GrpcHelper<Model> {
                 httpError.message = responseError.message;
                 throw httpError;
             } else {
-                console.error(error);
+                this.logger.error(error);
                 throw new HttpException(trans('error.an_error_occurred'), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {

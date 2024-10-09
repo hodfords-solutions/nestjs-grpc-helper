@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { ResponseModel, UseResponseInterceptor } from '@hodfords/nestjs-response';
 import { GrpcAction, GrpcValue, RegisterGrpcMicroservice } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
-import { FindManyDto, ParamDto } from './dto/param.dto';
+import { AnyDto, FindManyDto, ParamDto } from './dto/param.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { UserResponse } from './responses/user.response';
 
@@ -35,5 +35,12 @@ export class AppMicroservice {
     @GrpcAction('Get empty data')
     emptyParams(): UserResponse[] {
         return [{ name: 'test' }, { name: 'test2' }];
+    }
+
+    @GrpcAction('Any Dto')
+    @ResponseModel(UserResponse, true)
+    anyDto(@GrpcValue() param: AnyDto): UserResponse[] {
+        console.log(param);
+        return [{ name: param.data }, { name: 'test2' }];
     }
 }
