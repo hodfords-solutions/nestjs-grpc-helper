@@ -1,5 +1,6 @@
 import { IsString } from 'class-validator';
-import { Property } from '@hodfords/nestjs-grpc-helper';
+import { AnyType, Property } from '@hodfords/nestjs-grpc-helper';
+import { Transform } from 'class-transformer';
 
 export class ParamNestedDto {
     @Property({
@@ -37,4 +38,17 @@ export class FindManyDto {
         required: true
     })
     nestedDto: ParamNestedDto[];
+}
+
+export class AnyDto {
+    @Property({
+        type: 'string',
+        description: 'Name of user to search'
+    })
+    @IsString()
+    name: string;
+
+    @Property({ type: 'any' })
+    @AnyType()
+    data: any;
 }

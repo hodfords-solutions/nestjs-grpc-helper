@@ -68,6 +68,9 @@ export class GenerateProtoService {
             }
             return type.name;
         }
+        if (type === 'any') {
+            return 'string';
+        }
 
         return type;
     }
