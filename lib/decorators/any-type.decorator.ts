@@ -3,7 +3,7 @@ import { isString } from '@nestjs/common/utils/shared.utils';
 
 export function AnyType() {
     return Transform((object) => {
-        if (object.options.groups.includes('__sendData')) {
+        if (object.options.groups?.includes('__sendData')) {
             return JSON.stringify(object.value);
         }
         if (isString(object.value)) {
