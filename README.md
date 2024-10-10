@@ -41,6 +41,16 @@ export class UserMicroservice {
 }
 ```
 
+### Any Type
+
+You can use any type if fixed types are not an option. However, since it’s passed as JSON, the performance may not be as optimal as with binary. Consider using binary if performance is a concern.
+
+```typescript
+@Property({ type: 'any', required: false })
+@AnyType()
+data: any;
+```
+
 ### Create SDK
 
 To generate a TypeScript SDK for your gRPC services, use the following command:
