@@ -2,14 +2,9 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable, timeout } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { CLS_TRANSLATION_NAMESPACE, currentLanguage, getLanguageByKey, trans } from '@hodfords/nestjs-cls-translation';
+import { trans } from '@hodfords/nestjs-cls-translation';
 import { Metadata, status } from '@grpc/grpc-js';
 import { MicroserviceClientOptionType } from '../types/microservice-option.type';
-import {
-    COMMUNICATION_LANGUAGE,
-    PLATFORM_LANGUAGE_KEY,
-    REPORT_LANGUAGE_KEY
-} from '../constants/multi-language-key.constant';
 import { Logger } from '@nestjs/common/services/logger.service';
 
 export class GrpcHelper<Model> {
@@ -32,27 +27,8 @@ export class GrpcHelper<Model> {
         private model: { new (): Model },
         private options: MicroserviceClientOptionType
     ) {
-        if (this.options.enableLanguageMetaData) {
-            this.appendLanguages();
-        }
-    }
-
-    private currentPriorityLanguage(key = REPORT_LANGUAGE_KEY) {
-        return CLS_TRANSLATION_NAMESPACE.get(key);
-    }
-
-    private appendLanguages() {
-        const platformLanguage = currentLanguage();
-        const reportLanguage = this.currentPriorityLanguage();
-        const communicationLanguage = getLanguageByKey(COMMUNICATION_LANGUAGE);
-        if (platformLanguage) {
-            this.metadata.add(PLATFORM_LANGUAGE_KEY, platformLanguage);
-        }
-        if (reportLanguage) {
-            this.metadata.add(REPORT_LANGUAGE_KEY, reportLanguage);
-        }
-        if (communicationLanguage) {
-            this.metadata.add(COMMUNICATION_LANGUAGE, communicationLanguage);
+        if (this.options.requestInitializer) {
+            this.options.requestInitializer(this.metadata);
         }
     }
 
