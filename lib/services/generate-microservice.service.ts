@@ -67,10 +67,6 @@ export class GenerateMicroserviceService {
             path.join(dirPath, 'types/microservice-option.type.ts'),
             path.join(this.dirPath, 'types/microservice-option.type.ts')
         );
-        copyFileSync(
-            path.join(dirPath, 'constants/multi-language-key.constant.ts'),
-            path.join(this.dirPath, 'constants/multi-language-key.constant.ts')
-        );
     }
 
     generatePackageFile() {
