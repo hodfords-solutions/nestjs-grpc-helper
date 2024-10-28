@@ -12,3 +12,4 @@ export * from './sdk-stub/helpers/grpc.helper';
 export * from './documents/microservice-document.module';
 export * from './clients/custom-grpc.client';
 export * from './helpers/property.helper';
+export * from './interceptors/grpc-translation.interceptor';
