@@ -10,7 +10,7 @@ export class GrpcTranslationInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler<any>): Promise<Observable<any>> {
         const metadata: Metadata = context.switchToRpc().getContext().getMap();
         const params = this.metadataLanguageKeys.reduce((values, key) => {
-            params[key] = metadata[key];
+            values[key] = metadata[key];
             return values;
         }, {});
         context.switchToHttp().getRequest().i18nLang = metadata[first(this.metadataLanguageKeys)];
