@@ -86,7 +86,7 @@ export class GenerateMicroserviceService {
         const packageFile = require(path.join(process.cwd(), 'package.json'));
 
         const sdkPackageFile = {
-            name: packageFile.name,
+            name: this.config.packageName || packageFile.name,
             version: packageFile.version,
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
@@ -225,7 +225,9 @@ export class GenerateMicroserviceService {
 
     formatCode() {
         this.logger.log('Start formatting code');
-        const response = runCommand(`prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts`);
+        const response = runCommand(
+            `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`
+        );
         if (response.stderr) {
             this.logger.error(response.stderr);
         } else {
@@ -235,6 +237,9 @@ export class GenerateMicroserviceService {
 
     buildCode() {
         this.logger.log('Start building code');
+
+        rmSync(path.join(process.cwd(), this.config.outputBuild), { recursive: true, force: true });
+
         let tsConfigName = 'tsconfig.json';
         if (this.config.tsconfig) {
             tsConfigName = 'tsconfig-sdk.json';
@@ -243,6 +248,11 @@ export class GenerateMicroserviceService {
         }
         const response = runCommand(`tsc -p ${tsConfigName}`);
 
+        copyFileSync(
+            path.join(process.cwd(), this.config.output, 'package.json'),
+            path.join(process.cwd(), this.config.outputBuild, 'package.json')
+        );
+
         if (this.config.tsconfig) {
             fs.unlinkSync(path.join(process.cwd(), tsConfigName));
         }
@@ -250,11 +260,6 @@ export class GenerateMicroserviceService {
         if (this.config.removeOutput) {
             rmSync(path.join(process.cwd(), this.config.output), { recursive: true });
         }
-
-        copyFileSync(
-            path.join(process.cwd(), this.config.output, 'package.json'),
-            path.join(process.cwd(), this.config.outputBuild, 'package.json')
-        );
 
         if (response.stderr) {
             this.logger.error(response.stderr);

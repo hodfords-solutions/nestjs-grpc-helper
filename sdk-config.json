@@ -1,5 +1,6 @@
 {
   "name": "sdkName",
+  "packageName": "@hodfords/nestjs-grpc-helper",
   "format": true,
   "build": true,
   "output": "sdk",
