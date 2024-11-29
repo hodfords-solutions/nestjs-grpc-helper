@@ -1,9 +1,10 @@
 import { GenerateMicroserviceService } from '../services/generate-microservice.service';
 import { GenerateProtoService } from '../services/generate-proto.service';
 import { GenerateDocumentService } from '../services/generate-document.service';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type';
 
-export function generateSdk(packageName: string, dirPath: string) {
-    new GenerateMicroserviceService(packageName, dirPath).generate();
+export function generateSdk(config: SdkBuildConfigType) {
+    new GenerateMicroserviceService(config).generate();
 }
 
 export function generateProtoService(packageName: string, dirPath: string) {

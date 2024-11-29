@@ -1,16 +1,21 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { generateSdk } from '@hodfords/nestjs-grpc-helper';
+import { generateSdk } from 'lib/helpers/generate.helper';
 
 @Command({
-    signature: 'make-sdk <packageName> <dirName>',
+    signature: 'make-sdk [configFile]',
     description: 'Make sdk'
 })
 @Injectable()
 export class GenerateSdkCommand extends BaseCommand {
     public handle() {
-        const [packageName, dirName] = this.params;
-        generateSdk(packageName, dirName);
+        let [configFile] = this.params;
+        if (!configFile) {
+            configFile = 'sdk-config.json';
+        }
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const options = require(configFile);
+        generateSdk(options);
         this.success(`Create sdk successfully!`);
     }
 }

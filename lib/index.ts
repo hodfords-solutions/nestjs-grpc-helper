@@ -8,6 +8,7 @@ export * from './helpers/generate.helper';
 export * from './helpers/mock.helper';
 export * from './type-helpers/pick-type.helper';
 export * from './types/property-option.type';
+export * from './types/sdk-build-config.type';
 export * from './sdk-stub/helpers/grpc.helper';
 export * from './documents/microservice-document.module';
 export * from './clients/custom-grpc.client';
