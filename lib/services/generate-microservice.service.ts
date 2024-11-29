@@ -3,7 +3,7 @@
 import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
-import { copyFileSync } from 'fs';
+import { copyFileSync, rmSync, writeFileSync } from 'fs';
 import * as fs from 'fs-extra';
 import { kebabCase } from 'lodash';
 import path from 'path';
@@ -15,25 +15,32 @@ import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
 import { isEnumProperty } from '../helpers/api-property.helper';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type';
+import { runCommand } from '../helpers/shell.helper';
+import * as process from 'node:process';
+import { Logger } from '@nestjs/common';
 
 export class GenerateMicroserviceService {
     private serviceTemplateService: ServiceTemplateService;
     private moduleTemplateService: ModuleTemplateService;
     private mockModuleTemplateService: MockModuleTemplateService;
     private fileName = '';
+    private logger = new Logger(this.constructor.name);
 
-    constructor(
-        private packageName: string,
-        private dirPath: string
-    ) {
-        this.fileName = kebabCase(this.packageName).toLowerCase();
-        this.serviceTemplateService = new ServiceTemplateService(packageName);
-        this.moduleTemplateService = new ModuleTemplateService(packageName, this.fileName);
-        this.mockModuleTemplateService = new MockModuleTemplateService(packageName, this.fileName);
+    constructor(private config: SdkBuildConfigType) {
+        this.fileName = kebabCase(this.config.name).toLowerCase();
+        this.serviceTemplateService = new ServiceTemplateService(this.config.name);
+        this.moduleTemplateService = new ModuleTemplateService(this.config.name, this.fileName);
+        this.mockModuleTemplateService = new MockModuleTemplateService(this.config.name, this.fileName);
+        this.config = {
+            build: false,
+            format: false,
+            ...config
+        };
     }
 
     generate(): void {
-        generateProtoService(this.packageName, this.dirPath);
+        generateProtoService(this.config.name, this.config.output);
         this.generateIndex();
         let serviceContent = this.generateServices();
         this.generateModule();
@@ -43,12 +50,18 @@ export class GenerateMicroserviceService {
         this.writeFile(serviceContent, `services/${this.fileName}.service.ts`);
         this.copySdk();
         this.generatePackageFile();
+        if (this.config.format) {
+            this.formatCode();
+        }
+        if (this.config.build) {
+            this.buildCode();
+        }
     }
 
     copySdk(): void {
-        fs.ensureDirSync(path.join(this.dirPath, 'helpers'));
-        fs.ensureDirSync(path.join(this.dirPath, 'types'));
-        fs.ensureDirSync(path.join(this.dirPath, 'constants'));
+        fs.ensureDirSync(path.join(this.config.output, 'helpers'));
+        fs.ensureDirSync(path.join(this.config.output, 'types'));
+        fs.ensureDirSync(path.join(this.config.output, 'constants'));
 
         let dirPath = __dirname;
         if (fs.existsSync(path.join(__dirname, '../../sdk-stub/helpers/grpc.helper.ts'))) {
@@ -56,16 +69,16 @@ export class GenerateMicroserviceService {
         } else {
             dirPath = path.join(__dirname, '../sdk-stub');
         }
-        if (!fs.existsSync(path.join(this.dirPath, 'helpers/grpc.helper.ts'))) {
+        if (!fs.existsSync(path.join(this.config.output, 'helpers/grpc.helper.ts'))) {
             copyFileSync(
                 path.join(dirPath, 'helpers/grpc.helper.ts'),
-                path.join(this.dirPath, 'helpers/grpc.helper.ts')
+                path.join(this.config.output, 'helpers/grpc.helper.ts')
             );
         }
 
         copyFileSync(
             path.join(dirPath, 'types/microservice-option.type.ts'),
-            path.join(this.dirPath, 'types/microservice-option.type.ts')
+            path.join(this.config.output, 'types/microservice-option.type.ts')
         );
     }
 
@@ -98,7 +111,7 @@ export class GenerateMicroserviceService {
     }
 
     writeFile(content: string, filePath: string): void {
-        const microserviceProtoPath = path.join(this.dirPath, filePath);
+        const microserviceProtoPath = path.join(this.config.output, filePath);
         fs.ensureFileSync(microserviceProtoPath);
         fs.writeFileSync(microserviceProtoPath, content);
     }
@@ -208,5 +221,45 @@ export class GenerateMicroserviceService {
         }
 
         return 'void';
+    }
+
+    formatCode() {
+        this.logger.log('Start formatting code');
+        const response = runCommand(`prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts`);
+        if (response.stderr) {
+            this.logger.error(response.stderr);
+        } else {
+            this.logger.log('Format code successfully');
+        }
+    }
+
+    buildCode() {
+        this.logger.log('Start building code');
+        let tsConfigName = 'tsconfig.json';
+        if (this.config.tsconfig) {
+            tsConfigName = 'tsconfig-sdk.json';
+            const tsconfigPath = path.join(process.cwd(), 'tsconfig-sdk.json');
+            writeFileSync(tsconfigPath, JSON.stringify(this.config.tsconfig));
+        }
+        const response = runCommand(`tsc -p ${tsConfigName}`);
+
+        if (this.config.tsconfig) {
+            fs.unlinkSync(path.join(process.cwd(), tsConfigName));
+        }
+
+        if (this.config.removeOutput) {
+            rmSync(path.join(process.cwd(), this.config.output), { recursive: true });
+        }
+
+        copyFileSync(
+            path.join(process.cwd(), this.config.output, 'package.json'),
+            path.join(process.cwd(), this.config.outputBuild, 'package.json')
+        );
+
+        if (response.stderr) {
+            this.logger.error(response.stderr);
+        } else {
+            this.logger.log('Build code successfully');
+        }
     }
 }

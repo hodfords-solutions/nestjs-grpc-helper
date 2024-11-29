@@ -1,0 +1,15 @@
+{
+  "name": "sdkName",
+  "format": true,
+  "build": true,
+  "output": "sdk",
+  "outputBuild": "sdkBuild",
+  "removeOutput": true,
+  "tsconfig": {
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "sdkBuild"
+    },
+    "include": ["sdk"]
+  }
+}
