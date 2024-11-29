@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - feat/support-language-meta-data
 jobs:
   lint:
     uses: hodfords-solutions/actions/.github/workflows/lint.yaml@main

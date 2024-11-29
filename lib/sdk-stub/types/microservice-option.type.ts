@@ -6,10 +6,12 @@ export type MicroserviceModuleOptionType = {
     ssl?: boolean;
     maxReceiveMessageLength?: number;
     shouldLoadEmptyArray?: boolean;
+    enableLanguageMetaData?: boolean;
     requestInitializer?: (metadata: Metadata) => void;
 };
 
 export type MicroserviceClientOptionType = {
     timeout: number;
+    enableLanguageMetaData?: boolean;
     requestInitializer?: (metadata: Metadata) => void;
 };
