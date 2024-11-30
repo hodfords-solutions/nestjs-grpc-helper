@@ -3,8 +3,6 @@ import { firstValueFrom, Observable, timeout } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { trans } from '@hodfords/nestjs-cls-translation';
-// eslint-disable-next-line
-// @ts-ignore Ignore this line to avoid error when build sdk without install grpc-js in root dependencies, (already in package dependencies)
 import { Metadata, status } from '@grpc/grpc-js';
 import { MicroserviceClientOptionType } from '../types/microservice-option.type';
 import { Logger } from '@nestjs/common/services/logger.service';
