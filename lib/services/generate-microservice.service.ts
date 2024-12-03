@@ -262,6 +262,11 @@ export class GenerateMicroserviceService {
             path.join(process.cwd(), this.config.outputBuild, 'package.json')
         );
 
+        copyFileSync(
+            path.join(process.cwd(), this.config.output, 'microservice.proto'),
+            path.join(process.cwd(), this.config.outputBuild, 'microservice.proto')
+        );
+
         if (this.config.tsconfig) {
             fs.unlinkSync(path.join(process.cwd(), tsConfigName));
         }
