@@ -96,7 +96,15 @@ export class GenerateMicroserviceService {
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
             repository: packageFile.repository,
-            scripts: isNeedBuildScript ? { build: 'tsc' } : {}
+            scripts: isNeedBuildScript ? { build: 'tsc' } : {},
+            peerDependencies: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                '@nestjs/common': '*',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                '@nestjs/microservices': '*',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                '@grpc/grpc-js': '*'
+            }
         };
     }
 
