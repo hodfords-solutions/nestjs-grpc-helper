@@ -83,20 +83,21 @@ export class GenerateMicroserviceService {
     }
 
     generatePackageFile() {
+        const sdkPackageFile = this.getPackageJsonContent(!this.config.build);
+        this.writeFile(JSON.stringify(sdkPackageFile), `package.json`);
+    }
+
+    getPackageJsonContent(isNeedBuildScript: boolean) {
         const packageFile = require(path.join(process.cwd(), 'package.json'));
 
-        const sdkPackageFile = {
+        return {
             name: this.config.packageName || packageFile.name,
             version: packageFile.version,
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
             repository: packageFile.repository,
-            scripts: {
-                build: 'tsc'
-            }
+            scripts: isNeedBuildScript ? { build: 'tsc' } : {}
         };
-
-        this.writeFile(JSON.stringify(sdkPackageFile), `package.json`);
     }
 
     generateIndex() {
