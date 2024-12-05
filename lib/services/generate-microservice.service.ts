@@ -103,7 +103,9 @@ export class GenerateMicroserviceService {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 '@nestjs/microservices': '*',
                 // eslint-disable-next-line @typescript-eslint/naming-convention
-                '@grpc/grpc-js': '*'
+                '@grpc/grpc-js': '*',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'class-transformer': '*'
             }
         };
     }
