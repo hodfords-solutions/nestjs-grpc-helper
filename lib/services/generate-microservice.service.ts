@@ -107,6 +107,8 @@ export class GenerateMicroserviceService {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 'class-transformer': '*',
                 // eslint-disable-next-line @typescript-eslint/naming-convention
+                'class-validator': '*',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 '@hodfords/nestjs-cls-translation': '*'
             }
         };

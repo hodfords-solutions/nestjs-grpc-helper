@@ -13,6 +13,7 @@ export class ServiceTemplateService {
         import { ClientGrpc } from '@nestjs/microservices';
         import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
         import { Type } from 'class-transformer';
+        import { Allow } from 'class-validator';
         import { Property, sample, AnyType } from '@hodfords/nestjs-grpc-helper';
         
         ${enumContent}
@@ -104,6 +105,7 @@ export class ServiceTemplateService {
 
         let propertyDecorator = `
             @Property(${propertyOption})
+            @Allow()
         `;
         if (type === 'any') {
             propertyDecorator += `
