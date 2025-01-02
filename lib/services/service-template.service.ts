@@ -2,9 +2,10 @@
 import { isFunction } from '@nestjs/common/utils/shared.utils';
 import { ApiPropertyOptions } from '@nestjs/swagger';
 import { isEnumProperty } from '../helpers/api-property.helper';
+import { SdkBuildConfigType } from '@hodfords/nestjs-grpc-helper';
 
 export class ServiceTemplateService {
-    constructor(private packageName: string) {}
+    constructor(private config: SdkBuildConfigType) {}
 
     templateServiceAndModel(serviceContent: string, modelContent: string, enumContent: string): string {
         return `
@@ -13,7 +14,7 @@ export class ServiceTemplateService {
         import { ClientGrpc } from '@nestjs/microservices';
         import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
         import { Type } from 'class-transformer';
-        import { Allow } from 'class-validator';
+        ${this.config.addAllowDecorator ? "import { Allow } from 'class-validator'" : ''};
         import { Property, sample, AnyType } from '@hodfords/nestjs-grpc-helper';
         
         ${enumContent}
@@ -36,8 +37,8 @@ export class ServiceTemplateService {
         @Injectable()
         export class ${serviceName} {
              constructor(
-                @Inject('${this.packageName}_PACKAGE') private client: ClientGrpc,
-                @Inject('${this.packageName}_OPTIONS') private options: MicroserviceModuleOptionType
+                @Inject('${this.config.packageName}_PACKAGE') private client: ClientGrpc,
+                @Inject('${this.config.packageName}_OPTIONS') private options: MicroserviceModuleOptionType
             ) {}
            ${method.join('\n')}
         }
@@ -103,15 +104,11 @@ export class ServiceTemplateService {
             }
         }
 
-        let propertyDecorator = `
+        const propertyDecorator = `
             @Property(${propertyOption})
-            @Allow()
+            ${this.config.addAllowDecorator ? `@Allow()` : ''}
+            ${type === 'any' ? `@AnyType()` : ''}
         `;
-        if (type === 'any') {
-            propertyDecorator += `
-            @AnyType()
-            `;
-        }
 
         return `
         ${propertyDecorator}
