@@ -29,7 +29,7 @@ export class GenerateMicroserviceService {
 
     constructor(private config: SdkBuildConfigType) {
         this.fileName = kebabCase(this.config.name).toLowerCase();
-        this.serviceTemplateService = new ServiceTemplateService(this.config.name);
+        this.serviceTemplateService = new ServiceTemplateService(this.config);
         this.moduleTemplateService = new ModuleTemplateService(this.config.name, this.fileName);
         this.mockModuleTemplateService = new MockModuleTemplateService(this.config.name, this.fileName);
         this.config = {
@@ -83,12 +83,29 @@ export class GenerateMicroserviceService {
     }
 
     generatePackageFile() {
-        const sdkPackageFile = this.getPackageJsonContent(!this.config.build);
+        const sdkPackageFile = this.getPackageJsonContent();
         this.writeFile(JSON.stringify(sdkPackageFile), `package.json`);
     }
 
-    getPackageJsonContent(isNeedBuildScript: boolean) {
+    getPackageJsonContent() {
         const packageFile = require(path.join(process.cwd(), 'package.json'));
+
+        const peerDependencies = {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@nestjs/common': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@nestjs/microservices': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@grpc/grpc-js': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'class-transformer': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@hodfords/nestjs-cls-translation': '*'
+        };
+
+        if (this.config.addAllowDecorator) {
+            peerDependencies['class-validator'] = '*';
+        }
 
         return {
             name: this.config.packageName || packageFile.name,
@@ -96,21 +113,8 @@ export class GenerateMicroserviceService {
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
             repository: packageFile.repository,
-            scripts: isNeedBuildScript ? { build: 'tsc' } : {},
-            peerDependencies: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                '@nestjs/common': '*',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                '@nestjs/microservices': '*',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                '@grpc/grpc-js': '*',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                'class-transformer': '*',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                'class-validator': '*',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                '@hodfords/nestjs-cls-translation': '*'
-            }
+            scripts: this.config.build ? {} : { build: 'tsc' },
+            peerDependencies: peerDependencies
         };
     }
 

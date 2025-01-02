@@ -3,6 +3,7 @@ export type SdkBuildConfigType = {
     packageName: string;
     format?: boolean;
     build?: boolean;
+    addAllowDecorator?: boolean;
     output: string;
     outputBuild?: string;
     removeOutput?: boolean;

@@ -53,10 +53,46 @@ data: any;
 
 ### Create SDK
 
-To generate a TypeScript SDK for your gRPC services, use the following command:
+To generate a TypeScript SDK for your gRPC services, you can use the `make-sdk` command. This command will automatically generate the necessary proto files and package them into a JavaScript SDK.
+You also need the following configuration in your sdk-config.json file:
 
+```json
+{
+  "name": "sdkName",
+  "packageName": "@hodfords/package-name",
+  "format": true,
+  "build": true,
+  "output": "sdk",
+  "outputBuild": "sdkBuild",
+  "removeOutput": true,
+  "addAllowDecorator": true,
+  "tsconfig": {
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "sdkBuild"
+    },
+    "include": ["sdk"]
+  }
+}
+```
+Details of the configuration:
+
+| Field             | Description                                           |
+|-------------------|-------------------------------------------------------|
+| name              | Name of the SDK                                       |
+| packageName       | Name of the package                                   |
+| format            | Format the generated code                             |
+| build             | Build the generated code                              |
+| output            | Output directory for the generated code               |
+| outputBuild       | Output directory for the built code                   |
+| removeOutput      | Remove the output directory                           |
+| addAllowDecorator | Add the allow decorator, need class-validator package |
+| tsconfig          | TypeScript configuration                              |
+
+
+To generate the SDK, run the following command:
 ```shell
-npm run wz-command make-sdk <package-name> <folder>
+npm run wz-command make-sdk
 ```
 
 #### What this command does
