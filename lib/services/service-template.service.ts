@@ -2,7 +2,7 @@
 import { isFunction } from '@nestjs/common/utils/shared.utils';
 import { ApiPropertyOptions } from '@nestjs/swagger';
 import { isEnumProperty } from '../helpers/api-property.helper';
-import { SdkBuildConfigType } from '@hodfords/nestjs-grpc-helper';
+import { PropertyOptionType, SdkBuildConfigType } from '@hodfords/nestjs-grpc-helper';
 
 export class ServiceTemplateService {
     constructor(private config: SdkBuildConfigType) {}
@@ -58,7 +58,7 @@ export class ServiceTemplateService {
     }
 
     enumTemplate(options: ApiPropertyOptions): string {
-        const { enum: properties, enumName, type } = options;
+        const { enum: properties, enumName, type } = options as PropertyOptionType;
         const valueFormatter = (value: any) => (type === 'string' ? `'${value}'` : value);
         return `
                 export enum ${enumName} {

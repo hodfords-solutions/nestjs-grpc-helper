@@ -18,6 +18,11 @@ export function Property(option: PropertyOptionType): PropertyDecorator {
             option.type = 'bool';
         }
 
+        //@TODO: Need to recheck
+        if (option.type === 'string' && option?.default === 'any') {
+            option.type = 'any';
+        }
+
         addPropertyToStorage(target.constructor, propertyName, option);
     };
 }
