@@ -37,7 +37,7 @@ export class MicroserviceDocumentModule {
                         ClientsModule.register([{ name: 'HERO_PACKAGE', ...options.clientOptions }]),
                         ServeStaticModule.forRoot({
                             rootPath: path.resolve(__dirname, `../frontend`),
-                            renderPath: '/*',
+                            renderPath: '/{*splat}',
                             serveRoot: serveRoot
                         })
                     ]

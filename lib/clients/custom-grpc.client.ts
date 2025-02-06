@@ -332,4 +332,13 @@ export class CustomGrpcClient extends ClientProxy implements ClientGrpc {
             'Method is not supported in gRPC mode. Use ClientGrpc instead (learn more in the documentation).'
         );
     }
+
+    //@TODO: Need to recheck
+    unwrap<T>(): T {
+        const firstClient = Array.from(this.clients.values())[0];
+        if (!firstClient) {
+            throw new Error('No underlying client available.');
+        }
+        return firstClient as T;
+    }
 }
