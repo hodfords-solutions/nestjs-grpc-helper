@@ -1,6 +1,6 @@
-import { ApiPropertyOptions } from '@nestjs/swagger';
 import { isEmpty } from 'lodash';
+import { PropertyOptionType } from '@hodfords/nestjs-grpc-helper';
 
-export function isEnumProperty(options: ApiPropertyOptions): boolean {
+export function isEnumProperty(options: PropertyOptionType): boolean {
     return !isEmpty(options.enum) && !isEmpty(options.enumName);
 }
