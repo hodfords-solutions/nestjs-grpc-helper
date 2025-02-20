@@ -3,70 +3,42 @@ import { isFunction } from '@nestjs/common/utils/shared.utils';
 import { ApiPropertyOptions } from '@nestjs/swagger';
 import { isEnumProperty } from '../helpers/api-property.helper';
 import { PropertyOptionType } from '@hodfords/nestjs-grpc-helper';
+import { HbsGeneratorService } from './hbs-generator.service';
 
-export class ServiceTemplateService {
-    constructor(private packageName: string) {}
-
-    templateServiceAndModel(serviceContent: string, modelContent: string, enumContent: string): string {
-        return `
-        import { GrpcHelper } from '../helpers/grpc.helper';
-        import { Inject, Injectable } from '@nestjs/common';
-        import { ClientGrpc } from '@nestjs/microservices';
-        import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
-        import { Type } from 'class-transformer';
-        import { Property, sample, AnyType } from '@hodfords/nestjs-grpc-helper';
-        
-        ${enumContent}
-
-        ${modelContent}
-        
-        ${serviceContent}
-        `;
+export class ServiceTemplateService extends HbsGeneratorService {
+    constructor(private packageName: string) {
+        super();
     }
 
-    templateService(serviceName: string, method: string[], isMock: boolean): string {
-        if (isMock) {
-            return `
-        export class Mock${serviceName} {
-           ${method.join('\n')}
-        }
-        `;
-        }
-        return `
-        @Injectable()
-        export class ${serviceName} {
-             constructor(
-                @Inject('${this.packageName}_PACKAGE') private client: ClientGrpc,
-                @Inject('${this.packageName}_OPTIONS') private options: MicroserviceModuleOptionType
-            ) {}
-           ${method.join('\n')}
-        }
-        `;
+    templateServiceAndModel(serviceContent, modelContent, enumContent): string {
+        const data = {
+            enumContent,
+            modelContent,
+            serviceContent
+        };
+
+        return this.compileTemplate('./service-template.hbs', data);
     }
 
-    modelTemplate(name: string, properties: string[], parentClass: Function): string {
+    modelTemplate(name: string, properties: string[], parentClass: Function) {
         let extendClass = '';
         if (parentClass.name) {
             extendClass = `extends ${parentClass.name}`;
         }
-        return `
-                export class ${name} ${extendClass} {
-                    ${properties.join('\n')}
-                }
-            `;
+
+        return { name, properties, extendClass };
     }
 
-    enumTemplate(options: ApiPropertyOptions): string {
+    enumTemplate(options: ApiPropertyOptions) {
         const { enum: properties, enumName, type } = options as PropertyOptionType;
         const valueFormatter = (value: any) => (type === 'string' ? `'${value}'` : value);
-        return `
-                export enum ${enumName} {
-                    ${Object.keys(properties)
-                        .filter((key) => !parseInt(key))
-                        .map((key) => `${key} = ${valueFormatter(properties[key])}`)
-                        .join(',\n')}
-                }
-            `;
+
+        return {
+            enumName,
+            keys: Object.keys(properties)
+                .filter((key) => !parseInt(key))
+                .map((key) => `${key} = ${valueFormatter(properties[key])}`)
+        };
     }
 
     propertyTemplate(property, type: string): string {

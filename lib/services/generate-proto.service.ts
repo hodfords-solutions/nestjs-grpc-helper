@@ -5,26 +5,25 @@ import * as fs from 'fs-extra';
 import path from 'path';
 import { extractProperties } from '../helpers/property.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
+import { HbsGeneratorService } from './hbs-generator.service';
 
-export class GenerateProtoService {
+export class GenerateProtoService extends HbsGeneratorService {
     constructor(
         private packageName: string,
         private dirPath: string
-    ) {}
+    ) {
+        super();
+    }
 
     generate(): void {
         let microserviceContent = this.generateMicroservices();
         const modelContent = this.generateModels();
-        const headerContent = `
-        syntax = "proto3";
-        import "google/protobuf/empty.proto";
-        package ${this.packageName};
-        `;
-        microserviceContent = `
-            ${headerContent}
-            ${microserviceContent}
-            ${modelContent}
-        `
+
+        microserviceContent = this.compileTemplate('proto-service-definition.hbs', {
+            packageName: this.packageName,
+            microserviceContent,
+            modelContent
+        })
             .replaceAll('        ', '')
             .trim();
         const microserviceProtoPath = path.join(this.dirPath, 'microservice.proto');
@@ -50,15 +49,10 @@ export class GenerateProtoService {
             )
             .join('\n\t');
 
-        return `
-                message ${dto.name} {
-                    ${propertyContent}
-                }
-                message Proto${dto.name}List {
-                    repeated ${dto.name} items = 1;
-                    bool grpcArray = 2;
-                }
-            `;
+        return this.compileTemplate('service-interface.hbs', {
+            propertyContent,
+            name: dto.name
+        });
     }
 
     getProtoType(type): string {
@@ -94,11 +88,10 @@ export class GenerateProtoService {
             return '';
         }
 
-        return `
-        service ${constructor.name} {
-            ${rpcMethods.join('\n\t')}
-        }
-        `;
+        return this.compileTemplate('grpc-service-template.hbs', {
+            name: constructor.name,
+            rpcMethods
+        });
     }
 
     generateRpcMethod(constructor, propertyKey: string): string {
