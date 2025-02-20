@@ -1,0 +1,17 @@
+// Import module
+
+{{moduleName}}Module.register({
+    timeout: 5000,
+    url: 'localhost:50051'
+})
+
+// Use in service
+export class ExampleService {
+    constructor(private {{packageName}}Microservice: {{moduleName}}Microservice) {
+        
+    }
+    
+    findOne() {
+        return this.{{packageName}}Microservice.findOne({ id: 1 });
+    }
+}

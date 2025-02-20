@@ -1,0 +1,9 @@
+{{#if params}}
+    async {{method}}(param: {{params}}): Promise<{{returnType}}> {
+        {{{body}}}
+    }
+{{else}}
+    async {{method}}(): Promise<{{returnType}}> {
+        {{{body}}}
+    }
+{{/if}}

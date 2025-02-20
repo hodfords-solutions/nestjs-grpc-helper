@@ -14,11 +14,14 @@ import {
 import { camelCase, cloneDeep, upperFirst } from 'lodash';
 import { randomUUID } from 'crypto';
 import { getPropertiesOfClass } from '../helpers/property.helper';
+import { HbsGeneratorService } from './hbs-generator.service';
 
-export class GenerateDocumentService {
+export class GenerateDocumentService extends HbsGeneratorService {
     private document: DocumentType;
 
-    constructor(private packageName: string) {}
+    constructor(private packageName: string) {
+        super();
+    }
 
     generate() {
         const moduleName = upperFirst(camelCase(this.packageName));
@@ -29,25 +32,10 @@ export class GenerateDocumentService {
             package: this.packageName,
             description: packageFile.description,
             installDescription: `npm install --save ${packageFile.name}:${packageFile.version}`,
-            usageDescription: `
-                //Import module
-                
-                ${moduleName}Module.register({
-                    timeout: 5000,
-                    url: 'localhost:50051'
-                })
-                
-                // Use in service
-                export class ExampleService {
-                    constructor(private ${camelCase(this.packageName)}Microservice: ${moduleName}Microservice) {
-                        
-                    }
-                    
-                    findOne() {
-                        return this.${camelCase(this.packageName)}Microservice.findOne({ id: 1 });
-                    }
-                }
-            `.replaceAll('                ', ''),
+            usageDescription: this.compileTemplate('usage-doc-template.hbs', {
+                moduleName,
+                package: camelCase(this.packageName).replaceAll('                ', '')
+            }),
             microservices: [],
             models: []
         };
