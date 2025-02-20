@@ -1,0 +1,45 @@
+import { GrpcHelper } from '../helpers/grpc.helper';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
+import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
+import { Type } from 'class-transformer';
+import { Property, AnyType, sample } from '@hodfords/nestjs-grpc-helper';
+
+{{#each serviceContent}}
+  {{#if isMock}}
+  export class Mock{{ serviceName }} {
+    {{#each methods}}
+      {{{this}}}
+    {{/each}}
+  }
+  {{else}}
+  @Injectable()
+  export class {{ serviceName }} {
+    constructor(
+      @Inject('{{ ../packageName }}_PACKAGE') private client: ClientGrpc,
+      @Inject('{{ ../packageName }}_OPTIONS') private options: MicroserviceModuleOptionType
+    ) {}
+
+    {{#each methods}}
+        {{{this}}}
+    {{/each}}
+  }
+  {{/if}} 
+{{/each}}
+
+{{#each modelContent}}
+export class {{ name }} {
+   {{#each properties}}
+        {{{this}}}
+    {{/each}}
+}
+{{/each}}
+
+
+{{#each enumContent}}
+export enum {{ enumName }} {
+  {{#each keys}}
+    {{{this}}},
+  {{/each}}
+}
+{{/each}}
