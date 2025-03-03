@@ -1,0 +1,12 @@
+import { Module, Global } from '@nestjs/common';
+import { {{#each importServices}}{{this}}{{#unless @last}},{{/unless}}{{/each}} } from './services/{{fileName}}.service';
+
+@Global()
+@Module({
+    providers: [
+        {{providers}}
+    ],
+    exports: [{{#each services}}{{this}}{{#unless @last}},{{/unless}}{{/each}}]
+})
+export class Mock{{moduleName}}Module {
+}

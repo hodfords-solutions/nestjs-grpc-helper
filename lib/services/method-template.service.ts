@@ -1,6 +1,11 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
+import { HbsGeneratorService } from './hbs-generator.service';
 
-export class MethodTemplateService {
+export class MethodTemplateService extends HbsGeneratorService {
+    constructor() {
+        super();
+    }
+
     templateBody(
         response: ResponseMetadata,
         serviceName: string,
@@ -8,45 +13,16 @@ export class MethodTemplateService {
         parameterName: string,
         parameterType: string
     ): string {
-        if (response) {
-            if (response.isArray) {
-                return `
-                    return await GrpcHelper.with(this.client, ${response.responseClass.name}, this.options)
-                        .service('${serviceName}')
-                        .method('${method}')
-                        .data(${parameterName ? 'param' : '{}'}${parameterType ? ', ' + parameterType : ''})
-                        .getMany();
-                    `;
-            } else {
-                return `
-                    return await GrpcHelper.with(this.client, ${response.responseClass.name}, this.options)
-                        .service('${serviceName}')
-                        .method('${method}')
-                        .data(${parameterName ? 'param' : '{}'}${parameterType ? ', ' + parameterType : ''})
-                        .getOne();
-                    `;
-            }
-        } else {
-            return `
-            await GrpcHelper.with(this.client, null as any, this.options)
-                        .service('${serviceName}')
-                        .method('${method}')
-                        .data(${parameterName ? 'param' : '{}'}${parameterType ? ', ' + parameterType : ''})
-                        .getMany();
-            `;
-        }
+        return this.compileTemplate('body-method-template.hbs', {
+            response,
+            serviceName,
+            method,
+            parameterName,
+            parameterType
+        });
     }
 
     methodTemplate(method: string, params: string, returnType: string, body: string): string {
-        if (params) {
-            return `
-            async ${method}(param: ${params}): Promise<${returnType}> {
-                ${body}
-            }`;
-        }
-        return `
-            async ${method}(): Promise<${returnType}> {
-                ${body}
-            }`;
+        return this.compileTemplate('method-template.hbs', { method, params, returnType, body });
     }
 }
