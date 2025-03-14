@@ -23,11 +23,6 @@ export function convertProtoTypeToTypescript(option: PropertyOptionType, isGener
     }
 
     if (isString(option.type)) {
-        const numberTypes = ['int32', 'fixed32', 'uint32', 'int64', 'fixed64', 'uint64', 'float', 'double'];
-        if (numberTypes.includes(option.format)) {
-            type = 'number';
-        }
-
         if (option.type == 'bool') {
             type = 'boolean';
         }

@@ -6,6 +6,8 @@ import path from 'path';
 import { extractProperties } from '../helpers/property.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
 import { HbsGeneratorService } from './hbs-generator.service';
+import { PropertyOptionType } from 'lib/types/property-option.type';
+import { isNil } from 'lodash';
 
 export class GenerateProtoService extends HbsGeneratorService {
     constructor(
@@ -43,7 +45,7 @@ export class GenerateProtoService extends HbsGeneratorService {
         const propertyContent = properties
             .map(
                 (property, index) =>
-                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(property.option.type)} ${
+                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(property.option)} ${
                         property.name
                     } = ${index + 1};`
             )
@@ -55,15 +57,22 @@ export class GenerateProtoService extends HbsGeneratorService {
         });
     }
 
-    getProtoType(type): string {
+    getProtoType(option: PropertyOptionType): string {
+        const { type, format } = option;
+
         if (isFunction(type)) {
             if (type.name === 'type') {
                 return (type as any)().name;
             }
             return type.name;
         }
-        if (type === 'any') {
+
+        if (format === 'any') {
             return 'string';
+        }
+
+        if (type === 'number' && !isNil(format)) {
+            return format;
         }
 
         return type;
