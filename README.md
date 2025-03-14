@@ -46,7 +46,7 @@ export class UserMicroservice {
 You can use any type if fixed types are not an option. However, since it’s passed as JSON, the performance may not be as optimal as with binary. Consider using binary if performance is a concern.
 
 ```typescript
-@Property({ type: 'any', required: false })
+@Property({ type: String, format: 'any', required: false })
 @AnyType()
 data: any;
 ```

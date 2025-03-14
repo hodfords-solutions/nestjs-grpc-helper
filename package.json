@@ -1,6 +1,6 @@
 {
   "name": "@hodfords/nestjs-grpc-helper",
-  "version": "11.0.1",
+  "version": "11.1.0",
   "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
   "author": "",
   "license": "UNLICENSED",
