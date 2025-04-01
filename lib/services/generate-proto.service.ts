@@ -5,26 +5,27 @@ import * as fs from 'fs-extra';
 import path from 'path';
 import { extractProperties } from '../helpers/property.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
+import { HbsGeneratorService } from './hbs-generator.service';
+import { PropertyOptionType } from 'lib/types/property-option.type';
+import { isNil } from 'lodash';
 
-export class GenerateProtoService {
+export class GenerateProtoService extends HbsGeneratorService {
     constructor(
         private packageName: string,
         private dirPath: string
-    ) {}
+    ) {
+        super();
+    }
 
     generate(): void {
         let microserviceContent = this.generateMicroservices();
         const modelContent = this.generateModels();
-        const headerContent = `
-        syntax = "proto3";
-        import "google/protobuf/empty.proto";
-        package ${this.packageName};
-        `;
-        microserviceContent = `
-            ${headerContent}
-            ${microserviceContent}
-            ${modelContent}
-        `
+
+        microserviceContent = this.compileTemplate('proto-service-definition.hbs', {
+            packageName: this.packageName,
+            microserviceContent,
+            modelContent
+        })
             .replaceAll('        ', '')
             .trim();
         const microserviceProtoPath = path.join(this.dirPath, 'microservice.proto');
@@ -44,32 +45,34 @@ export class GenerateProtoService {
         const propertyContent = properties
             .map(
                 (property, index) =>
-                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(property.option.type)} ${
+                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(property.option)} ${
                         property.name
                     } = ${index + 1};`
             )
             .join('\n\t');
 
-        return `
-                message ${dto.name} {
-                    ${propertyContent}
-                }
-                message Proto${dto.name}List {
-                    repeated ${dto.name} items = 1;
-                    bool grpcArray = 2;
-                }
-            `;
+        return this.compileTemplate('service-interface.hbs', {
+            propertyContent,
+            name: dto.name
+        });
     }
 
-    getProtoType(type): string {
+    getProtoType(option: PropertyOptionType): string {
+        const { type, format } = option;
+
         if (isFunction(type)) {
             if (type.name === 'type') {
                 return (type as any)().name;
             }
             return type.name;
         }
-        if (type === 'any') {
+
+        if (format === 'any') {
             return 'string';
+        }
+
+        if (type === 'number' && !isNil(format)) {
+            return format;
         }
 
         return type;
@@ -94,11 +97,10 @@ export class GenerateProtoService {
             return '';
         }
 
-        return `
-        service ${constructor.name} {
-            ${rpcMethods.join('\n\t')}
-        }
-        `;
+        return this.compileTemplate('grpc-service-template.hbs', {
+            name: constructor.name,
+            rpcMethods
+        });
     }
 
     generateRpcMethod(constructor, propertyKey: string): string {

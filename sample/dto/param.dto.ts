@@ -47,7 +47,7 @@ export class AnyDto {
     @IsString()
     name: string;
 
-    @Property({ type: 'string', default: 'any' })
+    @Property({ type: 'string', format: 'any' })
     @AnyType()
     data: any;
 }
