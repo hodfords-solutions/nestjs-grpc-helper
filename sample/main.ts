@@ -8,7 +8,8 @@ import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-confi
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 generateProtoService('HERO', path.join(__dirname, '../../proto'));
-generateSdk('HERO', path.join(__dirname, '../../sdk'));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+generateSdk(require(path.join(__dirname, '../sdk-config.json')));
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);

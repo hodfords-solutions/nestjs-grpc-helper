@@ -79,8 +79,10 @@ export class ServiceTemplateService extends HbsGeneratorService {
             }
         }
 
-        let propertyDecorator = `
+        const propertyDecorator = `
             @Property(${propertyOption})
+            ${this.config.addAllowDecorator ? `@Allow()` : ''}
+            ${type === 'any' ? `@AnyType()` : ''}
         `;
         if (isAnyType) {
             propertyDecorator += `

@@ -1,0 +1,17 @@
+{
+  "name": "sdkName",
+  "packageName": "@hodfords/nestjs-grpc-helper",
+  "format": true,
+  "build": false,
+  "output": "sdk",
+  "outputBuild": "sdkBuild",
+  "removeOutput": true,
+  "addAllowDecorator": true,
+  "tsconfig": {
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "sdkBuild"
+    },
+    "include": ["sdk"]
+  }
+}

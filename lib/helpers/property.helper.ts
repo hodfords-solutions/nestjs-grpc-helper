@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { isFunction } from '@nestjs/common/utils/shared.utils';
 import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { PropertyOptionType, PropertyType } from '@hodfords/nestjs-grpc-helper';
 import { differenceBy } from 'lodash';
+import { PropertyOptionType, PropertyType } from '../types/property-option.type';
 
 export function getClassHasProperties() {
     return propertyStorage.keys();

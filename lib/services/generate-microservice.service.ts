@@ -3,7 +3,7 @@
 import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
-import { copyFileSync } from 'fs';
+import { copyFileSync, rmSync, writeFileSync } from 'fs';
 import * as fs from 'fs-extra';
 import { kebabCase } from 'lodash';
 import path from 'path';
@@ -22,6 +22,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     private moduleTemplateService: ModuleTemplateService;
     private mockModuleTemplateService: MockModuleTemplateService;
     private fileName = '';
+    private logger = new Logger(this.constructor.name);
 
     constructor(
         private packageName: string,
@@ -35,7 +36,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generate(): void {
-        generateProtoService(this.packageName, this.dirPath);
+        generateProtoService(this.config.name, this.config.output);
         this.generateIndex();
         const serviceContent = this.generateServices();
         this.generateModule();
@@ -45,12 +46,18 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         this.writeFile(content, `services/${this.fileName}.service.ts`);
         this.copySdk();
         this.generatePackageFile();
+        if (this.config.format) {
+            this.formatCode();
+        }
+        if (this.config.build) {
+            this.buildCode();
+        }
     }
 
     copySdk(): void {
-        fs.ensureDirSync(path.join(this.dirPath, 'helpers'));
-        fs.ensureDirSync(path.join(this.dirPath, 'types'));
-        fs.ensureDirSync(path.join(this.dirPath, 'constants'));
+        fs.ensureDirSync(path.join(this.config.output, 'helpers'));
+        fs.ensureDirSync(path.join(this.config.output, 'types'));
+        fs.ensureDirSync(path.join(this.config.output, 'constants'));
 
         let dirPath = __dirname;
         if (fs.existsSync(path.join(__dirname, '../../sdk-stub/helpers/grpc.helper.ts'))) {
@@ -58,34 +65,53 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         } else {
             dirPath = path.join(__dirname, '../sdk-stub');
         }
-        if (!fs.existsSync(path.join(this.dirPath, 'helpers/grpc.helper.ts'))) {
+        if (!fs.existsSync(path.join(this.config.output, 'helpers/grpc.helper.ts'))) {
             copyFileSync(
                 path.join(dirPath, 'helpers/grpc.helper.ts'),
-                path.join(this.dirPath, 'helpers/grpc.helper.ts')
+                path.join(this.config.output, 'helpers/grpc.helper.ts')
             );
         }
 
         copyFileSync(
             path.join(dirPath, 'types/microservice-option.type.ts'),
-            path.join(this.dirPath, 'types/microservice-option.type.ts')
+            path.join(this.config.output, 'types/microservice-option.type.ts')
         );
     }
 
     generatePackageFile() {
+        const sdkPackageFile = this.getPackageJsonContent();
+        this.writeFile(JSON.stringify(sdkPackageFile), `package.json`);
+    }
+
+    getPackageJsonContent() {
         const packageFile = require(path.join(process.cwd(), 'package.json'));
 
-        const sdkPackageFile = {
-            name: packageFile.name,
+        const peerDependencies = {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@nestjs/common': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@nestjs/microservices': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@grpc/grpc-js': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            'class-transformer': '*',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '@hodfords/nestjs-cls-translation': '*'
+        };
+
+        if (this.config.addAllowDecorator) {
+            peerDependencies['class-validator'] = '*';
+        }
+
+        return {
+            name: this.config.packageName || packageFile.name,
             version: packageFile.version,
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
             repository: packageFile.repository,
-            scripts: {
-                build: 'tsc'
-            }
+            scripts: this.config.build ? {} : { build: 'tsc' },
+            peerDependencies: peerDependencies
         };
-
-        this.writeFile(JSON.stringify(sdkPackageFile), `package.json`);
     }
 
     generateIndex() {
@@ -96,7 +122,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     writeFile(content: string, filePath: string): void {
-        const microserviceProtoPath = path.join(this.dirPath, filePath);
+        const microserviceProtoPath = path.join(this.config.output, filePath);
         fs.ensureFileSync(microserviceProtoPath);
         fs.writeFileSync(microserviceProtoPath, content);
     }
@@ -206,5 +232,55 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         }
 
         return 'void';
+    }
+
+    formatCode() {
+        this.logger.log('Start formatting code');
+        const response = runCommand(
+            `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`
+        );
+        if (response.stderr) {
+            this.logger.error(response.stderr);
+        } else {
+            this.logger.log('Format code successfully');
+        }
+    }
+
+    buildCode() {
+        this.logger.log('Start building code');
+
+        rmSync(path.join(process.cwd(), this.config.outputBuild), { recursive: true, force: true });
+
+        let tsConfigName = 'tsconfig.json';
+        if (this.config.tsconfig) {
+            tsConfigName = 'tsconfig-sdk.json';
+            const tsconfigPath = path.join(process.cwd(), 'tsconfig-sdk.json');
+            writeFileSync(tsconfigPath, JSON.stringify(this.config.tsconfig));
+        }
+        const response = runCommand(`tsc -p ${tsConfigName}`);
+
+        copyFileSync(
+            path.join(process.cwd(), this.config.output, 'package.json'),
+            path.join(process.cwd(), this.config.outputBuild, 'package.json')
+        );
+
+        copyFileSync(
+            path.join(process.cwd(), this.config.output, 'microservice.proto'),
+            path.join(process.cwd(), this.config.outputBuild, 'microservice.proto')
+        );
+
+        if (this.config.tsconfig) {
+            fs.unlinkSync(path.join(process.cwd(), tsConfigName));
+        }
+
+        if (this.config.removeOutput) {
+            rmSync(path.join(process.cwd(), this.config.output), { recursive: true });
+        }
+
+        if (response.stderr) {
+            this.logger.error(response.stderr);
+        } else {
+            this.logger.log('Build code successfully');
+        }
     }
 }
