@@ -25,7 +25,7 @@ export class {{moduleName}}Module {
                 ClientsModule.register([
                     {
                         name: '{{packageName}}_PACKAGE',
-                        customClass: CustomGrpcClient,
+                        customClass: CustomGrpcClient as any,
                         options: {
                             url: options.url,
                             package: '{{packageName}}',
