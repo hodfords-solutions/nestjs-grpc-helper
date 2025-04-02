@@ -2,20 +2,24 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
+import { Logger } from '@nestjs/common';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { copyFileSync, rmSync, writeFileSync } from 'fs';
 import * as fs from 'fs-extra';
 import { kebabCase } from 'lodash';
+import * as process from 'node:process';
 import path from 'path';
+import { isEnumProperty } from '../helpers/api-property.helper';
 import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
+import { runCommand } from '../helpers/shell.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type';
+import { HbsGeneratorService } from './hbs-generator.service';
 import { MethodTemplateService } from './method-template.service';
 import { MockMethodTemplateService } from './mock-method-template.service';
 import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
-import { isEnumProperty } from '../helpers/api-property.helper';
-import { HbsGeneratorService } from './hbs-generator.service';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -24,15 +28,17 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     private fileName = '';
     private logger = new Logger(this.constructor.name);
 
-    constructor(
-        private packageName: string,
-        private dirPath: string
-    ) {
+    constructor(private config: SdkBuildConfigType) {
         super();
-        this.fileName = kebabCase(this.packageName).toLowerCase();
-        this.serviceTemplateService = new ServiceTemplateService(packageName);
-        this.moduleTemplateService = new ModuleTemplateService(packageName, this.fileName);
-        this.mockModuleTemplateService = new MockModuleTemplateService(packageName, this.fileName);
+        this.fileName = kebabCase(this.config.name).toLowerCase();
+        this.serviceTemplateService = new ServiceTemplateService(this.config);
+        this.moduleTemplateService = new ModuleTemplateService(this.config.name, this.fileName);
+        this.mockModuleTemplateService = new MockModuleTemplateService(this.config.name, this.fileName);
+        this.config = {
+            build: false,
+            format: false,
+            ...config
+        };
     }
 
     generate(): void {
