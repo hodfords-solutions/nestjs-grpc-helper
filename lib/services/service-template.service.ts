@@ -15,6 +15,7 @@ export class ServiceTemplateService extends HbsGeneratorService {
             enumContent,
             modelContent,
             serviceContent,
+            packageName: this.config.name,
             addAllowDecorator: this.config.addAllowDecorator
         };
 
