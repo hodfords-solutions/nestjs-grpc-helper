@@ -1,37 +1,27 @@
 import { camelCase, upperFirst } from 'lodash';
+import { HbsGeneratorService } from './hbs-generator.service';
 
-export class MockModuleTemplateService {
+export class MockModuleTemplateService extends HbsGeneratorService {
     constructor(
         private packageName: string,
         private fileName: string
-    ) {}
+    ) {
+        super();
+    }
 
     template(services: string[]) {
         const moduleName = upperFirst(camelCase(this.packageName));
-        const providers = services
-            .map(
-                (service) => `{
-                    provide: ${service},
-                    useClass: Mock${service}
-                }`
-            )
-            .join(',');
+        const providers = this.compileTemplate('mock-providers-template.hbs', { services });
         const mockServices = services.map((service) => `Mock${service}`);
-        const importServices = [...services, ...mockServices].join(',');
+        const importServices = [...services, ...mockServices];
 
-        return `
-        import { Module, Global } from '@nestjs/common';
-        import { ${importServices} } from './services/${this.fileName}.service';
-
-        @Global()
-        @Module({
-            providers: [
-                ${providers}
-            ],
-            exports: [${services.join(',')}]
-        })
-        export class Mock${moduleName}Module {
-        }
-        `;
+        return this.compileTemplate('mock-module-template.hbs', {
+            moduleName,
+            providers,
+            importServices,
+            packageName: this.packageName,
+            services,
+            fileName: this.fileName
+        });
     }
 }

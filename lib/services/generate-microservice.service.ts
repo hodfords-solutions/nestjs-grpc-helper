@@ -2,25 +2,26 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
+import { Logger } from '@nestjs/common';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { copyFileSync, rmSync, writeFileSync } from 'fs';
 import * as fs from 'fs-extra';
 import { kebabCase } from 'lodash';
+import * as process from 'node:process';
 import path from 'path';
+import { isEnumProperty } from '../helpers/api-property.helper';
 import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
+import { runCommand } from '../helpers/shell.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type';
+import { HbsGeneratorService } from './hbs-generator.service';
 import { MethodTemplateService } from './method-template.service';
 import { MockMethodTemplateService } from './mock-method-template.service';
 import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
-import { isEnumProperty } from '../helpers/api-property.helper';
-import { SdkBuildConfigType } from '../types/sdk-build-config.type';
-import { runCommand } from '../helpers/shell.helper';
-import * as process from 'node:process';
-import { Logger } from '@nestjs/common';
 
-export class GenerateMicroserviceService {
+export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
     private moduleTemplateService: ModuleTemplateService;
     private mockModuleTemplateService: MockModuleTemplateService;
@@ -28,6 +29,7 @@ export class GenerateMicroserviceService {
     private logger = new Logger(this.constructor.name);
 
     constructor(private config: SdkBuildConfigType) {
+        super();
         this.fileName = kebabCase(this.config.name).toLowerCase();
         this.serviceTemplateService = new ServiceTemplateService(this.config);
         this.moduleTemplateService = new ModuleTemplateService(this.config.name, this.fileName);
@@ -42,12 +44,12 @@ export class GenerateMicroserviceService {
     generate(): void {
         generateProtoService(this.config.name, this.config.output);
         this.generateIndex();
-        let serviceContent = this.generateServices();
+        const serviceContent = this.generateServices();
         this.generateModule();
         const modelContent = this.generateModels();
         const enumContent = this.generateEnums();
-        serviceContent = this.serviceTemplateService.templateServiceAndModel(serviceContent, modelContent, enumContent);
-        this.writeFile(serviceContent, `services/${this.fileName}.service.ts`);
+        const content = this.serviceTemplateService.templateServiceAndModel(serviceContent, modelContent, enumContent);
+        this.writeFile(content, `services/${this.fileName}.service.ts`);
         this.copySdk();
         this.generatePackageFile();
         if (this.config.format) {
@@ -119,13 +121,9 @@ export class GenerateMicroserviceService {
     }
 
     generateIndex() {
-        const indexContent = `
-        export * from './helpers/grpc.helper'
-        export * from './${this.fileName}.module'
-        export * from './${this.fileName}.mock.module'
-        export * from './services/${this.fileName}.service';
-        export * from './types/microservice-option.type';
-        `;
+        const indexContent = this.compileTemplate('./index-template.hbs', {
+            fileName: this.fileName
+        });
         this.writeFile(indexContent, `index.ts`);
     }
 
@@ -144,15 +142,15 @@ export class GenerateMicroserviceService {
         this.writeFile(this.mockModuleTemplateService.template(services), `${this.fileName}.mock.module.ts`);
     }
 
-    generateModels(): string {
+    generateModels() {
         const dtoWithProperties = extractProperties();
-        const content = Object.keys(dtoWithProperties).map((name) =>
+        const contents = Object.keys(dtoWithProperties).map((name) =>
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
-        return content.reverse().join('\n');
+        return contents;
     }
 
-    generateModel(dto: Function, properties): string {
+    generateModel(dto: Function, properties) {
         const propertyContents = properties.map((property) => {
             const type = convertProtoTypeToTypescript(property.option, true);
             return this.serviceTemplateService.propertyTemplate(property, type);
@@ -161,11 +159,11 @@ export class GenerateMicroserviceService {
         return this.serviceTemplateService.modelTemplate(dto.name, propertyContents, parentClass);
     }
 
-    generateEnums(): string {
+    generateEnums() {
         const dtoWithProperties = extractProperties();
         const properties = Object.values(dtoWithProperties).flat();
         const generatedEnumAuditor = new Set<string>();
-        const contents: string[] = [];
+        const contents = [];
 
         for (const { option } of properties) {
             if (!isEnumProperty(option)) {
@@ -182,25 +180,25 @@ export class GenerateMicroserviceService {
             generatedEnumAuditor.add(option.enumName);
         }
 
-        return contents.join('\n');
+        return contents;
     }
 
-    generateServices(): string {
+    generateServices() {
         const content = [];
         for (const constructor of microserviceStorage) {
             content.push(this.generateService(constructor, false));
             content.push(this.generateService(constructor, true));
         }
 
-        return content.join('\n');
+        return content;
     }
 
-    generateService(constructor: Function, isMock: boolean): string {
+    generateService(constructor: Function, isMock: boolean) {
         const propertyKeys = Object.getOwnPropertyNames(constructor.prototype);
         const methods = propertyKeys
             .map((propertyKey) => this.generateRpcMethod(constructor, propertyKey, isMock))
             .filter((method) => method);
-        return this.serviceTemplateService.templateService(constructor.name, methods, isMock);
+        return { serviceName: constructor.name, methods, isMock };
     }
 
     generateRpcMethod(constructor, propertyKey: string, isMock: boolean): string {

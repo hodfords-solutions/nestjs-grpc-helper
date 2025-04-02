@@ -1,0 +1,6 @@
+{{#each services}}
+{
+    provide: {{this}},
+    useClass: Mock{{this}}
+}{{#unless @last}},{{/unless}}
+{{/each}}

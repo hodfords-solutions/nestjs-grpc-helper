@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@import 'jsoneditor/dist/jsoneditor.min.css';
+@config "../../tailwind.config.js";
+
+body {
+  @apply font-inter;
+}
+
+@layer components {
+  table tr:first-child th:first-child {
+    @apply rounded-tl-lg;
+  }
+
+  table tr:first-child th:last-child {
+    @apply rounded-tr-lg;
+  }
+
+  table tr:last-child td:first-child {
+    @apply rounded-bl-lg;
+  }
+
+  table tr:last-child td:last-child {
+    @apply rounded-br-lg;
+  }
+
+  .code-block {
+    @apply bg-gunmetal rounded-lg px-4 py-2 text-white;
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-athens rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-ash rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gunmetal;
+  }
+}
