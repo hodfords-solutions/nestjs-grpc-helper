@@ -14,7 +14,8 @@ export class ServiceTemplateService extends HbsGeneratorService {
         const data = {
             enumContent,
             modelContent,
-            serviceContent
+            serviceContent,
+            addAllowDecorator: this.config.addAllowDecorator
         };
 
         return this.compileTemplate('./service-template.hbs', data);
