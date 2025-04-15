@@ -1,6 +1,6 @@
 {
   "name": "@hodfords/nestjs-grpc-helper",
-  "version": "11.2.3",
+  "version": "11.2.4",
   "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
   "author": "",
   "license": "UNLICENSED",
@@ -33,17 +33,18 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.6.0",
-    "@grpc/grpc-js": "^1.13.0",
-    "@grpc/proto-loader": "^0.7.13",
-    "chalk": "4.1.2"
+    "@faker-js/faker": "*",
+    "@grpc/grpc-js": "*",
+    "@grpc/proto-loader": "*",
+    "chalk": "4.1.2",
+    "handlebars": "4.7.7"
   },
   "peerDependencies": {
     "@faker-js/faker": "*",
     "@grpc/grpc-js": "*",
     "@grpc/proto-loader": "*",
-    "shelljs": "*",
-    "@hodfords/nestjs-cls-translation": "*"
+    "@hodfords/nestjs-cls-translation": "*",
+    "shelljs": "*"
   },
   "devDependencies": {
     "@hodfords/nestjs-cls-translation": "11.0.2",
