@@ -75,6 +75,10 @@ export class GenerateProtoService extends HbsGeneratorService {
             return format;
         }
 
+        if (type === 'boolean') {
+            return 'bool';
+        }
+
         return type;
     }
 
