@@ -15,7 +15,7 @@ export function Property(option: PropertyOptionType): PropertyDecorator {
             option.type = option.type.name.toLowerCase();
         }
         if (option.type == Boolean) {
-            option.type = 'bool';
+            option.type = 'boolean';
         }
 
         //@TODO: Need to recheck
