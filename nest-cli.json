@@ -29,6 +29,11 @@
         "include": "../lib/**/*.hbs",
         "watchAssets": true,
         "outDir": "dist/lib"
+      },
+      {
+        "include": "../lib/frontend",
+        "watchAssets": true,
+        "outDir": "dist/lib"
       }
     ]
   }

@@ -195,6 +195,13 @@ MicroserviceDocumentModule.register({
 })
 ```
 
+Serve the Explorer UI from the SDK file:
+In your main.ts or bootstrap file, use the following:
+
+```typescript
+   useSdkStaticAssets(app); 
+```
+
 ## License 📝
 
 This project is licensed under the MIT License
