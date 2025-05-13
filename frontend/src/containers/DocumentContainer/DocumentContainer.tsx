@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { map, find, get, forEach, head, toLower } from 'lodash-es';
+import { map, find, get } from 'lodash-es';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { agate } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import TryboxModal from 'modals/TryboxModal';
@@ -10,6 +10,8 @@ import PackageInstall from './PackageInstall';
 import MethodParameters from './MethodParameters';
 import MethodResponse from './MethodResponse';
 
+const defaultJsonEndpoint = `${window.origin}/microservice-documents/`;
+
 const DocumentContainer: FunctionComponent = () => {
   const [isLoading, setLoading] = useState(false);
   const [isShowModal, setShowModal] = useState(false);
@@ -17,7 +19,6 @@ const DocumentContainer: FunctionComponent = () => {
   const itemRefs = useRef([]);
   const methodRefs = useRef([]);
   const modalData = useRef();
-  let apiURL = null;
 
   useEffect(() => {
     getConfig();
@@ -28,17 +29,10 @@ const DocumentContainer: FunctionComponent = () => {
     try {
       const response = await fetch('./assets/config.json');
       config = await response.json();
-    } catch (error) {
-      const response = await fetch(
-        `${window.location.origin}/assets/config.json`,
-      );
-      // const response = await fetch(
-      //   `https://smype-grpc.dev.smype.com/assets/config.json`,
-      // );
-      config = await response.json();
+      requestServiceData(config);
+    } catch {
+      requestServiceData([defaultJsonEndpoint]);
     }
-    apiURL = get(new URL(head(config)), 'origin');
-    requestServiceData(config);
   };
 
   const toggleModal = (data) => {
@@ -69,14 +63,11 @@ const DocumentContainer: FunctionComponent = () => {
       );
       const docs = [];
       const menuItems = [];
-      forEach(data, (res) => {
+      for (const [index, res] of data.entries()) {
         if (res.package) {
-          const service = toLower(
-            `${res.package.replace('smype', '')}-service`,
-          );
           docs.push({
             ...res,
-            url: `${apiURL}/${service}/microservice-documents/test`,
+            url: `${urls[index]}test`,
           });
           menuItems.push({
             name: res.title,
@@ -90,7 +81,7 @@ const DocumentContainer: FunctionComponent = () => {
             })),
           });
         }
-      });
+      }
       setDocument({
         menuItems,
         docs,

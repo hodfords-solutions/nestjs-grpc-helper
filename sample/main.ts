@@ -6,6 +6,7 @@ import path from 'path';
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useSdkStaticAssets } from 'lib/loaders/static.loader';
 
 generateProtoService('HERO', path.join(__dirname, '../../proto'));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -27,6 +28,8 @@ async function bootstrap() {
                 .build()
         )
     );
+
+    useSdkStaticAssets(app);
 
     app.connectMicroservice<GrpcOptions>({
         transport: Transport.GRPC,
