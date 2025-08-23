@@ -34,4 +34,11 @@ export class AppController {
     getPagination() {
         return { items: [{ name: 'test' }, { name: 'test2' }], total: 10, lastPage: 1, perPage: 1, currentPage: 1 };
     }
+
+    @Get('native-boolean')
+    @ResponseModel(Boolean)
+    @HttpCode(HttpStatus.OK)
+    nativeBoolean() {
+        return true;
+    }
 }

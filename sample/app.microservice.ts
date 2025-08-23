@@ -41,6 +41,30 @@ export class AppMicroservice {
     @ResponseModel(UserResponse, true)
     anyDto(@GrpcValue() param: AnyDto): UserResponse[] {
         console.log(param);
-        return [{ name: param.data }, { name: 'test2' }];
+        return [{ name: param.data, isAdmin: true }, { name: 'test2' }];
+    }
+
+    @GrpcAction('Native response boolean')
+    @ResponseModel(Boolean)
+    nativeResponse(@GrpcValue() param: AnyDto): any {
+        return true;
+    }
+
+    @GrpcAction('Native response string')
+    @ResponseModel(String)
+    nativeString(@GrpcValue() param: AnyDto): any {
+        return 'test';
+    }
+
+    @GrpcAction('Native response number')
+    @ResponseModel(Number)
+    nativeNumber(@GrpcValue() param: AnyDto): any {
+        return 1;
+    }
+
+    @GrpcAction('Native response float')
+    @ResponseModel(Number)
+    nativeFloat(@GrpcValue() param: AnyDto): any {
+        return 1.5;
     }
 }

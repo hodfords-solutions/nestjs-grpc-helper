@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { MockMethod, MockSample, Property } from '@hodfords/nestjs-grpc-helper';
 import { UserTypeEnum } from '../enums/user-type.enum';
 
@@ -8,6 +8,11 @@ export class UserResponse {
     @IsString()
     @IsOptional()
     name?: string;
+
+    @Property({ type: Boolean, required: false })
+    @IsBoolean()
+    @IsOptional()
+    isAdmin?: boolean;
 
     @Property({
         type: String,

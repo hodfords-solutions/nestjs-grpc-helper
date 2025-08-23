@@ -8,6 +8,7 @@ import { microserviceStorage } from '../storages/microservice.storage';
 import { HbsGeneratorService } from './hbs-generator.service';
 import { PropertyOptionType } from 'lib/types/property-option.type';
 import { isNil } from 'lodash';
+import { isPrimitiveType } from '../helpers/type.helper';
 
 export class GenerateProtoService extends HbsGeneratorService {
     constructor(
@@ -120,6 +121,8 @@ export class GenerateProtoService extends HbsGeneratorService {
             if (response) {
                 if (response.isArray) {
                     returnType = `Proto${response.responseClass.name}List`;
+                } else if (isPrimitiveType(response.responseClass)) {
+                    returnType = `Native${response.responseClass.name}Value`;
                 } else {
                     returnType = response.responseClass.name;
                 }

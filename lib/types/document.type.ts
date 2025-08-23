@@ -41,5 +41,6 @@ export type MethodDocumentType = {
     parameter: string;
     response: string;
     isResponseArray: boolean;
+    isResponseNative: boolean;
     exampleResponse: string;
 };

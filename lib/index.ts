@@ -14,3 +14,4 @@ export * from './documents/microservice-document.module';
 export * from './clients/custom-grpc.client';
 export * from './helpers/property.helper';
 export * from './interceptors/grpc-translation.interceptor';
+import './responses/native.response';

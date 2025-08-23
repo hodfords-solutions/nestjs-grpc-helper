@@ -15,6 +15,7 @@ import { camelCase, cloneDeep, upperFirst } from 'lodash';
 import { randomUUID } from 'crypto';
 import { getPropertiesOfClass } from '../helpers/property.helper';
 import { HbsGeneratorService } from './hbs-generator.service';
+import { isPrimitiveType } from '../helpers/type.helper';
 
 export class GenerateDocumentService extends HbsGeneratorService {
     private document: DocumentType;
@@ -120,9 +121,14 @@ export class GenerateDocumentService extends HbsGeneratorService {
                 constructor.prototype[propertyKey]
             );
             if (response) {
-                methodDocument.response = this.document.models.find(
-                    (model) => model.model === response.responseClass
-                ).classId;
+                if (isPrimitiveType(response.responseClass)) {
+                    methodDocument.response = response.responseClass.name;
+                    methodDocument.isResponseNative = true;
+                } else {
+                    methodDocument.response = this.document.models.find(
+                        (model) => model.model === response.responseClass
+                    )?.classId;
+                }
                 methodDocument.isResponseArray = response.isArray;
             }
             return methodDocument;
