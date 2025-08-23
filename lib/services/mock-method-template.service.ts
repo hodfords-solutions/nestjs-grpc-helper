@@ -1,15 +1,24 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
 
 export class MockMethodTemplateService {
-    templateBody(response: ResponseMetadata): string {
-        if (response) {
-            if (response.isArray) {
-                return `return [sample(${response.responseClass.name})];`;
-            } else {
-                return `return sample(${response.responseClass.name});`;
+    templateBody(response: ResponseMetadata, target: any, propertyKey: any): string {
+        if (!response) {
+            return '';
+        }
+
+        const mockResponse = Reflect.getMetadata('mock:response', target, propertyKey);
+        if (mockResponse) {
+            if (mockResponse.sample) {
+                return `return ${JSON.stringify(mockResponse.sample)} as any;`;
+            } else if (mockResponse.method) {
+                return `return sampleMethod(${JSON.stringify(mockResponse)}) as any;`;
             }
+        }
+
+        if (response.isArray) {
+            return `return [sample(${response.responseClass.name})] as any;`;
         } else {
-            return ``;
+            return `return sample(${response.responseClass.name}) as any;`;
         }
     }
 

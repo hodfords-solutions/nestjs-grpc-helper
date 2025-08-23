@@ -1,6 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { ResponseModel, UseResponseInterceptor } from '@hodfords/nestjs-response';
-import { GrpcAction, GrpcValue, RegisterGrpcMicroservice } from '@hodfords/nestjs-grpc-helper';
+import {
+    GrpcAction,
+    GrpcValue,
+    MockResponseMethod,
+    MockResponseSample,
+    RegisterGrpcMicroservice
+} from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto } from './dto/param.dto';
 import { ApiOperation } from '@nestjs/swagger';
@@ -46,18 +52,21 @@ export class AppMicroservice {
 
     @GrpcAction('Native response boolean')
     @ResponseModel(Boolean)
+    @MockResponseSample(true)
     nativeResponse(@GrpcValue() param: AnyDto): any {
         return true;
     }
 
     @GrpcAction('Native response string')
     @ResponseModel(String)
+    @MockResponseMethod('faker.string.alpha')
     nativeString(@GrpcValue() param: AnyDto): any {
         return 'test';
     }
 
     @GrpcAction('Native response number')
     @ResponseModel(Number)
+    @MockResponseMethod('faker.number.int', [{ min: 1, max: 100 }])
     nativeNumber(@GrpcValue() param: AnyDto): any {
         return 1;
     }

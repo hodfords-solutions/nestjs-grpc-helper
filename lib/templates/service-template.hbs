@@ -3,7 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { MicroserviceModuleOptionType } from '../types/microservice-option.type';
 import { Type } from 'class-transformer';
-import { Property, AnyType, sample } from '@hodfords/nestjs-grpc-helper';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Property, AnyType, sample, sampleMethod } from '@hodfords/nestjs-grpc-helper';
 {{#if addAllowDecorator}}
 import { Allow } from 'class-validator';
 {{/if}}

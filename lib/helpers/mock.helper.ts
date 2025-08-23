@@ -3,6 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { faker } from '@faker-js/faker';
 import { get } from 'lodash';
 import { PropertyOptionType } from '../types/property-option.type';
+import { MockOptionType } from '../types/mock-option.type';
 
 function getData(option: PropertyOptionType) {
     const { mock } = option;
@@ -20,6 +21,12 @@ function getData(option: PropertyOptionType) {
 
         return method(...mock.args);
     }
+}
+
+export function sampleMethod(mock: MockOptionType) {
+    const method: any = get({ faker }, mock.method);
+
+    return method(...mock.args);
 }
 
 export function sample<T>(dto: new () => T): T {

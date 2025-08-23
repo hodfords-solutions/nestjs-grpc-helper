@@ -20,6 +20,7 @@ import { MockMethodTemplateService } from './mock-method-template.service';
 import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
+import { isPrimitiveType } from '../helpers/type.helper';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -216,7 +217,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();
         const body =
             methodTemplateService instanceof MockMethodTemplateService
-                ? methodTemplateService.templateBody(response)
+                ? methodTemplateService.templateBody(response, constructor, propertyKey)
                 : methodTemplateService.templateBody(
                       response,
                       constructor.name,
@@ -233,6 +234,9 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
             if (response.isArray) {
                 return `${response.responseClass.name}[]`;
             } else {
+                if (isPrimitiveType(response.responseClass)) {
+                    return response.responseClass.name.toLowerCase();
+                }
                 return response.responseClass.name;
             }
         }

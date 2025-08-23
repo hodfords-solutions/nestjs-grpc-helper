@@ -29,3 +29,30 @@ export function MockSample(sample: any): PropertyDecorator {
         });
     };
 }
+
+export function MockResponseSample(sample: any): MethodDecorator {
+    return function (target: object, propertyKey: string): void {
+        Reflect.defineMetadata(
+            'mock:response',
+            {
+                sample
+            },
+            target.constructor,
+            propertyKey
+        );
+    };
+}
+
+export function MockResponseMethod(method: MockMethodType, args?: any[]): MethodDecorator {
+    return function (target: object, propertyKey: string): void {
+        Reflect.defineMetadata(
+            'mock:response',
+            {
+                method,
+                args: args || []
+            },
+            target.constructor,
+            propertyKey
+        );
+    };
+}
