@@ -76,4 +76,22 @@ export class AppMicroservice {
     nativeFloat(@GrpcValue() param: AnyDto): any {
         return 1.5;
     }
+
+    @GrpcAction('Native response string')
+    @ResponseModel(String, true)
+    nativeArrayString(@GrpcValue() param: AnyDto): string[] {
+        return ['test', 'test2', 'test3'];
+    }
+
+    @GrpcAction('Native response string')
+    @ResponseModel(Boolean, true)
+    nativeArrayBoolean(@GrpcValue() param: AnyDto): boolean[] {
+        return [true, false, true];
+    }
+
+    @GrpcAction('Native response string')
+    @ResponseModel(Number, true)
+    nativeArrayNumber(@GrpcValue() param: AnyDto): number[] {
+        return [1, Math.random(), 2];
+    }
 }

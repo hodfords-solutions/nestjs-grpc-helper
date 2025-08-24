@@ -36,9 +36,10 @@ export class GenerateProtoService extends HbsGeneratorService {
 
     generateModels(): string {
         const dtoWithProperties = extractProperties();
-        const content = Object.keys(dtoWithProperties).map((name) =>
+        let content = Object.keys(dtoWithProperties).map((name) =>
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
+        content = content.concat(this.generateNativeModelList());
         return content.reverse().join('\n');
     }
 
@@ -56,6 +57,21 @@ export class GenerateProtoService extends HbsGeneratorService {
             propertyContent,
             name: dto.name
         });
+    }
+
+    generateNativeModelList() {
+        const nativeTypes = {
+            string: String,
+            bool: Boolean,
+            float: Number
+        };
+
+        return Object.keys(nativeTypes).map((key) =>
+            this.compileTemplate('proto-native-list.hbs', {
+                name: nativeTypes[key].name,
+                type: key
+            })
+        );
     }
 
     getProtoType(option: PropertyOptionType): string {
