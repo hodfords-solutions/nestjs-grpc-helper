@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable @typescript-eslint/no-require-imports */
-import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
+import { extractProperties, generateProtoService, getPropertiesOfClass } from '@hodfords/nestjs-grpc-helper';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
@@ -21,7 +21,7 @@ import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
 import { isPrimitiveType } from '../helpers/type.helper';
-import { DIRECT_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
+import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -209,11 +209,21 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         }
 
         const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
-        const directParams = Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey);
+        let directParams = Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey);
         const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
         let parameterName;
         if (!isUndefined(parameterIndex)) {
             parameterName = params[parameterIndex].name;
+            const isFlattenParam = Boolean(
+                Reflect.getMetadata(FLATTEN_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey)
+            );
+            if (!directParams && isFlattenParam) {
+                console.log(getPropertiesOfClass(params[parameterIndex]));
+                directParams = getPropertiesOfClass(params[parameterIndex]).map((property) => ({
+                    name: property.name,
+                    ...property.option
+                }));
+            }
         }
         const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();

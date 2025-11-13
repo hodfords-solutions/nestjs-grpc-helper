@@ -1,6 +1,7 @@
 import { Controller, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ResponseModel, UseResponseInterceptor } from '@hodfords/nestjs-response';
 import {
+    SdkFlattenParams,
     GrpcAction,
     GrpcValue,
     MockResponseMethod,
@@ -122,6 +123,14 @@ export class AppMicroservice {
     ): any {
         console.log('userId', userId);
         console.log('userType', userType);
+        return '123';
+    }
+
+    @GrpcAction('flatten params')
+    @SdkFlattenParams()
+    @ResponseModel(String)
+    flattenParams(@GrpcValue() param: ParamDto): any {
+        console.log('flatten params', param);
         return '123';
     }
 
