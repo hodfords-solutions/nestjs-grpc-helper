@@ -21,6 +21,7 @@ import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
 import { isPrimitiveType } from '../helpers/type.helper';
+import { DIRECT_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -208,6 +209,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         }
 
         const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
+        const directParams = Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey);
         const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
         let parameterName;
         if (!isUndefined(parameterIndex)) {
@@ -223,10 +225,11 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
                       constructor.name,
                       propertyKey,
                       parameterName,
-                      parameterName
+                      parameterName,
+                      directParams
                   );
         const returnType = this.getReturnType(response);
-        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body);
+        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body, directParams);
     }
 
     getReturnType(response: ResponseMetadata): string {

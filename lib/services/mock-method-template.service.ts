@@ -1,6 +1,8 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
+import { ParameterOptionType } from '../types/parameter-option.type';
+import { MethodTemplateService } from './method-template.service';
 
-export class MockMethodTemplateService {
+export class MockMethodTemplateService extends MethodTemplateService {
     templateBody(response: ResponseMetadata, target: any, propertyKey: any): string {
         if (!response) {
             return '';
@@ -22,16 +24,19 @@ export class MockMethodTemplateService {
         }
     }
 
-    methodTemplate(method: string, params: string, returnType: string, body: string): string {
-        if (params) {
-            return `
-            async ${method}(param: ${params}): Promise<${returnType}> {
-                ${body}
-            }`;
-        }
-        return `
-            async ${method}(): Promise<${returnType}> {
-                ${body}
-            }`;
+    methodTemplate(
+        method: string,
+        params: string,
+        returnType: string,
+        body: string,
+        directParams: ParameterOptionType[]
+    ): string {
+        return this.compileTemplate('mock-method-template.hbs', {
+            method,
+            params,
+            returnType,
+            body,
+            directParams: this.getDirectParams(directParams)
+        });
     }
 }

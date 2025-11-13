@@ -1,3 +1,10 @@
+{{#hasItems directParams}}
+    const param = {
+    {{#each directParams}}
+        {{this.name}},
+    {{/each}}
+    };
+{{/hasItems}}
 {{#if response}}
     {{#if response.isArray}}
         return await GrpcHelper.with(this.client, {{{response.responseClass.name}}}, this.options)

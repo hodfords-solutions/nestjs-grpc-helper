@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ResponseModel, UseResponseInterceptor } from '@hodfords/nestjs-response';
 import {
     GrpcAction,
@@ -8,19 +8,24 @@ import {
     RegisterGrpcMicroservice
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
-import { AnyDto, FindManyDto, ParamDto } from './dto/param.dto';
+import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { UserResponse } from './responses/user.response';
+import { GrpcEnum, GrpcId, GrpcIds } from '../lib/decorators/grpc-param.decorator';
+import { Metadata } from '@grpc/grpc-js';
+import { GrpcExceptionFilter } from '@hodfords/nestjs-exception';
+import { UserTypeEnum } from './enums/user-type.enum';
 
 @Controller()
 @RegisterGrpcMicroservice()
+@UseFilters(GrpcExceptionFilter)
+@UsePipes(new ValidationPipe())
 @UseResponseInterceptor()
 export class AppMicroservice {
     @GrpcAction('Get user by id')
     @ResponseModel(UserPaginationResponse)
     @ApiOperation({ description: 'test' })
     findOne(@GrpcValue() param: ParamDto): UserPaginationResponse {
-        console.log(param);
         return { items: [{ name: 'test' }, { name: 'test2' }], total: 10, lastPage: 1, perPage: 1, currentPage: 1 };
     }
 
@@ -54,7 +59,7 @@ export class AppMicroservice {
     @ResponseModel(Boolean)
     @MockResponseSample(true)
     nativeResponse(@GrpcValue() param: AnyDto): any {
-        return true;
+        return false;
     }
 
     @GrpcAction('Native response string')
@@ -93,5 +98,38 @@ export class AppMicroservice {
     @ResponseModel(Number, true)
     nativeArrayNumber(@GrpcValue() param: AnyDto): number[] {
         return [1, Math.random(), 2];
+    }
+
+    @GrpcAction('Single params')
+    @ResponseModel(String)
+    singleParam(@GrpcId('userId') userId: string, @GrpcIds('userIds') userIds: string[], metadata: Metadata): any {
+        console.log('userId', userId);
+        console.log('userIds', userIds);
+        console.log('metadata', metadata);
+        return '123';
+    }
+
+    @GrpcAction('Single params')
+    @ResponseModel(String)
+    singleParamWithEnum(
+        @GrpcId('userId') userId: string,
+        @GrpcEnum({
+            name: 'userType',
+            enum: UserTypeEnum,
+            enumName: 'UserTypeEnum'
+        })
+        userType: UserTypeEnum
+    ): any {
+        console.log('userId', userId);
+        console.log('userType', userType);
+        return '123';
+    }
+
+    @GrpcAction('testMetadata')
+    @ResponseModel(String)
+    testMetadata(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
+        console.log('param', param);
+        console.log('metadata', metadata);
+        return '123';
     }
 }

@@ -39,6 +39,7 @@ async function bootstrap() {
 
     await app.startAllMicroservices();
     await app.listen(2013);
+    console.log('App start with gRPC microservice on port 50051 and HTTP server on port 2013');
 }
 
 bootstrap().then();
