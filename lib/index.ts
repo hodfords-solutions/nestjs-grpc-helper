@@ -2,6 +2,7 @@ export * from './decorators/microservice.decorator';
 export * from './decorators/property.decorator';
 export * from './decorators/mock.decorator';
 export * from './decorators/grpc-value.decorator';
+export * from './decorators/grpc-param.decorator';
 export * from './decorators/extend-type.decorator';
 export * from './decorators/any-type.decorator';
 export * from './helpers/generate.helper';
