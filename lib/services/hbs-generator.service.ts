@@ -5,7 +5,6 @@ import * as path from 'path';
 export class HbsGeneratorService {
     constructor() {
         Handlebars.registerHelper('hasItems', function (items: any[], options) {
-            console.log(items);
             if (items && items.length > 0) {
                 return options.fn(this);
             } else {
