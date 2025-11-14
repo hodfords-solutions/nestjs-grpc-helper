@@ -21,7 +21,12 @@ import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
 import { isPrimitiveType } from '../helpers/type.helper';
-import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
+import {
+    DIRECT_PARAMETERS_METADATA_KEY,
+    FLATTEN_PARAMETERS_METADATA_KEY,
+    GRPC_METHOD_METADATA_KEY,
+    GRPC_PARAM_INDEX_METADATA_KEY
+} from '../constants/metadata-key.const';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -204,13 +209,13 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateRpcMethod(constructor, propertyKey: string, isMock: boolean): string {
-        if (!Reflect.hasMetadata('grpc:method', constructor.prototype, propertyKey)) {
+        if (!Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
             return;
         }
 
         const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
         let directParams = Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey);
-        const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
+        const parameterIndex = Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, constructor.prototype, propertyKey);
         let parameterName;
         if (!isUndefined(parameterIndex)) {
             parameterName = params[parameterIndex].name;
@@ -218,7 +223,6 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
                 Reflect.getMetadata(FLATTEN_PARAMETERS_METADATA_KEY, constructor.prototype, propertyKey)
             );
             if (!directParams && isFlattenParam) {
-                console.log(getPropertiesOfClass(params[parameterIndex]));
                 directParams = getPropertiesOfClass(params[parameterIndex]).map((property) => ({
                     name: property.name,
                     ...property.option

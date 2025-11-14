@@ -9,6 +9,7 @@ import { HbsGeneratorService } from './hbs-generator.service';
 import { PropertyOptionType } from 'lib/types/property-option.type';
 import { isNil } from 'lodash';
 import { isPrimitiveType } from '../helpers/type.helper';
+import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateProtoService extends HbsGeneratorService {
     constructor(
@@ -125,9 +126,13 @@ export class GenerateProtoService extends HbsGeneratorService {
     }
 
     generateRpcMethod(constructor, propertyKey: string): string {
-        if (Reflect.hasMetadata('grpc:method', constructor.prototype, propertyKey)) {
+        if (Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
             const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
-            const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
+            const parameterIndex = Reflect.getMetadata(
+                GRPC_PARAM_INDEX_METADATA_KEY,
+                constructor.prototype,
+                propertyKey
+            );
             let parameterName = 'google.protobuf.Empty';
             if (!isUndefined(parameterIndex)) {
                 parameterName = params[parameterIndex].name;

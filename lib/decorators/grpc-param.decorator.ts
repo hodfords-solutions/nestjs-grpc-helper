@@ -27,7 +27,6 @@ export function GrpcParam(option: ParameterOptionType): ParameterDecorator {
             target,
             propertyKey
         );
-        Reflect.defineMetadata('grpc:has-direct-parameter', true, target, propertyKey);
     };
 }
 

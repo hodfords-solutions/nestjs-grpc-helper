@@ -16,6 +16,11 @@ import { randomUUID } from 'crypto';
 import { getPropertiesOfClass } from '../helpers/property.helper';
 import { HbsGeneratorService } from './hbs-generator.service';
 import { isPrimitiveType } from '../helpers/type.helper';
+import {
+    GRPC_DESCRIPTION_METADATA_KEY,
+    GRPC_METHOD_METADATA_KEY,
+    GRPC_PARAM_INDEX_METADATA_KEY
+} from '../constants/metadata-key.const';
 
 export class GenerateDocumentService extends HbsGeneratorService {
     private document: DocumentType;
@@ -94,7 +99,7 @@ export class GenerateDocumentService extends HbsGeneratorService {
     generateMicroservice(constructor: Function): MicroserviceDocumentType {
         const microserviceDocument: MicroserviceDocumentType = {
             name: constructor.name,
-            description: Reflect.getMetadata('grpc:description', constructor.prototype),
+            description: Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, constructor.prototype),
             methods: []
         };
         const propertyKeys = Object.getOwnPropertyNames(constructor.prototype);
@@ -105,33 +110,38 @@ export class GenerateDocumentService extends HbsGeneratorService {
     }
 
     generateRpcMethod(constructor, propertyKey: string): MethodDocumentType {
-        if (Reflect.hasMetadata('grpc:method', constructor.prototype, propertyKey)) {
-            const methodDocument: MethodDocumentType = {} as any;
-            const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
-            const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
-            methodDocument.name = propertyKey;
-            methodDocument.description = Reflect.getMetadata('grpc:description', constructor.prototype, propertyKey);
-            methodDocument.sdkUsage = `const response = await ${camelCase(constructor.name)}.${propertyKey}({});`;
-
-            methodDocument.parameter = this.document.models.find(
-                (model) => model.model === params[parameterIndex]
-            )?.classId;
-            const response: ResponseMetadata = Reflect.getMetadata(
-                RESPONSE_METADATA_KEY,
-                constructor.prototype[propertyKey]
-            );
-            if (response) {
-                if (isPrimitiveType(response.responseClass)) {
-                    methodDocument.response = response.responseClass.name;
-                    methodDocument.isResponseNative = true;
-                } else {
-                    methodDocument.response = this.document.models.find(
-                        (model) => model.model === response.responseClass
-                    )?.classId;
-                }
-                methodDocument.isResponseArray = response.isArray;
-            }
-            return methodDocument;
+        if (!Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
+            return;
         }
+        const methodDocument: MethodDocumentType = {} as any;
+        const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
+        const parameterIndex = Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, constructor.prototype, propertyKey);
+        methodDocument.name = propertyKey;
+        methodDocument.description = Reflect.getMetadata(
+            GRPC_DESCRIPTION_METADATA_KEY,
+            constructor.prototype,
+            propertyKey
+        );
+        methodDocument.sdkUsage = `const response = await ${camelCase(constructor.name)}.${propertyKey}({});`;
+
+        methodDocument.parameter = this.document.models.find(
+            (model) => model.model === params[parameterIndex]
+        )?.classId;
+        const response: ResponseMetadata = Reflect.getMetadata(
+            RESPONSE_METADATA_KEY,
+            constructor.prototype[propertyKey]
+        );
+        if (response) {
+            if (isPrimitiveType(response.responseClass)) {
+                methodDocument.response = response.responseClass.name;
+                methodDocument.isResponseNative = true;
+            } else {
+                methodDocument.response = this.document.models.find(
+                    (model) => model.model === response.responseClass
+                )?.classId;
+            }
+            methodDocument.isResponseArray = response.isArray;
+        }
+        return methodDocument;
     }
 }

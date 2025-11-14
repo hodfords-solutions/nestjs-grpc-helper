@@ -2,7 +2,7 @@ import { Property } from '../decorators/property.decorator';
 import { GrpcValue } from '../decorators/grpc-value.decorator';
 import { ParameterOptionType } from '../types/parameter-option.type';
 import { camelCase, upperFirst, omit } from 'lodash';
-import { DIRECT_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
+import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
 
 function moveMetadata(origin: any, destination: any) {
     const metadataKeys = Reflect.getMetadataKeys(origin);
@@ -48,7 +48,7 @@ export function overrideMethod(target: any, propertyKey: string, descriptor: Pro
     if (!checkParamsIsContinuous(params)) {
         throw new Error(`Grpc direct parameters must be continuous and start from index 0 in method ${propertyKey}`);
     }
-    if (params && Reflect.getMetadata('grpc:parameter-index', target, propertyKey) !== undefined) {
+    if (params && Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, target, propertyKey) !== undefined) {
         throw new Error('Cannot use GrpcValue and direct parameters together');
     }
 
