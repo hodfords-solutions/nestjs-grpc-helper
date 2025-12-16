@@ -141,4 +141,10 @@ export class AppMicroservice {
         console.log('metadata', metadata);
         return '123';
     }
+
+    @GrpcAction('nullOrData')
+    @ResponseModel(String, false, true)
+    nullOrData(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
+        return null;
+    }
 }

@@ -247,18 +247,19 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     getReturnType(response: ResponseMetadata): string {
-        if (response) {
-            if (response.isArray) {
-                return `${response.responseClass.name}[]`;
-            } else {
-                if (isPrimitiveType(response.responseClass)) {
-                    return response.responseClass.name.toLowerCase();
-                }
-                return response.responseClass.name;
-            }
+        if (!response) {
+            return 'void';
         }
 
-        return 'void';
+        let returnType = response?.responseClass?.name;
+        if (isPrimitiveType(response.responseClass)) {
+            returnType = response.responseClass.name.toLowerCase();
+        }
+        if (response.isArray) {
+            return `${returnType}[]`;
+        } else {
+            return returnType;
+        }
     }
 
     formatCode() {
