@@ -3,6 +3,8 @@ import { GrpcValue } from '../decorators/grpc-value.decorator';
 import { ParameterOptionType } from '../types/parameter-option.type';
 import { camelCase, upperFirst, omit } from 'lodash';
 import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 function moveMetadata(origin: any, destination: any) {
     const metadataKeys = Reflect.getMetadataKeys(origin);
@@ -39,17 +41,37 @@ export function checkParamsIsContinuous(params: ParameterOptionType[]) {
     return true;
 }
 
+function updateGrpcMethodParams(target: any, propertyKey: string) {
+    const params: ParameterOptionType[] =
+        Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, target, propertyKey) || [];
+
+    const grpcValueIndex = Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, target, propertyKey);
+    if (grpcValueIndex !== undefined && params.length > 0) {
+        const grpcValueType = Reflect.getMetadata('design:paramtypes', target, propertyKey)[grpcValueIndex];
+        params.push({
+            name: 'body',
+            type: grpcValueType,
+            index: grpcValueIndex,
+            required: true,
+            decorators: [IsNotEmpty(), ValidateNested(), Type(() => grpcValueType)]
+        });
+        Reflect.defineMetadata(
+            DIRECT_PARAMETERS_METADATA_KEY,
+            params.sort((paramA, paramB) => paramA.index! - paramB.index!),
+            target,
+            propertyKey
+        );
+    }
+}
+
 export function overrideMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    updateGrpcMethodParams(target, propertyKey);
     const originalMethod = descriptor.value;
     const dto = createParamDto(target, propertyKey, descriptor);
     const params: ParameterOptionType[] =
         Reflect.getMetadata(DIRECT_PARAMETERS_METADATA_KEY, target, propertyKey) || [];
-
     if (!checkParamsIsContinuous(params)) {
         throw new Error(`Grpc direct parameters must be continuous and start from index 0 in method ${propertyKey}`);
-    }
-    if (params && Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, target, propertyKey) !== undefined) {
-        throw new Error('Cannot use GrpcValue and direct parameters together');
     }
 
     descriptor.value = function (...args: any[]) {
@@ -66,6 +88,9 @@ export function overrideMethod(target: any, propertyKey: string, descriptor: Pro
 
     const oldParamTypes = Reflect.getMetadata('design:paramtypes', target, propertyKey) || [];
     const newParamTypes = [dto, ...oldParamTypes.slice(params.length)];
+    if (Reflect.getMetadata(GRPC_PARAM_INDEX_METADATA_KEY, target, propertyKey) !== undefined) {
+        Reflect.deleteMetadata(GRPC_PARAM_INDEX_METADATA_KEY, target, propertyKey);
+    }
     Reflect.defineMetadata('design:paramtypes', newParamTypes, target, propertyKey);
     moveMetadata(originalMethod, descriptor.value);
     GrpcValue()(target, propertyKey, 0);

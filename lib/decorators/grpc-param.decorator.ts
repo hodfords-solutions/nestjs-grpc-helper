@@ -1,7 +1,10 @@
 import { ParameterOptionType } from '../types/parameter-option.type';
-import { IsArray, IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
 import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
 import { EnumAllowedTypes } from '@nestjs/swagger/dist/interfaces/schema-object-metadata.interface';
+import { PaginationDto } from '../dto/pagination.dto';
+import { SortDto } from '../dto/sort.dto';
+import { Type } from 'class-transformer';
 
 export function SdkFlattenParams(): MethodDecorator {
     return function (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
@@ -83,5 +86,23 @@ export function GrpcEnums(option: EnumParamOptionType): ParameterDecorator {
         required: true,
         isArray: true,
         decorators: [IsArray(), IsEnum(option.enum, { each: true })]
+    });
+}
+
+export function GrpcPagination(): ParameterDecorator {
+    return GrpcParam({
+        name: 'pagination',
+        type: PaginationDto,
+        required: true,
+        decorators: [ValidateNested(), Type(() => PaginationDto)]
+    });
+}
+
+export function GrpcSort(): ParameterDecorator {
+    return GrpcParam({
+        name: 'sortParam',
+        type: SortDto,
+        required: false,
+        decorators: [ValidateNested(), Type(() => SortDto)]
     });
 }

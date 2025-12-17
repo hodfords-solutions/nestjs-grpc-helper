@@ -6,7 +6,9 @@ import {
     GrpcValue,
     MockResponseMethod,
     MockResponseSample,
-    RegisterGrpcMicroservice
+    RegisterGrpcMicroservice,
+    GrpcPagination,
+    GrpcSort
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
@@ -16,6 +18,8 @@ import { GrpcEnum, GrpcId, GrpcIds } from '../lib/decorators/grpc-param.decorato
 import { Metadata } from '@grpc/grpc-js';
 import { GrpcExceptionFilter } from '@hodfords/nestjs-exception';
 import { UserTypeEnum } from './enums/user-type.enum';
+import { PaginationDto } from '../lib/dto/pagination.dto';
+import { SortDto } from '../lib/dto/sort.dto';
 
 @Controller()
 @RegisterGrpcMicroservice()
@@ -146,5 +150,18 @@ export class AppMicroservice {
     @ResponseModel(String, false, true)
     nullOrData(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
         return null;
+    }
+
+    @GrpcAction('paginate')
+    @ResponseModel(String)
+    paginate(
+        @GrpcValue() param: ParamNestedDto,
+        @GrpcPagination() pagination: PaginationDto,
+        @GrpcSort() sortParam: SortDto
+    ): any {
+        console.log('param', param);
+        console.log('pagination', pagination);
+        console.log('sortParam', sortParam);
+        return '123';
     }
 }
