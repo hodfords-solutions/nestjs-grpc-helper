@@ -19,7 +19,7 @@ import { ResponseModule } from '@hodfords/nestjs-response';
             clientOptions: {
                 customClass: CustomGrpcClient,
                 options: {
-                    url: '0.0.0.0:50051',
+                    url: '0.0.0.0:50059',
                     package: 'HERO',
                     protoPath: path.join(__dirname, '../../proto/microservice.proto')
                 }

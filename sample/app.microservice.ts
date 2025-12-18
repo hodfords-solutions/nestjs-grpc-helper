@@ -8,7 +8,8 @@ import {
     MockResponseSample,
     RegisterGrpcMicroservice,
     GrpcPagination,
-    GrpcSort
+    GrpcSort,
+    GrpcNullableResponse
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
@@ -150,6 +151,16 @@ export class AppMicroservice {
     @ResponseModel(String, false, true)
     nullOrData(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
         return null;
+    }
+
+    @GrpcAction('userOrNull')
+    @GrpcNullableResponse(UserResponse)
+    userOrNull(@GrpcValue() param: ParamNestedDto): UserResponse | null {
+        if (param.address !== 'exists') {
+            return null;
+        }
+
+        return { name: 'test' };
     }
 
     @GrpcAction('paginate')
