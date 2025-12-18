@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
+import { NullableGrpcClassResponseNamePrefix, RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
 import * as fs from 'fs-extra';
 import path from 'path';
@@ -9,11 +9,7 @@ import { HbsGeneratorService } from './hbs-generator.service';
 import { PropertyOptionType } from 'lib/types/property-option.type';
 import { isNil } from 'lodash';
 import { isPrimitiveType } from '../helpers/type.helper';
-import {
-    GRPC_METHOD_METADATA_KEY,
-    GRPC_PARAM_INDEX_METADATA_KEY,
-    GRPC_NULLABLE_RESPONSE_METADATA_KEY
-} from '../constants/metadata-key.const';
+import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateProtoService extends HbsGeneratorService {
     private nullableResponseTypes: Set<string> = new Set();
@@ -84,7 +80,11 @@ export class GenerateProtoService extends HbsGeneratorService {
 
     generateNullableWrapperMessages(): string[] {
         return Array.from(this.nullableResponseTypes).map((typeName) => {
-            return `message GrpcNullable${typeName} {\n\t${typeName} value = 1;\n\t bool nullableGrpcResponse = 2;\n}`;
+            return `message ${NullableGrpcClassResponseNamePrefix}${typeName} {
+                    \t${typeName} value = 1;
+                    \tbool grpcNullable = 2;
+                }
+            `;
         });
     }
 
@@ -151,28 +151,18 @@ export class GenerateProtoService extends HbsGeneratorService {
                 parameterName = params[parameterIndex].name;
             }
 
-            const nullableResponseClass = Reflect.getMetadata(
-                GRPC_NULLABLE_RESPONSE_METADATA_KEY,
-                constructor.prototype,
-                propertyKey
-            );
-
+            const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
             let returnType = 'google.protobuf.Empty';
-            if (nullableResponseClass) {
-                const baseTypeName = nullableResponseClass.name;
-                const wrapperTypeName = `GrpcNullable${baseTypeName}`;
-                this.nullableResponseTypes.add(baseTypeName);
-                returnType = wrapperTypeName;
-            } else {
-                const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
-                if (response) {
-                    if (response.isArray) {
-                        returnType = `Proto${response.responseClass.name}List`;
-                    } else if (isPrimitiveType(response.responseClass)) {
-                        returnType = `Native${response.responseClass.name}Value`;
-                    } else {
-                        returnType = response.responseClass.name;
-                    }
+            if (response) {
+                if (response.isArray) {
+                    returnType = `Proto${response.responseClass.name}List`;
+                } else if (isPrimitiveType(response.responseClass)) {
+                    returnType = `Native${response.responseClass.name}Value`;
+                } else if (response.isAllowEmpty) {
+                    returnType = `${NullableGrpcClassResponseNamePrefix}${response.responseClass.name}`;
+                    this.nullableResponseTypes.add(response.responseClass.name);
+                } else {
+                    returnType = response.responseClass.name;
                 }
             }
             return `rpc ${propertyKey} (${parameterName}) returns (${returnType}) {}`;
