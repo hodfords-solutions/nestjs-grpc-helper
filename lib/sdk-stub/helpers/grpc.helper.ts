@@ -66,9 +66,8 @@ export class GrpcHelper<Model> {
                 data = data.value;
             }
             if (data.grpcNullable) {
-                return [data.value];
+                return [plainToInstance(this.model, data.value || null, { groups: ['__getData'] })];
             }
-
             if (Array.isArray(data)) {
                 return plainToInstance(this.model, data, { groups: ['__getData'] });
             } else {
