@@ -65,7 +65,7 @@ export class GrpcHelper<Model> {
             if (data.grpcNative) {
                 data = data.value;
             }
-            if (data.nullableGrpcResponse) {
+            if (data.grpcNullable) {
                 return data.value;
             }
 
