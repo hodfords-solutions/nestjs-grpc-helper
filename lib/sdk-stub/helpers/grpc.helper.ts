@@ -66,7 +66,7 @@ export class GrpcHelper<Model> {
                 data = data.value;
             }
             if (data.grpcNullable) {
-                return data.value;
+                return [data.value];
             }
 
             if (Array.isArray(data)) {
