@@ -17,6 +17,10 @@ export class GrpcTestDto {
     data: any;
 
     @ApiProperty()
+    @Allow()
+    metadata: any;
+
+    @ApiProperty()
     @IsNotEmpty()
     @Allow()
     @IsBoolean()

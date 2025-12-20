@@ -8,13 +8,14 @@ import {
     MockResponseSample,
     RegisterGrpcMicroservice,
     GrpcPagination,
-    GrpcSort
+    GrpcSort,
+    GrpcMetadataId
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { UserResponse } from './responses/user.response';
-import { GrpcEnum, GrpcId, GrpcIds } from '../lib/decorators/grpc-param.decorator';
+import { GrpcEnum, GrpcId, GrpcIds } from '@hodfords/nestjs-grpc-helper';
 import { Metadata } from '@grpc/grpc-js';
 import { GrpcExceptionFilter } from '@hodfords/nestjs-exception';
 import { UserTypeEnum } from './enums/user-type.enum';
@@ -157,11 +158,20 @@ export class AppMicroservice {
     paginate(
         @GrpcValue() param: ParamNestedDto,
         @GrpcPagination() pagination: PaginationDto,
-        @GrpcSort() sortParam: SortDto
+        @GrpcSort() sortParam: SortDto,
+        @GrpcMetadataId('workspace-id') workspaceId: string
     ): any {
         console.log('param', param);
         console.log('pagination', pagination);
         console.log('sortParam', sortParam);
+        console.log('workspaceId', workspaceId);
+        return '123';
+    }
+
+    @GrpcAction('metadata')
+    @ResponseModel(String)
+    metadata(@GrpcMetadataId('workspace-id') workspaceId: string): any {
+        console.log('workspaceId', workspaceId);
         return '123';
     }
 }
