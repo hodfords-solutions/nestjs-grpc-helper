@@ -1,6 +1,6 @@
 {
   "name": "@hodfords/nestjs-grpc-helper",
-  "version": "11.4.0-rc.8",
+  "version": "11.4.0-rc.13",
   "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
   "author": "",
   "license": "UNLICENSED",
@@ -52,7 +52,7 @@
     "@hodfords/nestjs-command": "11.0.6",
     "@hodfords/nestjs-eslint-config": "11.0.2",
     "@hodfords/nestjs-prettier-config": "11.0.1",
-    "@hodfords/nestjs-response": "11.0.4",
+    "@hodfords/nestjs-response": "11.0.9",
     "@nestjs/cli": "11.0.10",
     "@nestjs/common": "11.1.6",
     "@nestjs/core": "11.1.6",

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
+import { NullableGrpcClassResponseNamePrefix, RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
 import * as fs from 'fs-extra';
 import path from 'path';
@@ -12,6 +12,8 @@ import { isPrimitiveType } from '../helpers/type.helper';
 import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateProtoService extends HbsGeneratorService {
+    private nullableResponseTypes: Set<string> = new Set();
+
     constructor(
         private packageName: string,
         private dirPath: string
@@ -41,6 +43,7 @@ export class GenerateProtoService extends HbsGeneratorService {
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
         content = content.concat(this.generateNativeModelList());
+        content = content.concat(this.generateNullableWrapperMessages());
         return content.reverse().join('\n');
     }
 
@@ -73,6 +76,16 @@ export class GenerateProtoService extends HbsGeneratorService {
                 type: key
             })
         );
+    }
+
+    generateNullableWrapperMessages(): string[] {
+        return Array.from(this.nullableResponseTypes).map((typeName) => {
+            return `message ${NullableGrpcClassResponseNamePrefix}${typeName} {
+                    \t${typeName} value = 1;
+                    \tbool grpcNullable = 2;
+                }
+            `;
+        });
     }
 
     getProtoType(option: PropertyOptionType): string {
@@ -137,6 +150,7 @@ export class GenerateProtoService extends HbsGeneratorService {
             if (!isUndefined(parameterIndex)) {
                 parameterName = params[parameterIndex].name;
             }
+
             const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
             let returnType = 'google.protobuf.Empty';
             if (response) {
@@ -144,6 +158,9 @@ export class GenerateProtoService extends HbsGeneratorService {
                     returnType = `Proto${response.responseClass.name}List`;
                 } else if (isPrimitiveType(response.responseClass)) {
                     returnType = `Native${response.responseClass.name}Value`;
+                } else if (response.isAllowEmpty) {
+                    returnType = `${NullableGrpcClassResponseNamePrefix}${response.responseClass.name}`;
+                    this.nullableResponseTypes.add(response.responseClass.name);
                 } else {
                     returnType = response.responseClass.name;
                 }

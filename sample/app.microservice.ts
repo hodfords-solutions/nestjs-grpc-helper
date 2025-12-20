@@ -153,6 +153,16 @@ export class AppMicroservice {
         return null;
     }
 
+    @GrpcAction('userOrNull')
+    @ResponseModel(UserResponse, { isAllowEmpty: true })
+    userOrNull(@GrpcValue() param: ParamNestedDto): UserResponse | null {
+        if (param.address !== 'exists') {
+            return null;
+        }
+
+        return { name: 'test' };
+    }
+
     @GrpcAction('paginate')
     @ResponseModel(String)
     paginate(
