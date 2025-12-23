@@ -1,5 +1,6 @@
 import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
 import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type';
+import { moveMetadata } from './flat-param.helper';
 
 export function overrideMetadataMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
@@ -25,4 +26,5 @@ export function overrideMetadataMethod(target: any, propertyKey: string, descrip
         }
         return originalMethod.apply(this, newArgs);
     };
+    moveMetadata(originalMethod, descriptor.value);
 }

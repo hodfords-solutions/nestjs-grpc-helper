@@ -170,7 +170,7 @@ export class AppMicroservice {
         @GrpcPagination() pagination: PaginationDto,
         @GrpcSort() sortParam: SortDto,
         @GrpcMetadataId('workspace-id') workspaceId: string
-    ): any {
+    ): string {
         console.log('param', param);
         console.log('pagination', pagination);
         console.log('sortParam', sortParam);

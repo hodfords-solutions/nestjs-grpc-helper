@@ -6,7 +6,7 @@ import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '.
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-function moveMetadata(origin: any, destination: any) {
+export function moveMetadata(origin: any, destination: any) {
     const metadataKeys = Reflect.getMetadataKeys(origin);
     for (const key of metadataKeys) {
         const metadata = Reflect.getMetadata(key, origin);
