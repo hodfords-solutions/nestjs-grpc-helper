@@ -5,16 +5,24 @@ import { get } from 'lodash';
 import { PropertyOptionType } from '../types/property-option.type';
 import { MockOptionType } from '../types/mock-option.type';
 
+function resolveType(type: any) {
+    if (typeof type === 'function' && type.name === 'type') {
+        return type();
+    }
+    return type;
+}
+
 function getData(option: PropertyOptionType) {
     const { mock } = option;
     if (mock.sample) {
         return mock.sample;
     }
     if (mock.nestedMaxSize) {
+        const resolvedType = resolveType(option.type);
         if (option.isArray) {
-            return new Array(mock.nestedMaxSize).fill(0).map(() => sample(option.type));
+            return new Array(mock.nestedMaxSize).fill(0).map(() => sample(resolvedType));
         }
-        return sample(option.type);
+        return sample(resolvedType);
     }
     if (mock.method && mock.method.startsWith('faker.')) {
         const method: any = get({ faker }, mock.method);
