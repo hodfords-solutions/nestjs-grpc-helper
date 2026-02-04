@@ -11,7 +11,7 @@ export class UserNameResponse extends PickResponseType(UserResponse, ['name', 't
 @ExtendType()
 export class UserAdditionResponse extends PickResponseType(UserNameResponse, ['name']) {
     @Property({ type: String, required: false })
-    @MockMethod('faker.address.streetAddress')
+    @MockMethod('faker.address.street')
     @IsString()
     @IsOptional()
     address?: string;
@@ -39,7 +39,7 @@ export class UserPartialResponse extends PartialResponseType(UserAddressResponse
 
 export class UserExtendResponse {
     @Property({ type: String, required: false })
-    @MockMethod('faker.name.fullName')
+    @MockMethod('faker.name.firstName')
     @IsString()
     @IsOptional()
     name?: string;

@@ -7,7 +7,7 @@ cd frontend && npm install && npm run build -- --base-href ""
 cp -r dist/frontend ../dist/lib
 cd ..
 cp -r lib/sdk-stub dist/lib
-cp -r lib/template dist/lib
+cp -r lib/templates dist/lib
 cp package.json dist/lib
 cp .npmrc dist/lib
 cp README.md dist/lib
