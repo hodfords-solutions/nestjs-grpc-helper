@@ -1,35 +1,35 @@
 {
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "sample",
-  "projects": {
-    "nestjs-grpc-helper": {
-      "type": "library",
-      "root": "lib",
-      "entryFile": "index",
-      "sourceRoot": "lib"
+    "collection": "@nestjs/schematics",
+    "sourceRoot": "sample",
+    "projects": {
+        "nestjs-grpc-helper": {
+            "type": "library",
+            "root": "lib",
+            "entryFile": "index",
+            "sourceRoot": "lib"
+        }
+    },
+    "compilerOptions": {
+        "webpack": false,
+        "assets": [
+            {
+                "include": "../lib/**/*.hbs",
+                "watchAssets": true,
+                "outDir": "dist/lib"
+            },
+            {
+                "include": "../lib/public/**",
+                "watchAssets": true
+            },
+            {
+                "include": "../lib/sdk-stub/**",
+                "watchAssets": true
+            },
+            {
+                "include": "../sdk-config.json",
+                "outDir": "./dist/sdk-config.json",
+                "watchAssets": true
+            }
+        ]
     }
-  },
-  "compilerOptions": {
-    "webpack": false,
-    "assets": [
-      {
-        "include": "../lib/public/**",
-        "watchAssets": true
-      },
-      {
-        "include": "../lib/sdk-stub/**",
-        "watchAssets": true
-      },
-      {
-        "include": "../sdk-config.json",
-        "outDir": "./dist/sdk-config.json",
-        "watchAssets": true
-      },
-      {
-        "include": "../lib/**/*.hbs",
-        "watchAssets": true,
-        "outDir": "dist/lib"
-      }
-    ]
-  }
 }
