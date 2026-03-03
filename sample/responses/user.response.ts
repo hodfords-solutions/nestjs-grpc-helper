@@ -4,7 +4,7 @@ import { UserTypeEnum } from '../enums/user-type.enum';
 
 export class UserResponse {
     @Property({ type: String, required: false })
-    @MockMethod('faker.name.firstName', [10])
+    @MockMethod('faker.person.firstName')
     @IsString()
     @IsOptional()
     name?: string;

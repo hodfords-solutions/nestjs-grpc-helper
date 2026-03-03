@@ -42,4 +42,10 @@ async function bootstrap() {
     console.log('App start with gRPC microservice on port 50051 and HTTP server on port 2013');
 }
 
-bootstrap().then();
+bootstrap().then(() => {
+    for (const arg of process.argv) {
+        if (arg === '--exit') {
+            process.exit(0);
+        }
+    }
+});
