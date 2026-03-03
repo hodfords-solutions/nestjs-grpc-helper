@@ -1,5 +1,5 @@
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, Observable, timeout } from 'rxjs';
+import { firstValueFrom, Observable, timeout, TimeoutError } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { trans } from '@hodfords/nestjs-cls-translation';
@@ -9,10 +9,11 @@ import { Logger } from '@nestjs/common/services/logger.service';
 
 export class GrpcHelper<Model> {
     private serviceGrpc: any;
+    private serviceName: string;
     private methodName: string;
     private payload: any;
     private metadata = new Metadata();
-    private logger = new Logger(this.constructor.name);
+    private logger = new Logger('GrpcHelper');
 
     static with<Model>(
         client: ClientGrpc,
@@ -33,6 +34,7 @@ export class GrpcHelper<Model> {
     }
 
     service(name: string): GrpcHelper<Model> {
+        this.serviceName = name;
         this.serviceGrpc = this.client.getService<any>(name);
         return this;
     }
@@ -98,7 +100,17 @@ export class GrpcHelper<Model> {
         }
     }
 
+    private get callContext(): string {
+        return `${this.serviceName}.${this.methodName}`;
+    }
+
     private handelError(error: any): void {
+        if (error instanceof TimeoutError) {
+            const timeoutError = new Error(`gRPC timeout after ${this.options.timeout}ms calling ${this.callContext}`);
+            this.logger.error(timeoutError.message, timeoutError.stack);
+            throw new HttpException(trans('error.an_error_occurred'), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         if (error.code) {
             if (error.code == status.ABORTED) {
                 const responseError = JSON.parse(error.details);
