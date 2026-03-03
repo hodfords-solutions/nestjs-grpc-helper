@@ -1,0 +1,90 @@
+# {{title}}
+
+{{description}}
+
+## Installation
+
+```bash
+npm install --save {{packageName}}
+```
+
+## Module Setup
+
+```typescript
+import { {{moduleName}}Module } from '{{packageName}}';
+
+@Module({
+    imports: [
+        {{moduleName}}Module.register({
+            url: 'localhost:50051',
+            timeout: 5000
+        })
+    ]
+})
+export class AppModule {}
+```
+
+## Services
+
+{{#each services}}
+### {{name}}
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+Usage:
+
+```typescript
+constructor(private readonly {{camelCase name}}: {{name}}) {}
+```
+
+{{#each methods}}
+#### `{{name}}`
+
+{{#if description}}
+{{description}}
+
+{{/if}}
+{{#if requestType}}- **Request:** `{{requestType}}`{{/if}}
+{{#hasItems parameters}}- **Parameters:**
+{{#each parameters}}
+  - `{{name}}`: `{{type}}{{#if isArray}}[]{{/if}}`{{#unless required}} (optional){{/unless}}
+{{/each}}
+{{/hasItems}}
+{{#if responseType}}- **Response:** `{{responseType}}`{{/if}}
+
+```typescript
+{{{usage}}}
+```
+
+{{/each}}
+{{/each}}
+
+## Models
+
+{{#each models}}
+### {{name}}
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+{{#each properties}}
+| {{name}} | `{{type}}` | {{#if required}}Yes{{else}}No{{/if}} | {{description}} |
+{{/each}}
+
+{{/each}}
+
+{{#if enums.length}}
+## Enums
+
+{{#each enums}}
+### {{name}}
+
+| Value |
+|-------|
+{{#each values}}
+| `{{this}}` |
+{{/each}}
+
+{{/each}}
+{{/if}}

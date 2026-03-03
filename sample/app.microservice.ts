@@ -23,19 +23,19 @@ import { PaginationDto } from '../lib/dto/pagination.dto';
 import { SortDto } from '../lib/dto/sort.dto';
 
 @Controller()
-@RegisterGrpcMicroservice()
+@RegisterGrpcMicroservice('User management microservice for handling user CRUD operations and queries')
 @UseFilters(GrpcExceptionFilter)
 @UsePipes(new ValidationPipe())
 @UseResponseInterceptor()
 export class AppMicroservice {
-    @GrpcAction('Get user by id')
+    @GrpcAction('Retrieve a single user with paginated related data by search criteria')
     @ResponseModel(UserPaginationResponse)
     @ApiOperation({ description: 'test' })
     findOne(@GrpcValue() param: ParamDto): UserPaginationResponse {
         return { items: [{ name: 'test' }, { name: 'test2' }], total: 10, lastPage: 1, perPage: 1, currentPage: 1 };
     }
 
-    @GrpcAction('Find many user')
+    @GrpcAction('Search and return multiple users matching the given filter criteria')
     @ResponseModel(UserResponse, true)
     @ApiOperation({ description: 'test' })
     findMany(@GrpcValue() param: FindManyDto): UserResponse[] {
@@ -43,81 +43,85 @@ export class AppMicroservice {
         return [{ name: 'test' }, { name: 'test2' }];
     }
 
-    @GrpcAction('Get empty data')
+    @GrpcAction('Search users without a defined response model')
     emptyFunction(@GrpcValue() param: FindManyDto): UserResponse[] {
         console.log(param);
         return [{ name: 'test' }, { name: 'test2' }];
     }
 
-    @GrpcAction('Get empty data')
+    @GrpcAction('List all users without any filter parameters')
     emptyParams(): UserResponse[] {
         return [{ name: 'test' }, { name: 'test2' }];
     }
 
-    @GrpcAction('Any Dto')
+    @GrpcAction('Search users by name with flexible data input')
     @ResponseModel(UserResponse, true)
     anyDto(@GrpcValue() param: AnyDto): UserResponse[] {
         console.log(param);
         return [{ name: param.data, isAdmin: true }, { name: 'test2' }];
     }
 
-    @GrpcAction('Native response boolean')
+    @GrpcAction('Check if a user is active, returns a boolean status')
     @ResponseModel(Boolean)
     @MockResponseSample(true)
-    nativeResponse(@GrpcValue() param: AnyDto): any {
+    checkUserActive(@GrpcValue() param: AnyDto): any {
         return false;
     }
 
-    @GrpcAction('Native response string')
+    @GrpcAction('Get the display name of a user as a string')
     @ResponseModel(String)
     @MockResponseMethod('faker.string.alpha')
-    nativeString(@GrpcValue() param: AnyDto): any {
+    getUserDisplayName(@GrpcValue() param: AnyDto): any {
         return 'test';
     }
 
-    @GrpcAction('Native response number')
+    @GrpcAction('Count the total number of users matching criteria')
     @ResponseModel(Number)
     @MockResponseMethod('faker.number.int', [{ min: 1, max: 100 }])
-    nativeNumber(@GrpcValue() param: AnyDto): any {
+    countUsers(@GrpcValue() param: AnyDto): any {
         return 1;
     }
 
-    @GrpcAction('Native response float')
+    @GrpcAction('Calculate the average rating score for a user')
     @ResponseModel(Number)
-    nativeFloat(@GrpcValue() param: AnyDto): any {
+    getUserRating(@GrpcValue() param: AnyDto): any {
         return 1.5;
     }
 
-    @GrpcAction('Native response string')
+    @GrpcAction('Get a list of tags associated with a user')
     @ResponseModel(String, true)
-    nativeArrayString(@GrpcValue() param: AnyDto): string[] {
+    getUserTags(@GrpcValue() param: AnyDto): string[] {
         return ['test', 'test2', 'test3'];
     }
 
-    @GrpcAction('Native response string')
+    @GrpcAction('Get the permission flags for a user')
     @ResponseModel(Boolean, true)
-    nativeArrayBoolean(@GrpcValue() param: AnyDto): boolean[] {
+    getUserPermissions(@GrpcValue() param: AnyDto): boolean[] {
         return [true, false, true];
     }
 
-    @GrpcAction('Native response string')
+    @GrpcAction('Get the role priority values for a user')
     @ResponseModel(Number, true)
-    nativeArrayNumber(@GrpcValue() param: AnyDto): number[] {
+    getUserRolePriorities(@GrpcValue() param: AnyDto): number[] {
         return [1, Math.random(), 2];
     }
 
-    @GrpcAction('Single params')
+    @GrpcAction('Retrieve a user by ID along with related user IDs from gRPC metadata')
     @ResponseModel(String)
-    singleParam(@GrpcId('userId') userId: string, @GrpcIds('userIds') userIds: string[], metadata: Metadata): any {
+    getUserWithRelations(
+        @GrpcId('userId') userId: string,
+        @GrpcIds('userIds') userIds: string[],
+        metadata: Metadata
+    ): any {
         console.log('userId', userId);
         console.log('userIds', userIds);
         console.log('metadata', metadata);
         return '123';
     }
 
-    @GrpcAction('Single params')
+    @GrpcAction('Retrieve a user by ID filtered by their account type')
     @ResponseModel(String)
-    singleParamWithEnum(
+    getUserByType(
         @GrpcId('userId') userId: string,
         @GrpcEnum({
             name: 'userType',
@@ -131,31 +135,31 @@ export class AppMicroservice {
         return '123';
     }
 
-    @GrpcAction('flatten params')
+    @GrpcAction('Search users with flattened individual search parameters')
     @SdkFlattenParams()
     @ResponseModel(String)
-    flattenParams(@GrpcValue() param: ParamDto): any {
+    searchUsersFlattened(@GrpcValue() param: ParamDto): any {
         console.log('flatten params', param);
         return '123';
     }
 
-    @GrpcAction('testMetadata')
+    @GrpcAction('Look up an address and return the resolved location identifier')
     @ResponseModel(String)
-    testMetadata(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
+    resolveAddress(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
         console.log('param', param);
         console.log('metadata', metadata);
         return '123';
     }
 
-    @GrpcAction('nullOrData')
+    @GrpcAction('Find an address and return null if not found')
     @ResponseModel(String, false, true)
-    nullOrData(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
+    findAddressOrNull(@GrpcValue() param: ParamNestedDto, metadata: Metadata): any {
         return null;
     }
 
-    @GrpcAction('userOrNull')
+    @GrpcAction('Find a user by address, returning null when no match exists')
     @ResponseModel(UserResponse, { isAllowEmpty: true })
-    userOrNull(@GrpcValue() param: ParamNestedDto): UserResponse | null {
+    findUserByAddress(@GrpcValue() param: ParamNestedDto): UserResponse | null {
         if (param.address !== 'exists') {
             return null;
         }
@@ -163,9 +167,9 @@ export class AppMicroservice {
         return { name: 'test' };
     }
 
-    @GrpcAction('paginate')
+    @GrpcAction('List users with pagination, sorting, and workspace scoping')
     @ResponseModel(String)
-    paginate(
+    listUsers(
         @GrpcValue() param: ParamNestedDto,
         @GrpcPagination() pagination: PaginationDto,
         @GrpcSort() sortParam: SortDto,
@@ -178,9 +182,9 @@ export class AppMicroservice {
         return '123';
     }
 
-    @GrpcAction('metadata')
+    @GrpcAction('Get the current workspace identifier from gRPC metadata')
     @ResponseModel(String)
-    metadata(@GrpcMetadataId('workspace-id') workspaceId: string): any {
+    getWorkspaceId(@GrpcMetadataId('workspace-id') workspaceId: string): any {
         console.log('workspaceId', workspaceId);
         return '123';
     }

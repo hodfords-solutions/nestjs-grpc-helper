@@ -17,5 +17,5 @@
         "classpath"
     ],
     "flagWords": ["hte"],
-    "ignorePaths": ["node_modules/**", "cspell.json", "frontend"]
+    "ignorePaths": ["node_modules/**", "cspell.json", "frontend", "CLAUDE.md"]
 }

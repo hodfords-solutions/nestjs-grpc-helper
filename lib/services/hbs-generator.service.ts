@@ -1,6 +1,7 @@
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
+import { camelCase } from 'lodash';
 
 export class HbsGeneratorService {
     constructor() {
@@ -10,6 +11,9 @@ export class HbsGeneratorService {
             } else {
                 return options.inverse(this);
             }
+        });
+        Handlebars.registerHelper('camelCase', function (str: string) {
+            return camelCase(str);
         });
     }
 
