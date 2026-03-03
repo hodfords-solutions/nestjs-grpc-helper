@@ -36,7 +36,7 @@ export class AppModule {}
 Usage:
 
 ```typescript
-constructor(private readonly {{camelCase name}}: {{name}}) {}
+constructor(private {{camelCase name}}: {{name}}) {}
 ```
 
 {{#each methods}}
@@ -59,6 +59,17 @@ constructor(private readonly {{camelCase name}}: {{name}}) {}
 ```
 
 {{/each}}
+
+### Lack of Methods
+
+For methods that don't exist, if processing is needed, use a mock method with the full methodName, description, and handler.
+
+```typescript
+this.{{camelCase name}}.mock('methodName', 'Description of the method', (args) => {
+    // Handle the mock logic here
+    return { /* mock response */ };
+});
+```
 {{/each}}
 
 ## Models
