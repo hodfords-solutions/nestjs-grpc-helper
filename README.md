@@ -88,7 +88,11 @@ Details of the configuration:
 | removeOutput      | Remove the output directory                           |
 | addAllowDecorator | Add the allow decorator, need class-validator package |
 | tsconfig          | TypeScript configuration                              |
+| aiSkill           | AI skill configuration (optional)                     |
+| aiSkill.name      | Name of the AI skill                                  |
+| aiSkill.description | Description of the AI skill                         |
 
+When `aiSkill` is configured, the SDK build will generate a `SKILL.md` file and a `skill.json` metadata file in the output directory. These files describe your gRPC services, models, and enums in a format that AI agents can consume.
 
 To generate the SDK, run the following command:
 ```shell
@@ -181,6 +185,16 @@ For example, to create an array of 5 nested objects
 @MockNested(5)
 users: UserResponse[];
 ```
+
+### AI Agent Skill
+
+After publishing the SDK, you can copy the generated AI skill files into your project for AI agents (e.g., Claude, Antigravity) to use. Run the `update-ai-skill` command with a package name pattern and the target AI:
+
+```shell
+npm run wz-command update-ai-skill "@hodfords/*" claude
+```
+
+This copies the `SKILL.md` files from matching packages in `node_modules` into the appropriate AI skills directory (`.claude/skills` for Claude, `.agent/skills` for Antigravity).
 
 ### Document for GRPC
 

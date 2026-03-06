@@ -5,6 +5,7 @@ import { ClientsModule } from '@nestjs/microservices';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
 import { GenerateSdkCommand } from '../commands/generate-sdk.command';
+import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command';
 
 @Module({})
 export class MicroserviceDocumentModule {
@@ -30,7 +31,8 @@ export class MicroserviceDocumentModule {
                             provide: 'DOCUMENT_OPTIONS',
                             useValue: options
                         },
-                        GenerateSdkCommand
+                        GenerateSdkCommand,
+                        UpdateAiSkillCommand
                     ],
                     controllers: [MicroserviceDocumentController],
                     imports: [
