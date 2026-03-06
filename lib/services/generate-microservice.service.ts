@@ -267,6 +267,11 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
             copyFileSync(skillMdPath, path.join(process.cwd(), this.config.outputBuild, 'SKILL.md'));
         }
 
+        const skillConfigPath = path.join(process.cwd(), this.config.output, 'skill.json');
+        if (fs.existsSync(skillConfigPath)) {
+            copyFileSync(skillConfigPath, path.join(process.cwd(), this.config.outputBuild, 'skill.json'));
+        }
+
         if (this.config.tsconfig) {
             fs.unlinkSync(path.join(process.cwd(), tsConfigName));
         }

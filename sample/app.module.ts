@@ -9,9 +9,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
 import { ResponseModule } from '@hodfords/nestjs-response';
 
+export const commandModule = CommandModule.register(false, false);
+
 @Module({
     imports: [
-        CommandModule,
+        commandModule,
         ResponseModule.forRoot(),
         MicroserviceDocumentModule.register({
             isEnable: true,

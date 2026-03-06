@@ -28,6 +28,10 @@ export class GenerateSkillService extends HbsGeneratorService {
         const data = {
             title: this.config.name,
             description: packageFile.description || '',
+            aiSkill: {
+                name: this.config.aiSkill?.name || this.config.name,
+                description: this.config.aiSkill?.description || packageFile.description || ''
+            },
             packageName,
             moduleName,
             services: this.collectServices(),
@@ -39,6 +43,10 @@ export class GenerateSkillService extends HbsGeneratorService {
         const filePath = path.join(this.config.output, 'SKILL.md');
         fs.ensureFileSync(filePath);
         fs.writeFileSync(filePath, content);
+
+        const skillConfigPath = path.join(this.config.output, 'skill.json');
+        fs.ensureFileSync(skillConfigPath);
+        fs.writeFileSync(skillConfigPath, JSON.stringify(data.aiSkill));
     }
 
     private collectServices() {
