@@ -14,7 +14,9 @@
         "devkit",
         "npmjs",
         "postbuild",
-        "classpath"
+        "classpath",
+        "keepalive",
+        "myorg"
     ],
     "flagWords": ["hte"],
     "ignorePaths": ["node_modules/**", "cspell.json", "frontend", "CLAUDE.md"]

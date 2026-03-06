@@ -1,6 +1,6 @@
 {
     "name": "@hodfords/nestjs-grpc-helper",
-    "version": "11.4.0-rc.25",
+    "version": "11.4.0-rc.26",
     "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
     "author": "",
     "license": "UNLICENSED",
@@ -14,7 +14,7 @@
         "format": "prettier --write \"sample/**/*.ts\" \"lib/**/*.ts\"",
         "start:dev": "npm run prebuild && nest start --watch",
         "build:sample-sdk": "npm run prebuild && nest start -- --exit",
-        "postbuild": "cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib",
+        "postbuild": "cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib && cp skill.json dist/lib && cp SKILL.md dist/lib",
         "lint": "eslint \"{sample,apps,lib,test}/**/*.ts\" --fix",
         "wz-command": "wz-command",
         "prepare": "is-ci || husky",
