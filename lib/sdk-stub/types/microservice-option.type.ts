@@ -8,7 +8,8 @@ export type MicroserviceModuleOptionType = {
     maxReceiveMessageLength?: number;
     shouldLoadEmptyArray?: boolean;
     requestInitializer?: (metadata: Metadata) => void;
-} & GrpcOptions['options'];
+    package?: string | string[];
+} & Omit<GrpcOptions['options'], 'package'>;
 
 export type MicroserviceClientOptionType = {
     timeout: number;
