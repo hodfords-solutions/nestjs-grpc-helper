@@ -49,7 +49,7 @@ export class UpdateAiSkillCommand extends BaseCommand {
 
             const skillMdPath = path.join(pkgPath, 'SKILL.md');
             if (fs.existsSync(skillMdPath)) {
-                fs.copyFileSync(skillMdPath, path.join(skillFolderPath, 'SKILL.md'));
+                fs.symlinkSync(skillMdPath, path.join(skillFolderPath, 'SKILL.md'));
             }
 
             skills.push(skillName);
