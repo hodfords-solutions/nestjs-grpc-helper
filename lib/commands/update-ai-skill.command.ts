@@ -43,15 +43,7 @@ export class UpdateAiSkillCommand extends BaseCommand {
             if (skills.includes(skillName)) {
                 return this.error(`Duplicate skill name ${skillName} in package ${pkg}, skill names must be unique`);
             }
-
-            const skillFolderPath = path.join(aiSkillPath, skillName);
-            fs.mkdirSync(skillFolderPath, { recursive: true });
-
-            const skillMdPath = path.join(pkgPath, 'SKILL.md');
-            if (fs.existsSync(skillMdPath)) {
-                fs.symlinkSync(skillMdPath, path.join(skillFolderPath, 'SKILL.md'));
-            }
-
+            this.syncSkillMd(pkgPath, path.join(aiSkillPath, skillName));
             skills.push(skillName);
         }
 
@@ -59,6 +51,19 @@ export class UpdateAiSkillCommand extends BaseCommand {
             return this.error(`No skill found in packages matching ${packageName}`);
         }
         this.success(`Copy AI skills successfully: ${skills.join(', ')}`);
+    }
+
+    private syncSkillMd(pkgPath: string, skillFolderPath: string) {
+        const skillMdPath = path.join(pkgPath, 'SKILL.md');
+        const newSkillPath = path.join(skillFolderPath, 'SKILL.md');
+
+        if (fs.existsSync(skillMdPath)) {
+            if (fs.existsSync(newSkillPath)) {
+                fs.rmSync(skillFolderPath, { recursive: true, force: true });
+            }
+            fs.mkdirSync(skillFolderPath, { recursive: true });
+            fs.symlinkSync(skillMdPath, newSkillPath);
+        }
     }
 
     private getAllPackages(): string[] {
