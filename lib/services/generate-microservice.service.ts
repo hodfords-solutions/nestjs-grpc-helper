@@ -214,7 +214,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();
         const body =
             methodTemplateService instanceof MockMethodTemplateService
-                ? methodTemplateService.templateBody(response, constructor, propertyKey)
+                ? methodTemplateService.templateBody(response, constructor, propertyKey, directParams)
                 : methodTemplateService.templateBody(
                       response,
                       constructor.name,

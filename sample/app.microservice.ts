@@ -4,12 +4,14 @@ import {
     SdkFlattenParams,
     GrpcAction,
     GrpcValue,
+    MockResponseCallback,
     MockResponseMethod,
     MockResponseSample,
     RegisterGrpcMicroservice,
     GrpcPagination,
     GrpcSort,
-    GrpcMetadataId
+    GrpcMetadataId,
+    sample
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
@@ -61,6 +63,15 @@ export class AppMicroservice {
         return [{ name: param.data, isAdmin: true }, { name: 'test2' }];
     }
 
+    @GrpcAction('Get users by name with dynamic mock data based on input')
+    @ResponseModel(UserResponse, true)
+    @MockResponseCallback((param: AnyDto, sample, model) => {
+        return sample(model);
+    })
+    getUsersByName(@GrpcValue() param: AnyDto): UserResponse[] {
+        return [];
+    }
+
     @GrpcAction('Check if a user is active, returns a boolean status')
     @ResponseModel(Boolean)
     @MockResponseSample(true)
@@ -108,6 +119,9 @@ export class AppMicroservice {
 
     @GrpcAction('Retrieve a user by ID along with related user IDs from gRPC metadata')
     @ResponseModel(String)
+    @MockResponseCallback((userId: string, userIds: string[], sample, model) => {
+        return sample(model);
+    })
     getUserWithRelations(
         @GrpcId('userId') userId: string,
         @GrpcIds('userIds') userIds: string[],

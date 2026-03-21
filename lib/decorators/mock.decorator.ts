@@ -56,3 +56,16 @@ export function MockResponseMethod(method: MockMethodType, args?: any[]): Method
         );
     };
 }
+
+export function MockResponseCallback(callback: (...args: any[]) => any): MethodDecorator {
+    return function (target: object, propertyKey: string): void {
+        Reflect.defineMetadata(
+            'mock:response',
+            {
+                callback
+            },
+            target.constructor,
+            propertyKey
+        );
+    };
+}
