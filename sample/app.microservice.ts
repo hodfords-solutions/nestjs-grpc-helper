@@ -10,8 +10,7 @@ import {
     RegisterGrpcMicroservice,
     GrpcPagination,
     GrpcSort,
-    GrpcMetadataId,
-    sample
+    GrpcMetadataId
 } from '@hodfords/nestjs-grpc-helper';
 import { UserPaginationResponse } from './responses/user-pagination.response';
 import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';

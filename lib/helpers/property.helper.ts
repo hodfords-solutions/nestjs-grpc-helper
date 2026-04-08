@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { isFunction } from '@nestjs/common/utils/shared.utils';
+import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
 import { propertyStorage, sdkDtos } from '../storages/property.storage';
 import { differenceBy } from 'lodash';
 import { PropertyOptionType, PropertyType } from '../types/property-option.type';
+import { microserviceStorage } from '../storages/microservice.storage';
+import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
+import { isPrimitiveType } from './type.helper';
 
 export function getClassHasProperties() {
     return propertyStorage.keys();
@@ -80,9 +84,51 @@ export function getPropertiesOfClass(constructor: Function, properties = []): Pr
     return properties;
 }
 
+export function collectMethodUsedClasses(): Set<Function> {
+    const usedClasses = new Set<Function>();
+
+    for (const constructor of microserviceStorage) {
+        const propertyKeys = Object.getOwnPropertyNames(constructor.prototype);
+        for (const propertyKey of propertyKeys) {
+            if (!Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
+                continue;
+            }
+
+            const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
+            const parameterIndex = Reflect.getMetadata(
+                GRPC_PARAM_INDEX_METADATA_KEY,
+                constructor.prototype,
+                propertyKey
+            );
+            if (!isUndefined(parameterIndex) && params?.[parameterIndex]) {
+                usedClasses.add(params[parameterIndex]);
+            }
+
+            const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
+            if (response?.responseClass) {
+                if (isPrimitiveType(response.responseClass)) {
+                    const nativeClassName = `Native${response.responseClass.name}Value`;
+                    for (const dto of sdkDtos) {
+                        if (dto.name === nativeClassName) {
+                            usedClasses.add(dto);
+                            break;
+                        }
+                    }
+                } else {
+                    usedClasses.add(response.responseClass);
+                }
+            }
+        }
+    }
+
+    return usedClasses;
+}
+
 export function traverseSDKProperties(): Function[] {
-    const queue: Function[] = Array.from(sdkDtos.keys());
-    const auditor = new Set(sdkDtos);
+    const usedClasses = collectMethodUsedClasses();
+    const seedDtos = Array.from(usedClasses).filter((dto) => propertyStorage.has(dto));
+    const queue: Function[] = [...seedDtos];
+    const auditor = new Set<Function>(seedDtos);
     const responses: Function[] = [];
 
     while (queue.length) {
