@@ -5,6 +5,7 @@ export * from './decorators/grpc-value.decorator';
 export * from './decorators/grpc-param.decorator';
 export * from './decorators/grpc-metadata.decorator';
 export * from './decorators/extend-type.decorator';
+export * from './decorators/sdk-expose.decorator';
 export * from './decorators/any-type.decorator';
 export * from './helpers/generate.helper';
 export * from './helpers/mock.helper';

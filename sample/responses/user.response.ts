@@ -1,9 +1,18 @@
 import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
-import { MockMethod, MockSample, Property } from '@hodfords/nestjs-grpc-helper';
+import { MockMethod, MockSample, Property, SdkExpose } from '@hodfords/nestjs-grpc-helper';
 import { UserTypeEnum } from '../enums/user-type.enum';
 import { Type } from 'class-transformer';
 
 export class NestedUnusedUserResponse {
+    @Property({ type: String, required: false })
+    @MockMethod('faker.person.firstName')
+    @IsString()
+    @IsOptional()
+    name?: string;
+}
+
+@SdkExpose()
+export class UnusedWithDecorator {
     @Property({ type: String, required: false })
     @MockMethod('faker.person.firstName')
     @IsString()

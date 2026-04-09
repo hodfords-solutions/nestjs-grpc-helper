@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
+import { propertyStorage, sdkDtos, sdkExposedClasses } from '../storages/property.storage';
 import { differenceBy } from 'lodash';
 import { PropertyOptionType, PropertyType } from '../types/property-option.type';
 import { microserviceStorage } from '../storages/microservice.storage';
@@ -45,8 +45,10 @@ function removeOverridableProperties(
     return differenceBy(validProperties, overridableProperties, (item) => item.name);
 }
 
-export function extractProperties(): Record<string, { option: PropertyOptionType }[]> {
-    const dtos = traverseSDKProperties();
+export function extractProperties(
+    options: { includeSdkExposed?: boolean } = {}
+): Record<string, { option: PropertyOptionType }[]> {
+    const dtos = traverseSDKProperties(options);
     const dtoWithProperties = {};
 
     for (const dto of dtos) {
@@ -124,8 +126,13 @@ export function collectMethodUsedClasses(): Set<Function> {
     return usedClasses;
 }
 
-export function traverseSDKProperties(): Function[] {
+export function traverseSDKProperties(options: { includeSdkExposed?: boolean } = {}): Function[] {
     const usedClasses = collectMethodUsedClasses();
+    if (options.includeSdkExposed) {
+        for (const exposedClass of sdkExposedClasses) {
+            usedClasses.add(exposedClass);
+        }
+    }
     const seedDtos = Array.from(usedClasses).filter((dto) => propertyStorage.has(dto));
     const queue: Function[] = [...seedDtos];
     const auditor = new Set<Function>(seedDtos);

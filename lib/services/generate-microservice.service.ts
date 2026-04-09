@@ -146,7 +146,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateModels() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         const contents = Object.keys(dtoWithProperties).map((name) =>
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
@@ -163,7 +163,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateEnums() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         const properties = Object.values(dtoWithProperties).flat();
         const generatedEnumAuditor = new Set<string>();
         const contents = [];

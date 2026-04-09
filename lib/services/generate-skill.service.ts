@@ -110,7 +110,7 @@ export class GenerateSkillService extends HbsGeneratorService {
     }
 
     private collectModels() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         return Object.keys(dtoWithProperties).map((name) => {
             const properties = (dtoWithProperties[name] as PropertyType[]).map((property) => {
                 const type = convertProtoTypeToTypescript(property.option, true);
@@ -127,7 +127,7 @@ export class GenerateSkillService extends HbsGeneratorService {
     }
 
     private collectEnums() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         const properties = Object.values(dtoWithProperties).flat();
         const generatedEnumAuditor = new Set<string>();
         const enums = [];
