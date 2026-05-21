@@ -3,6 +3,11 @@ import { MockMethod, MockSample, Property, SdkExpose } from '@hodfords/nestjs-gr
 import { UserTypeEnum } from '../enums/user-type.enum';
 import { Type } from 'class-transformer';
 
+export enum UnusedEnum {
+    A = 'A',
+    B = 'B'
+}
+
 export class NestedUnusedUserResponse {
     @Property({ type: String, required: false })
     @MockMethod('faker.person.firstName')

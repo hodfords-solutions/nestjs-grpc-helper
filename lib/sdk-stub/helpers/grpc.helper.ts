@@ -1,11 +1,11 @@
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable, timeout, TimeoutError } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { trans } from '@hodfords/nestjs-cls-translation';
 import { Metadata, status } from '@grpc/grpc-js';
 import { MicroserviceClientOptionType } from '../types/microservice-option.type';
 import { Logger } from '@nestjs/common/services/logger.service';
+import { applyTransforms } from '@hodfords/nestjs-response';
 
 export class GrpcHelper<Model> {
     private serviceGrpc: any;
@@ -46,7 +46,8 @@ export class GrpcHelper<Model> {
 
     data(data: any, parameterModel?: any): GrpcHelper<Model> {
         if (parameterModel) {
-            this.payload = plainToInstance(parameterModel, data, { groups: ['__sendData'] });
+            // this.payload = plainToInstance(parameterModel, data, { groups: ['__sendData'] });
+            this.payload = applyTransforms(structuredClone(data), parameterModel, { groups: ['__sendData'] });
         } else {
             this.payload = data;
         }
@@ -68,12 +69,12 @@ export class GrpcHelper<Model> {
                 data = data.value;
             }
             if (data.grpcNullable) {
-                return [plainToInstance(this.model, data.value || null, { groups: ['__getData'] })];
+                return [applyTransforms(data.value || null, this.model as any, { groups: ['__getData'] })];
             }
             if (Array.isArray(data)) {
-                return plainToInstance(this.model, data, { groups: ['__getData'] });
+                return applyTransforms(data, this.model as any, { groups: ['__getData'] });
             } else {
-                return [plainToInstance(this.model, data, { groups: ['__getData'] })];
+                return [applyTransforms(data, this.model as any, { groups: ['__getData'] })];
             }
         } catch (exception) {
             this.logger.error(exception);

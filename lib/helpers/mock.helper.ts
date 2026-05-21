@@ -1,9 +1,9 @@
 import { getPropertiesOfClass } from './property.helper';
-import { plainToInstance } from 'class-transformer';
 import { faker } from '@faker-js/faker';
 import { get } from 'lodash';
 import { PropertyOptionType } from '../types/property-option.type';
 import { MockOptionType } from '../types/mock-option.type';
+import { applyTransforms } from '@hodfords/nestjs-response';
 
 function resolveType(type: any) {
     if (typeof type === 'function' && type.name === 'type') {
@@ -68,5 +68,5 @@ export function sample<T>(dto: new (...args: any[]) => T, depth = 0, visited: Se
 
     visited.delete(dto);
 
-    return plainToInstance(dto, data);
+    return applyTransforms(data, dto as any) as T;
 }
