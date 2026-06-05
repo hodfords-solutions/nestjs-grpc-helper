@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { Metadata } from '@grpc/grpc-js';
 import { SdkNameModule } from '../../sdk';
 import { ConsumerRunner } from './consumer.runner';
 
@@ -14,7 +15,12 @@ import { ConsumerRunner } from './consumer.runner';
     imports: [
         SdkNameModule.register({
             url: 'localhost:50059',
-            timeout: 5000
+            timeout: 5000,
+            // Attach gRPC metadata to every request (e.g. for methods that read
+            // a `workspace-id` header via @GrpcMetadataId on the server). The
+            // server validates it as a UUID.
+            requestInitializer: (metadata: Metadata) =>
+                metadata.add('workspace-id', '550e8400-e29b-41d4-a716-446655440000')
         })
     ],
     providers: [ConsumerRunner]

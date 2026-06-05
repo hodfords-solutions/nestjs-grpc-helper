@@ -45,12 +45,14 @@ export class AppMicroservice {
     }
 
     @GrpcAction('Search users without a defined response model')
+    @ResponseModel(UserResponse, true)
     emptyFunction(@GrpcValue() param: FindManyDto): UserResponse[] {
         console.log(param);
         return [{ name: 'test' }, { name: 'test2' }];
     }
 
     @GrpcAction('List all users without any filter parameters')
+    @ResponseModel(UserResponse, true)
     emptyParams(): UserResponse[] {
         return [{ name: 'test' }, { name: 'test2' }];
     }
