@@ -4,7 +4,7 @@ import { AppModule, commandModule } from './app.module';
 import { generateProtoService } from '@hodfords/nestjs-grpc-helper';
 import path from 'path';
 
-generateProtoService('HERO', path.join(__dirname, '../../proto'));
+generateProtoService('sdkName', path.join(__dirname, '../../proto'));
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const commandService: CommandService = app.select(commandModule).get(CommandService, { strict: false });

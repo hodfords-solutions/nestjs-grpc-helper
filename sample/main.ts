@@ -7,9 +7,9 @@ import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-generateProtoService('HERO', path.join(__dirname, '../../proto'));
+// generateProtoService('sdkName', path.join(__dirname, '../../proto'));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-generateSdk(require(path.join(__dirname, '../sdk-config.json')));
+// generateSdk(require(path.join(__dirname, '../sdk-config.json')));
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -32,7 +32,7 @@ async function bootstrap() {
         transport: Transport.GRPC,
         options: {
             url: '0.0.0.0:50059',
-            package: 'HERO',
+            package: 'sdkName',
             protoPath: path.join(__dirname, '../../proto/microservice.proto')
         }
     });

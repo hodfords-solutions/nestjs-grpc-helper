@@ -17,12 +17,12 @@ export const commandModule = CommandModule.register(false, false);
         ResponseModule.forRoot(),
         MicroserviceDocumentModule.register({
             isEnable: true,
-            packageName: 'HERO',
+            packageName: 'sdkName',
             clientOptions: {
                 customClass: CustomGrpcClient,
                 options: {
                     url: '0.0.0.0:50059',
-                    package: 'HERO',
+                    package: 'sdkName',
                     protoPath: path.join(__dirname, '../../proto/microservice.proto')
                 }
             }
