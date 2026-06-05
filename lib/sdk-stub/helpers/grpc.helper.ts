@@ -67,8 +67,7 @@ export class GrpcHelper<Model> {
             }
             if (data.grpcNative) {
                 data = data.value;
-            }
-            if (data.grpcNullable) {
+            } else if (data.grpcNullable) {
                 return [applyTransforms(data.value || null, this.model as any, { groups: ['__getData'] })];
             }
             if (Array.isArray(data)) {
