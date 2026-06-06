@@ -10,7 +10,14 @@ export function AnyType({ isDto }: { isDto?: boolean } = {}) {
             return JSON.stringify(object.value);
         }
         if (object.options.groups?.includes('__getData')) {
-            return JSON.parse(object.value);
+            if (typeof object.value !== 'string') {
+                return object.value;
+            }
+            try {
+                return JSON.parse(object.value);
+            } catch {
+                return object.value;
+            }
         }
 
         return object.value;
