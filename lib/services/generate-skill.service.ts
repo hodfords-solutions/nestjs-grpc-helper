@@ -52,7 +52,7 @@ export class GenerateSkillService extends HbsGeneratorService {
     private collectServices() {
         const services = [];
         for (const constructor of microserviceStorage) {
-            const description = Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, constructor.prototype);
+            const description = Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, constructor);
             const propertyKeys = Object.getOwnPropertyNames(constructor.prototype);
             const methods = propertyKeys
                 .map((propertyKey) => this.collectMethod(constructor, propertyKey))

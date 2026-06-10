@@ -1,6 +1,6 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { generateSdk } from 'lib/helpers/generate.helper';
+import { generateSdk } from '../helpers/generate.helper';
 
 @Command({
     signature: 'make-sdk [configFile]',

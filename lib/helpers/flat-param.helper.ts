@@ -11,7 +11,7 @@ export function moveMetadata(origin: any, destination: any) {
     for (const key of metadataKeys) {
         const metadata = Reflect.getMetadata(key, origin);
         Reflect.defineMetadata(key, metadata, destination);
-        Reflect.deleteMetadata(key, metadata, origin);
+        Reflect.deleteMetadata(key, origin);
     }
 }
 

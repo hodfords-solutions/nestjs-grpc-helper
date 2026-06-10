@@ -8,7 +8,7 @@ export function PartialResponseType<T>(classRef: Type<T>): Type<Partial<T>> {
 
     abstract class PartialTypeClass extends swaggerPartialType {}
 
-    const properties = propertyStorage.get(classRef);
+    const properties = propertyStorage.get(classRef) || [];
     for (const property of properties) {
         addPropertyToStorage(PartialTypeClass, property.name, { ...property.option, required: false });
     }

@@ -17,6 +17,9 @@
         "build:sample-sdk": "npm run prebuild && nest start -- --exit",
         "postbuild": "cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib && cp skill.json dist/lib && cp SKILL.md dist/lib",
         "lint": "eslint \"{sample,apps,lib,test}/**/*.ts\" --fix",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:cov": "jest --coverage",
         "wz-command": "wz-command",
         "prepare": "is-ci || husky",
         "version": "auto-changelog && git add CHANGELOG.md",
@@ -112,7 +115,7 @@
             "<rootDir>/lib/"
         ],
         "moduleNameMapper": {
-            "^@hodfords/nestjs-grpc-helper(|/.*)$": "<rootDir>/lib/nestjs-grpc-helper/src/$1"
+            "^@hodfords/nestjs-grpc-helper$": "<rootDir>/lib"
         }
     }
 }

@@ -71,7 +71,8 @@ export class GrpcHelper<Model> {
                 return [applyTransforms(data.value || null, this.model as any, { groups: ['__getData'] })];
             }
             if (Array.isArray(data)) {
-                return applyTransforms(data, this.model as any, { groups: ['__getData'] });
+                // applyTransforms does not walk top-level arrays — transform each item individually
+                return data.map((item) => applyTransforms(item, this.model as any, { groups: ['__getData'] }));
             } else {
                 return [applyTransforms(data, this.model as any, { groups: ['__getData'] })];
             }

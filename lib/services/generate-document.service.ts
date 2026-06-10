@@ -99,7 +99,7 @@ export class GenerateDocumentService extends HbsGeneratorService {
     generateMicroservice(constructor: Function): MicroserviceDocumentType {
         const microserviceDocument: MicroserviceDocumentType = {
             name: constructor.name,
-            description: Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, constructor.prototype),
+            description: Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, constructor),
             methods: []
         };
         const propertyKeys = Object.getOwnPropertyNames(constructor.prototype);

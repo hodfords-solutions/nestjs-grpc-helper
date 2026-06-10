@@ -56,7 +56,9 @@ type EnumParamOptionType = { enumName: string; enum: EnumAllowedTypes } & Parame
 
 function getEnumType(enumObj: EnumAllowedTypes): string {
     let type: string;
-    for (const key of Object.keys(enumObj)) {
+    // Numeric enums contain reverse mappings ({ ONE: 1, '1': 'ONE' }) — only member names determine the type
+    const keys = Object.keys(enumObj).filter((key) => isNaN(Number(key)));
+    for (const key of keys) {
         const enumType = typeof enumObj[key];
         if (type && type !== enumType) {
             throw new Error('Mixed enum types are not supported in GrpcEnum decorator');
