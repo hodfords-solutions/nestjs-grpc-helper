@@ -6,6 +6,7 @@ export type SdkBuildConfigType = {
         description: string;
     };
     format?: boolean;
+    formatter?: 'prettier' | 'oxfmt';
     build?: boolean;
     addAllowDecorator?: boolean;
     output: string;

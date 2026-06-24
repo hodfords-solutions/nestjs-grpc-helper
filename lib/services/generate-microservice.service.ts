@@ -228,10 +228,13 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     formatCode() {
-        this.logger.log('Start formatting code');
-        const response = runCommand(
-            `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`
-        );
+        const formatter = this.config.formatter ?? 'prettier';
+        this.logger.log(`Start formatting code with ${formatter}`);
+        const command =
+            formatter === 'oxfmt'
+                ? `oxfmt ${this.config.output}`
+                : `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`;
+        const response = runCommand(command);
         if (response.stderr) {
             this.logger.error(response.stderr);
         } else {
