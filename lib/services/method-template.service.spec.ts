@@ -38,6 +38,18 @@ describe('MethodTemplateService', () => {
             expect(body).toContain('.getMany() as any;');
         });
 
+        it('should render a stream call returning the Observable for streaming responses', () => {
+            const response = { responseClass: UserResponseFixture, isArray: false } as any;
+            const body = normalize(
+                service.templateBody(response, 'UserService', 'streamIt', 'ParamDto', 'ParamDto', undefined, true)
+            );
+
+            expect(body).toContain('return GrpcHelper.with(this.client, UserResponseFixture, this.options)');
+            expect(body).toContain(".method('streamIt')");
+            expect(body).toContain('.stream() as any;');
+            expect(body).not.toContain('.getOne()');
+        });
+
         it('should render a fire-and-forget call without return when there is no response', () => {
             const body = normalize(
                 service.templateBody(null, 'UserService', 'doAction', 'ParamDto', 'ParamDto', undefined)
@@ -102,6 +114,13 @@ describe('MethodTemplateService', () => {
         it('should render a method without parameters', () => {
             const content = normalize(service.methodTemplate('findAll', null, 'UserResponse[]', 'BODY;', undefined));
             expect(content).toBe('async findAll(): Promise<UserResponse[]> { BODY; }');
+        });
+
+        it('should render a streaming method returning an Observable without async', () => {
+            const content = normalize(
+                service.methodTemplate('streamIt', 'ParamDto', 'ChunkResponse', 'BODY;', undefined, true)
+            );
+            expect(content).toBe('streamIt(param: ParamDto): Observable<ChunkResponse> { BODY; }');
         });
 
         it('should render direct params as a typed argument list', () => {

@@ -9,7 +9,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Logger } from '@nestjs/common/services/logger.service';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Transform } from 'class-transformer';
-import { NEVER, of, throwError } from 'rxjs';
+import { firstValueFrom, NEVER, of, throwError, toArray } from 'rxjs';
 import { GrpcHelper } from './grpc.helper';
 
 class UserModel {
@@ -157,6 +157,26 @@ describe('GrpcHelper', () => {
             const result = await createHelper().service('UserService').method('findMany').data({}).getOne();
 
             expect(result).toEqual({ name: 'JOHN' });
+        });
+    });
+
+    describe('stream', () => {
+        it('maps each streamed chunk through __getData transforms', async () => {
+            serviceGrpc.streamIt = jest.fn(() => of({ name: 'john' }, { name: 'jane' }));
+
+            const result = await firstValueFrom(
+                createHelper().service('UserService').method('streamIt').data({}).stream().pipe(toArray())
+            );
+
+            expect(result).toEqual([{ name: 'JOHN' }, { name: 'JANE' }]);
+        });
+
+        it('passes the payload and metadata to the grpc stream method', () => {
+            serviceGrpc.streamIt = jest.fn(() => of({ name: 'john' }));
+
+            createHelper().service('UserService').method('streamIt').data({ name: 'x' }).stream();
+
+            expect(serviceGrpc.streamIt).toHaveBeenCalledWith({ name: 'x' }, expect.any(Metadata));
         });
     });
 

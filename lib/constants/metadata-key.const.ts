@@ -3,4 +3,5 @@ export const FLATTEN_PARAMETERS_METADATA_KEY = 'grpc:flatten-parameters';
 export const GRPC_PARAM_INDEX_METADATA_KEY = 'grpc:parameter-index';
 export const GRPC_DESCRIPTION_METADATA_KEY = 'grpc:description';
 export const GRPC_METHOD_METADATA_KEY = 'grpc:method';
+export const GRPC_STREAM_METADATA_KEY = 'grpc:stream';
 export const GRPC_METADATA_PARAMETERS_METADATA_KEY = 'grpc:metadata-parameters';

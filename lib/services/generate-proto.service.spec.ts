@@ -8,7 +8,7 @@ import * as os from 'os';
 import path from 'path';
 import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator';
 import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
 import { Property } from '../decorators/property.decorator';
 import { GenerateProtoService } from './generate-proto.service';
 
@@ -95,6 +95,12 @@ export class ProtoFixtureMicroservice {
 
     @GrpcAction('No params and no response')
     noopAction(): void {}
+
+    @GrpcStreamAction('Stream fixtures')
+    @ResponseModel(ProtoFixtureResponse)
+    streamFixtures(@GrpcValue() param: ProtoFixtureDto): ProtoFixtureResponse {
+        return param as any;
+    }
 }
 
 describe('GenerateProtoService', () => {
@@ -128,6 +134,10 @@ describe('GenerateProtoService', () => {
 
     it('should use google.protobuf.Empty when there is no parameter and no response', () => {
         expect(protoContent).toContain('rpc noopAction (google.protobuf.Empty) returns (google.protobuf.Empty) {}');
+    });
+
+    it('should emit a server-streaming rpc for stream actions', () => {
+        expect(protoContent).toContain('rpc streamFixtures (ProtoFixtureDto) returns (stream ProtoFixtureResponse) {}');
     });
 
     it('should wrap nullable responses with the nullable wrapper message', () => {

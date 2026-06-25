@@ -21,7 +21,7 @@ import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
 import { GenerateSkillService } from './generate-skill.service';
-import { GRPC_METHOD_METADATA_KEY } from '../constants/metadata-key.const';
+import { GRPC_METHOD_METADATA_KEY, GRPC_STREAM_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -211,20 +211,29 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
 
         const { parameterName, directParams } = resolveMethodParams(constructor, propertyKey);
         const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
+        const isStream = Boolean(Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, constructor.prototype, propertyKey));
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();
         const body =
             methodTemplateService instanceof MockMethodTemplateService
-                ? methodTemplateService.templateBody(response, constructor, propertyKey, directParams)
+                ? methodTemplateService.templateBody(response, constructor, propertyKey, directParams, isStream)
                 : methodTemplateService.templateBody(
                       response,
                       constructor.name,
                       propertyKey,
                       parameterName,
                       parameterName,
-                      directParams
+                      directParams,
+                      isStream
                   );
         const returnType = getReturnType(response);
-        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body, directParams);
+        return methodTemplateService.methodTemplate(
+            propertyKey,
+            parameterName,
+            returnType,
+            body,
+            directParams,
+            isStream
+        );
     }
 
     formatCode() {

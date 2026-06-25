@@ -12,7 +12,7 @@ import * as os from 'os';
 import path from 'path';
 import { GrpcId } from '../decorators/grpc-param.decorator';
 import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
 import { MockResponseSample } from '../decorators/mock.decorator';
 import { Property } from '../decorators/property.decorator';
 import { SdkExpose } from '../decorators/sdk-expose.decorator';
@@ -84,6 +84,12 @@ export class SdkFixtureMicroservice {
 
     @GrpcAction('Do something without input or output')
     noopAction(): void {}
+
+    @GrpcStreamAction('Stream users')
+    @ResponseModel(SdkUserResponse)
+    streamUsers(@GrpcValue() param: SdkParamDto): SdkUserResponse {
+        return param as any;
+    }
 }
 
 describe('GenerateMicroserviceService', () => {
@@ -175,6 +181,24 @@ describe('GenerateMicroserviceService', () => {
         it('should generate void methods without parameters', () => {
             const normalized = normalize(serviceContent);
             expect(normalized).toContain('async noopAction(): Promise<void> {');
+        });
+
+        it('should generate a streaming method returning an Observable backed by GrpcHelper.stream', () => {
+            const normalized = normalize(serviceContent);
+            expect(normalized).toContain('streamUsers(param: SdkParamDto): Observable<SdkUserResponse> {');
+            expect(normalized).not.toContain('async streamUsers');
+            expect(normalized).toContain(".method('streamUsers')");
+            expect(normalized).toContain('.stream() as any;');
+        });
+
+        it('should generate a streaming mock method returning an Observable of a sample', () => {
+            const normalized = normalize(serviceContent);
+            expect(normalized).toContain('streamUsers(param: SdkParamDto): Observable<SdkUserResponse> {');
+            expect(normalized).toContain('return of(sample(SdkUserResponse)) as any;');
+        });
+
+        it('should import Observable and of in the generated service file', () => {
+            expect(serviceContent).toContain("import { Observable, of } from 'rxjs';");
         });
 
         it('should generate a mock service class with sample based bodies', () => {

@@ -14,7 +14,8 @@ export class MethodTemplateService extends HbsGeneratorService {
         method: string,
         parameterName: string,
         parameterType: string,
-        directParams: ParameterOptionType[]
+        directParams: ParameterOptionType[],
+        isStream = false
     ): string {
         return this.compileTemplate('body-method-template.hbs', {
             response,
@@ -22,7 +23,8 @@ export class MethodTemplateService extends HbsGeneratorService {
             method,
             parameterName,
             parameterType,
-            directParams
+            directParams,
+            isStream
         });
     }
 
@@ -46,13 +48,15 @@ export class MethodTemplateService extends HbsGeneratorService {
         params: string,
         returnType: string,
         body: string,
-        directParams: ParameterOptionType[]
+        directParams: ParameterOptionType[],
+        isStream = false
     ): string {
         return this.compileTemplate('method-template.hbs', {
             method,
             params,
             returnType,
             body,
+            isStream,
             directParams: this.getDirectParams(directParams)
         });
     }

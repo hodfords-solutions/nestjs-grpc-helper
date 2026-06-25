@@ -9,7 +9,11 @@ import { HbsGeneratorService } from './hbs-generator.service';
 import { PropertyOptionType } from 'lib/types/property-option.type';
 import { isNil } from 'lodash';
 import { isPrimitiveType } from '../helpers/type.helper';
-import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import {
+    GRPC_METHOD_METADATA_KEY,
+    GRPC_PARAM_INDEX_METADATA_KEY,
+    GRPC_STREAM_METADATA_KEY
+} from '../constants/metadata-key.const';
 
 export class GenerateProtoService extends HbsGeneratorService {
     private nullableResponseTypes: Set<string> = new Set();
@@ -165,7 +169,9 @@ export class GenerateProtoService extends HbsGeneratorService {
                     returnType = response.responseClass.name;
                 }
             }
-            return `rpc ${propertyKey} (${parameterName}) returns (${returnType}) {}`;
+            const isStream = Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, constructor.prototype, propertyKey);
+            const returnClause = isStream ? `stream ${returnType}` : returnType;
+            return `rpc ${propertyKey} (${parameterName}) returns (${returnClause}) {}`;
         }
     }
 }

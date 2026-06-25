@@ -68,6 +68,11 @@ describe('MockMethodTemplateService', () => {
             ]);
             expect(normalize(body)).toContain('({ userId, limit }, sample, UserResponseFixture) as any;');
         });
+
+        it('should wrap the sample in an Observable for streaming responses', () => {
+            const body = service.templateBody(singleResponse, MockTargetFixture, 'plain', undefined, true);
+            expect(body).toBe('return of(sample(UserResponseFixture)) as any;');
+        });
     });
 
     describe('methodTemplate', () => {
@@ -90,6 +95,13 @@ describe('MockMethodTemplateService', () => {
             ] as any[];
             const content = normalize(service.methodTemplate('check', 'Params', 'boolean', 'BODY;', directParams));
             expect(content).toBe('async check( userId: string, flags?: boolean[] ): Promise<boolean> { BODY; }');
+        });
+
+        it('should render a streaming mock method returning an Observable without async', () => {
+            const content = normalize(
+                service.methodTemplate('streamIt', 'ParamDto', 'ChunkResponse', 'BODY;', undefined, true)
+            );
+            expect(content).toBe('streamIt(param: ParamDto): Observable<ChunkResponse> { BODY; }');
         });
     });
 });

@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { GrpcAction, RegisterGrpcMicroservice } from './microservice.decorator';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from './microservice.decorator';
 import { GrpcValue } from './grpc-value.decorator';
 import { GrpcId } from './grpc-param.decorator';
 import { GrpcMetadataId } from './grpc-metadata.decorator';
@@ -12,7 +12,8 @@ import {
     DIRECT_PARAMETERS_METADATA_KEY,
     GRPC_DESCRIPTION_METADATA_KEY,
     GRPC_METHOD_METADATA_KEY,
-    GRPC_PARAM_INDEX_METADATA_KEY
+    GRPC_PARAM_INDEX_METADATA_KEY,
+    GRPC_STREAM_METADATA_KEY
 } from '../constants/metadata-key.const';
 import { PropertyType } from '../types/property-option.type';
 
@@ -276,6 +277,58 @@ describe('Microservice decorators', () => {
                     /Validation failed for metadata parameter .* "workspace-id"/
                 );
             });
+        });
+    });
+
+    describe('GrpcStreamAction', () => {
+        it('marks the method as both a grpc method and a stream with its description', () => {
+            class ChunkDto {
+                @Property({ type: String })
+                text: string;
+            }
+
+            class CompletionService {
+                @GrpcStreamAction('Stream a completion')
+                completeStream(@GrpcValue() param: ChunkDto): ChunkDto {
+                    return param;
+                }
+            }
+
+            expect(Reflect.getMetadata(GRPC_METHOD_METADATA_KEY, CompletionService.prototype, 'completeStream')).toBe(
+                true
+            );
+            expect(Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, CompletionService.prototype, 'completeStream')).toBe(
+                true
+            );
+            expect(
+                Reflect.getMetadata(GRPC_DESCRIPTION_METADATA_KEY, CompletionService.prototype, 'completeStream')
+            ).toBe('Stream a completion');
+        });
+
+        it('registers the nest grpc method pattern using the class and method names', () => {
+            class CompletionService {
+                @GrpcStreamAction()
+                completeStream(@GrpcValue() param: object): object {
+                    return param;
+                }
+            }
+
+            const pattern = Reflect.getMetadata('microservices:pattern', CompletionService.prototype.completeStream);
+            expect(JSON.stringify(pattern)).toContain('"service":"CompletionService"');
+            expect(JSON.stringify(pattern)).toContain('"rpc":"completeStream"');
+        });
+
+        it('does not mark a plain GrpcAction method as a stream', () => {
+            class CompletionService {
+                @GrpcAction()
+                complete(@GrpcValue() param: object): object {
+                    return param;
+                }
+            }
+
+            expect(
+                Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, CompletionService.prototype, 'complete')
+            ).toBeUndefined();
         });
     });
 });
