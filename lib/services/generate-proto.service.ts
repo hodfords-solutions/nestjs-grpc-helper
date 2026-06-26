@@ -143,7 +143,9 @@ export class GenerateProtoService extends HbsGeneratorService {
                     returnType = response.responseClass.name;
                 }
             }
-            return `rpc ${propertyKey} (${parameterName}) returns (${returnType}) {}`;
+            const isStream = Reflect.getMetadata('grpc:stream', constructor.prototype, propertyKey);
+            const returnClause = isStream ? `stream ${returnType}` : returnType;
+            return `rpc ${propertyKey} (${parameterName}) returns (${returnClause}) {}`;
         }
     }
 }
