@@ -1,9 +1,9 @@
 {{#if params}}
-    async {{method}}(param: {{params}}): Promise<{{returnType}}> {
+    {{#unless isStream}}async {{/unless}}{{method}}(param: {{params}}): {{#if isStream}}Observable<{{returnType}}>{{else}}Promise<{{returnType}}>{{/if}} {
         {{{body}}}
     }
 {{else}}
-    async {{method}}(): Promise<{{returnType}}> {
+    {{#unless isStream}}async {{/unless}}{{method}}(): {{#if isStream}}Observable<{{returnType}}>{{else}}Promise<{{returnType}}>{{/if}} {
         {{{body}}}
     }
 {{/if}}

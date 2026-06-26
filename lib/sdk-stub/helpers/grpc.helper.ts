@@ -1,5 +1,5 @@
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, Observable, timeout } from 'rxjs';
+import { firstValueFrom, map, Observable, timeout } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { trans } from '@hodfords/nestjs-cls-translation';
@@ -54,6 +54,17 @@ export class GrpcHelper<Model> {
     async getOne(): Promise<Model> {
         const data = await this.getMany();
         return data[0];
+    }
+
+    /**
+     * Consumes a server-streaming gRPC method, mapping each chunk through the model's `__getData`
+     * transforms. Unlike {@link getMany}, it returns the live `Observable` so callers can react to
+     * chunks as they arrive; stream lifecycle (idle/max timeout, cancellation) is owned by the server.
+     */
+    stream(): Observable<Model> {
+        return this.serviceGrpc[this.methodName](this.payload, this.metadata).pipe(
+            map((chunk: any) => plainToInstance(this.model, chunk, { groups: ['__getData'] }))
+        );
     }
 
     async getMany(): Promise<Model[]> {

@@ -1,4 +1,11 @@
 {{#if response}}
+    {{#if isStream}}
+        return GrpcHelper.with(this.client, {{{response.responseClass.name}}}, this.options)
+            .service('{{{serviceName}}}')
+            .method('{{{method}}}')
+            .data({{#if parameterName}}param{{else}}{}{{/if}}{{#if parameterType}}, {{{parameterType}}}{{/if}})
+            .stream() as any;
+    {{else}}
     {{#if response.isArray}}
         return await GrpcHelper.with(this.client, {{{response.responseClass.name}}}, this.options)
             .service('{{{serviceName}}}')
@@ -11,6 +18,7 @@
             .method('{{{method}}}')
             .data({{#if parameterName}}param{{else}}{}{{/if}}{{#if parameterType}}, {{{parameterType}}}{{/if}})
             .getOne() as any;
+    {{/if}}
     {{/if}}
 {{else}}
     await GrpcHelper.with(this.client, null as any, this.options)

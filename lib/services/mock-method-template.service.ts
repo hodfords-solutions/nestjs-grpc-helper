@@ -1,36 +1,43 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
 
 export class MockMethodTemplateService {
-    templateBody(response: ResponseMetadata, target: any, propertyKey: any): string {
+    templateBody(response: ResponseMetadata, target: any, propertyKey: any, isStream = false): string {
         if (!response) {
             return '';
         }
 
+        const expression = this.sampleExpression(response, target, propertyKey);
+        const value = isStream ? `of(${expression})` : expression;
+        return `return ${value} as any;`;
+    }
+
+    private sampleExpression(response: ResponseMetadata, target: any, propertyKey: any): string {
         const mockResponse = Reflect.getMetadata('mock:response', target, propertyKey);
         if (mockResponse) {
             if (mockResponse.sample) {
-                return `return ${JSON.stringify(mockResponse.sample)} as any;`;
+                return JSON.stringify(mockResponse.sample);
             } else if (mockResponse.method) {
-                return `return sampleMethod(${JSON.stringify(mockResponse)}) as any;`;
+                return `sampleMethod(${JSON.stringify(mockResponse)})`;
             }
         }
 
         if (response.isArray) {
-            return `return [sample(${response.responseClass.name})] as any;`;
-        } else {
-            return `return sample(${response.responseClass.name}) as any;`;
+            return `[sample(${response.responseClass.name})]`;
         }
+        return `sample(${response.responseClass.name})`;
     }
 
-    methodTemplate(method: string, params: string, returnType: string, body: string): string {
+    methodTemplate(method: string, params: string, returnType: string, body: string, isStream = false): string {
+        const signaturePrefix = isStream ? '' : 'async ';
+        const returnTypeWrapper = isStream ? `Observable<${returnType}>` : `Promise<${returnType}>`;
         if (params) {
             return `
-            async ${method}(param: ${params}): Promise<${returnType}> {
+            ${signaturePrefix}${method}(param: ${params}): ${returnTypeWrapper} {
                 ${body}
             }`;
         }
         return `
-            async ${method}(): Promise<${returnType}> {
+            ${signaturePrefix}${method}(): ${returnTypeWrapper} {
                 ${body}
             }`;
     }

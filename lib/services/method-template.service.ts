@@ -11,18 +11,20 @@ export class MethodTemplateService extends HbsGeneratorService {
         serviceName: string,
         method: string,
         parameterName: string,
-        parameterType: string
+        parameterType: string,
+        isStream = false
     ): string {
         return this.compileTemplate('body-method-template.hbs', {
             response,
             serviceName,
             method,
             parameterName,
-            parameterType
+            parameterType,
+            isStream
         });
     }
 
-    methodTemplate(method: string, params: string, returnType: string, body: string): string {
-        return this.compileTemplate('method-template.hbs', { method, params, returnType, body });
+    methodTemplate(method: string, params: string, returnType: string, body: string, isStream = false): string {
+        return this.compileTemplate('method-template.hbs', { method, params, returnType, body, isStream });
     }
 }

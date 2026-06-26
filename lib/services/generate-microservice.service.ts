@@ -214,19 +214,21 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
             parameterName = params[parameterIndex].name;
         }
         const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
+        const isStream = Boolean(Reflect.getMetadata('grpc:stream', constructor.prototype, propertyKey));
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();
         const body =
             methodTemplateService instanceof MockMethodTemplateService
-                ? methodTemplateService.templateBody(response, constructor, propertyKey)
+                ? methodTemplateService.templateBody(response, constructor, propertyKey, isStream)
                 : methodTemplateService.templateBody(
                       response,
                       constructor.name,
                       propertyKey,
                       parameterName,
-                      parameterName
+                      parameterName,
+                      isStream
                   );
         const returnType = this.getReturnType(response);
-        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body);
+        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body, isStream);
     }
 
     getReturnType(response: ResponseMetadata): string {
