@@ -1,7 +1,7 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { generateProtoService } from 'lib/helpers/generate.helper';
-import { SdkBuildConfigType } from 'lib/types/sdk-build-config.type';
+import { generateProtoService } from '../helpers/generate.helper';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type';
 
 @Command({
     signature: 'make:proto [configFile] [outputPath]',

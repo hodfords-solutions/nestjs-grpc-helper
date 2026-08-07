@@ -9,18 +9,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
 import { ResponseModule } from '@hodfords/nestjs-response';
 
+export const commandModule = CommandModule.register(false, false);
+
 @Module({
     imports: [
-        CommandModule,
+        commandModule,
         ResponseModule.forRoot(),
         MicroserviceDocumentModule.register({
             isEnable: true,
-            packageName: 'HERO',
+            packageName: 'sdkName',
             clientOptions: {
                 customClass: CustomGrpcClient,
                 options: {
-                    url: '0.0.0.0:50051',
-                    package: 'HERO',
+                    url: '0.0.0.0:50059',
+                    package: 'sdkName',
                     protoPath: path.join(__dirname, '../../proto/microservice.proto')
                 }
             }

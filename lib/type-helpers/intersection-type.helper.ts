@@ -17,7 +17,7 @@ export function IntersectionResponseType<T extends Type[]>(...classRefs: T) {
     abstract class IntersectionTypeClass extends swaggerIntersectionType {}
 
     for (const classRef of classRefs) {
-        const properties = propertyStorage.get(classRef);
+        const properties = propertyStorage.get(classRef) || [];
         for (const property of properties) {
             addPropertyToStorage(IntersectionTypeClass, property.name, property.option);
         }

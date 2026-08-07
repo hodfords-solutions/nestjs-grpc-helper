@@ -1,8 +1,22 @@
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
+import { camelCase } from 'lodash';
 
 export class HbsGeneratorService {
+    constructor() {
+        Handlebars.registerHelper('hasItems', function (items: any[], options) {
+            if (items && items.length > 0) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+        });
+        Handlebars.registerHelper('camelCase', function (str: string) {
+            return camelCase(str);
+        });
+    }
+
     compileTemplate(templatePath: string, data: any): string {
         const templateSource = fs.readFileSync(path.resolve(__dirname, `../templates/${templatePath}`), 'utf8');
         const template = Handlebars.compile(templateSource);
