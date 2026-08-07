@@ -22,6 +22,8 @@ import { generateProtoService } from '@hodfords/nestjs-grpc-helper';
 generateProtoService(camelCase(env.APP_NAME), env.ROOT_PATH + '/../');
 ```
 
+Alternatively, generate it on demand with the `make:proto` command (see [Create proto file](#create-proto-file)).
+
 ## Usage 🚀
 
 ### Creating microservices
@@ -102,6 +104,26 @@ This command will:
 1. **Collect all request and response types**: It gathers all `@GrpcValue` request and response types from your project.
 2. **Generate proto file**: Automatically generates the necessary proto files based on the collected types.
 3. **Create JavaScript Package**: Packages the generated code into a JavaScript SDK. The SDK will be published using the name and version specified in your package.json, making it available for other services to import and use. The arguments, response structure, and method names remain consistent with the definitions in your gRPC service, ensuring seamless integration and functionality across services.
+
+### Create proto file
+
+To generate only the proto file, without building the whole SDK, use the `make:proto` command. It reuses the same
+`sdk-config.json` file as `make-sdk`: `name` is used as the proto package and `output` as the destination directory.
+
+```shell
+npm run wz-command make:proto
+```
+
+Both arguments are optional:
+
+```shell
+npm run wz-command make:proto sdk-config.json ./proto
+```
+
+| Argument   | Description                                                            |
+|------------|------------------------------------------------------------------------|
+| configFile | Config file to read. Defaults to `sdk-config.json`                     |
+| outputPath | Directory the `microservice.proto` file is written into. Defaults to the `output` field of the config file |
 
 ### SDK usage
 
