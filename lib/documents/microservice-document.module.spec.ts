@@ -6,6 +6,7 @@ import { Transport } from '@nestjs/microservices';
 import path from 'path';
 import { GenerateSdkCommand } from '../commands/generate-sdk.command';
 import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command';
+import { GenerateProtoCommand } from '../commands/generate-proto.command';
 import { DocumentModuleOptionType } from '../types/document-module-option.type';
 import { MicroserviceDocumentController } from './microservice-document.controller';
 import { MicroserviceDocumentModule } from './microservice-document.module';
@@ -49,7 +50,8 @@ describe('MicroserviceDocumentModule', () => {
         expect(module.providers).toEqual([
             { provide: 'DOCUMENT_OPTIONS', useValue: options },
             GenerateSdkCommand,
-            UpdateAiSkillCommand
+            UpdateAiSkillCommand,
+            GenerateProtoCommand
         ]);
         expect(module.imports).toHaveLength(2);
     });
