@@ -357,6 +357,26 @@ The generated package contains the proto file, a typed service class per microse
 module for registration, and a mock module for testing. It is published under the name and version from your
 `package.json`, and its method names, arguments, and response types match your service definitions exactly.
 
+### Generating only the proto file
+
+To generate just the proto file, without building the whole SDK, use the `make:proto` command. It reuses the same
+`sdk-config.json`: `name` is used as the proto package and `output` as the destination directory.
+
+```shell
+npm run wz-command make:proto
+```
+
+Both arguments are optional:
+
+```shell
+npm run wz-command make:proto sdk-config.json ./proto
+```
+
+| Argument     | Description                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `configFile` | Config file to read. Defaults to `sdk-config.json`                                                          |
+| `outputPath` | Directory the `microservice.proto` file is written into. Defaults to the `output` field of the config file   |
+
 ## Using a Generated SDK 📥
 
 ### 1. Register the SDK module
