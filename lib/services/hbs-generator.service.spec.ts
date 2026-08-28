@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import * as Handlebars from 'handlebars';
+import Handlebars from 'handlebars';
 import { HbsGeneratorService } from './hbs-generator.service.js';
 
 describe('HbsGeneratorService', () => {

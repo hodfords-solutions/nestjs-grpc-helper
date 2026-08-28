@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AppMicroservice } from './app.microservice.js';
-import { MicroserviceDocumentModule } from '@hodfords/nestjs-grpc-helper';
+import { MicroserviceDocumentModule } from '../lib/index.js';
 import path from 'path';
 import { CommandModule } from '@hodfords/nestjs-command';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
+import { CustomGrpcClient } from '../lib/index.js';
 import { ResponseModule } from '@hodfords/nestjs-response';
 import { fileURLToPath } from 'node:url';
 
@@ -31,9 +31,9 @@ export const commandModule = CommandModule.register(false, false);
             }
         }),
         TypeOrmModule.forRoot({
-            type: 'sqlite',
+            type: 'better-sqlite3',
             entities: [],
-            database: 'test'
+            database: ':memory:'
         })
     ],
     controllers: [AppController, AppMicroservice],

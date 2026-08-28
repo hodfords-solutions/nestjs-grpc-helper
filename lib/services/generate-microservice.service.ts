@@ -4,7 +4,7 @@ import { extractProperties, generateProtoService } from '../index.js';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
 import { copyFileSync, rmSync, writeFileSync } from 'fs';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { kebabCase } from 'es-toolkit';
 import * as process from 'node:process';
 import path from 'path';

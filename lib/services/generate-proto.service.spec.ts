@@ -4,7 +4,7 @@ import 'reflect-metadata';
 // Register the Native*Value response classes exactly like importing the library index does in production
 import '../responses/native.response.js';
 import { ResponseModel } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
 import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator.js';

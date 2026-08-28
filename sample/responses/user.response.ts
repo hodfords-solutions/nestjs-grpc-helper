@@ -1,5 +1,5 @@
 import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
-import { MockMethod, MockSample, Property, SdkExpose } from '@hodfords/nestjs-grpc-helper';
+import { MockMethod, MockSample, Property, SdkExpose } from '../../lib/index.js';
 import { UserTypeEnum } from '../enums/user-type.enum.js';
 import { Type } from 'class-transformer';
 

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { CommandService } from '@hodfords/nestjs-command';
 import { AppModule, commandModule } from './app.module.js';
-import { generateProtoService } from '@hodfords/nestjs-grpc-helper';
+import { generateProtoService } from '../lib/index.js';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 

@@ -2,7 +2,7 @@
 
 import { extractProperties } from '../index.js';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import { camelCase, upperFirst } from 'es-toolkit';
 import * as process from 'node:process';
 import path from 'path';

@@ -27,10 +27,10 @@
         "build": "tsc -p tsconfig.build.json",
         "postbuild": "node scripts/copy-assets.mjs && cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib",
         "format": "prettier --write \"sample/**/*.ts\" \"lib/**/*.ts\"",
-        "start": "nest start",
-        "start:dev": "npm run prebuild && nest start --watch",
-        "start:debug": "nest start --debug --watch",
-        "start:prod": "node dist/main",
+        "start": "nest start -p tsconfig.sample.json",
+        "start:dev": "npm run prebuild && nest start --watch -p tsconfig.sample.json",
+        "start:debug": "nest start --debug --watch -p tsconfig.sample.json",
+        "start:prod": "node dist/sample/main",
         "lint": "eslint \"{sample,apps,lib,test}/**/*.ts\" --fix",
         "test": "vitest run",
         "test:watch": "vitest",
@@ -43,7 +43,7 @@
         "cspell": "cspell",
         "lint-staged": "lint-staged",
         "start:consumer": "ts-node --transpile-only -r tsconfig-paths/register sample/consumer/main.ts",
-        "build:sample-sdk": "npm run prebuild && nest start -- --exit",
+        "build:sample-sdk": "npm run prebuild && nest start -p tsconfig.sample.json -- --exit",
         "build-sdk": "nestjs-grpc-helper"
     },
     "dependencies": {
@@ -69,7 +69,7 @@
         "@hodfords/nestjs-eslint-config": "11.0.2",
         "@hodfords/nestjs-exception": "12.0.0",
         "@hodfords/nestjs-prettier-config": "11.0.1",
-        "@hodfords/nestjs-response": "11.1.5",
+        "@hodfords/nestjs-response": "12.0.0",
         "@nestjs/cli": "12.0.0",
         "@nestjs/common": "12.0.1",
         "@nestjs/core": "12.0.1",
@@ -88,7 +88,7 @@
         "auto-changelog": "2.5.0",
         "better-sqlite3": "^12.4.1",
         "class-transformer": "0.5.1",
-        "class-validator": "0.14.2",
+        "class-validator": "npm:@hodfords/turbo-validator@1.0.0",
         "cspell": "9.2.0",
         "eslint": "9.34.0",
         "fs-extra": "11.3.2",
@@ -107,16 +107,13 @@
         "vitest": "^4.1.10"
     },
     "overrides": {
-        "@hodfords/nestjs-response": {
-            "@nestjs/common": "$@nestjs/common",
-            "@nestjs/core": "$@nestjs/core"
-        },
         "@nestjs/schematics": {
             "typescript": "$typescript"
         },
         "nestjs-cls": {
             "@nestjs/common": "$@nestjs/common",
             "@nestjs/core": "$@nestjs/core"
-        }
+        },
+        "class-validator": "npm:@hodfords/turbo-validator@1.0.0"
     }
 }

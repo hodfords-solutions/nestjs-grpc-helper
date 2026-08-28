@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
-// Kept for the commented-out usage examples below. Pre-existing lint error on main; disabled here
-// so the migration PR does not report a failure it did not introduce.
+// generateSdk is kept for the commented-out usage example below.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { generateProtoService, generateSdk } from '@hodfords/nestjs-grpc-helper';
+import { generateProtoService, generateSdk } from '../lib/index.js';
 import path from 'path';
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface.js';
@@ -13,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
-// generateProtoService('sdkName', path.join(currentDir, '../../proto'));
+// The proto file is generated (and gitignored), so it must be written before the app boots.
+generateProtoService('sdkName', path.join(currentDir, '../../proto'));
 
 // generateSdk(require(path.join(currentDir, '../sdk-config.json')));
 
