@@ -1,9 +1,8 @@
 import { getPropertiesOfClass } from './property.helper.js';
 import { plainToInstance } from 'class-transformer';
 import { faker } from '@faker-js/faker';
-import lodash from 'lodash';
+import { get } from 'es-toolkit/compat';
 
-const { get } = lodash;
 import { PropertyOptionType } from '../types/property-option.type.js';
 import { MockOptionType } from '../types/mock-option.type.js';
 

@@ -12,9 +12,8 @@ import {
     ModelDocumentType,
     PropertyDocumentType
 } from '../types/document.type.js';
-import lodash from 'lodash';
+import { camelCase, cloneDeep, upperFirst } from 'es-toolkit';
 
-const { camelCase, cloneDeep, upperFirst } = lodash;
 import { randomUUID } from 'crypto';
 import { getPropertiesOfClass } from '../helpers/property.helper.js';
 import { HbsGeneratorService } from './hbs-generator.service.js';

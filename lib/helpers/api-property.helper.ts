@@ -1,6 +1,5 @@
-import lodash from 'lodash';
+import { isEmpty } from 'es-toolkit/compat';
 
-const { isEmpty } = lodash;
 import { PropertyOptionType } from '../types/property-option.type.js';
 
 export function isEnumProperty(options: PropertyOptionType): boolean {

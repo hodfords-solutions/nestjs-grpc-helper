@@ -6,9 +6,8 @@ import { Logger } from '@nestjs/common';
 import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import fs from 'fs-extra';
-import lodash from 'lodash';
+import { kebabCase } from 'es-toolkit';
 
-const { kebabCase } = lodash;
 import * as process from 'node:process';
 import path from 'path';
 import { fileURLToPath } from 'node:url';

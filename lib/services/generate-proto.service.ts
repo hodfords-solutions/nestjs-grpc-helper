@@ -7,9 +7,8 @@ import { extractProperties } from '../helpers/property.helper.js';
 import { microserviceStorage } from '../storages/microservice.storage.js';
 import { HbsGeneratorService } from './hbs-generator.service.js';
 import { PropertyOptionType } from '../types/property-option.type.js';
-import lodash from 'lodash';
+import { isNil } from 'es-toolkit';
 
-const { isNil } = lodash;
 import { isPrimitiveType } from '../helpers/type.helper.js';
 
 export class GenerateProtoService extends HbsGeneratorService {
