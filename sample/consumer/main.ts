@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
-import { ConsumerModule } from './consumer.module';
-import { ConsumerRunner } from './consumer.runner';
+import { ConsumerModule } from './consumer.module.js';
+import { ConsumerRunner } from './consumer.runner.js';
 
 /**
  * Standalone CLI runner that consumes the generated gRPC SDK.

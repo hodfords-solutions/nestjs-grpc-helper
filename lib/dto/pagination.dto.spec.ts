@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { PaginationDto } from './pagination.dto';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { PaginationDto } from './pagination.dto.js';
 
 describe('PaginationDto', () => {
     const buildDto = (data: object): PaginationDto => plainToInstance(PaginationDto, data);

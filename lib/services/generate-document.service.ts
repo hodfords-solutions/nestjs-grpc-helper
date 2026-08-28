@@ -1,26 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import path from 'path';
-import { isFunction } from '@nestjs/common/utils/shared.utils';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { propertyStorage } from '../storages/property.storage';
+import { isFunction } from '@nestjs/common/utils/shared.utils.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { propertyStorage } from '../storages/property.storage.js';
 import {
     DocumentType,
     MethodDocumentType,
     MicroserviceDocumentType,
     ModelDocumentType,
     PropertyDocumentType
-} from '../types/document.type';
-import { camelCase, cloneDeep, upperFirst } from 'lodash';
+} from '../types/document.type.js';
+import { camelCase, cloneDeep, upperFirst } from 'es-toolkit';
 import { randomUUID } from 'crypto';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { isPrimitiveType } from '../helpers/type.helper';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { isPrimitiveType } from '../helpers/type.helper.js';
 import {
     GRPC_DESCRIPTION_METADATA_KEY,
     GRPC_METHOD_METADATA_KEY,
     GRPC_PARAM_INDEX_METADATA_KEY
-} from '../constants/metadata-key.const';
+} from '../constants/metadata-key.const.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 export class GenerateDocumentService extends HbsGeneratorService {
     private document: DocumentType;
@@ -31,7 +34,7 @@ export class GenerateDocumentService extends HbsGeneratorService {
 
     generate() {
         const moduleName = upperFirst(camelCase(this.packageName));
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+
         const packageFile = require(path.join(process.cwd(), 'package.json'));
         this.document = {
             title: this.packageName,

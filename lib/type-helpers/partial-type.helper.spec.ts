@@ -1,14 +1,15 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { Property } from '../decorators/property.decorator';
+import { Property } from '../decorators/property.decorator.js';
 
 // @faker-js/faker v10 is ESM-only and cannot be loaded by the CommonJS jest transform.
 // It is pulled in transitively through the library index and is not used by these tests.
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
 
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { PartialResponseType } from './partial-type.helper';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
+import { PartialResponseType } from './partial-type.helper.js';
 
 class PartialBaseFixture {
     @Property({ type: String, required: true, description: 'user name' })

@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 import { isNotEmpty, isUUID } from 'class-validator';
-import { GrpcMetadata, GrpcMetadataId } from '../decorators/grpc-metadata.decorator';
-import { overrideMetadataMethod } from './metadata-param.helper';
+import { GrpcMetadata, GrpcMetadataId } from '../decorators/grpc-metadata.decorator.js';
+import { overrideMetadataMethod } from './metadata-param.helper.js';
 
 function createGrpcMetadata(values: Record<string, string>): any {
     return {

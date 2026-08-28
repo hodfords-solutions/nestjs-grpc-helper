@@ -1,16 +1,17 @@
+import { Mock, afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
-jest.mock('@hodfords/nestjs-cls-translation', () => ({
-    trans: jest.fn((key: string) => key)
+vi.mock('@hodfords/nestjs-cls-translation', () => ({
+    trans: vi.fn((key: string) => key)
 }));
 
 import 'reflect-metadata';
 import { Metadata, status } from '@grpc/grpc-js';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Logger } from '@nestjs/common/services/logger.service';
+import { Logger } from '@nestjs/common/services/logger.service.js';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Transform } from 'class-transformer';
 import { firstValueFrom, NEVER, of, throwError, toArray } from 'rxjs';
-import { GrpcHelper } from './grpc.helper';
+import { GrpcHelper } from './grpc.helper.js';
 
 class UserModel {
     @Transform(({ value }) => (typeof value === 'string' ? value.toUpperCase() : value), { groups: ['__getData'] })
@@ -23,23 +24,23 @@ class ParamModel {
 }
 
 describe('GrpcHelper', () => {
-    let serviceGrpc: { [method: string]: jest.Mock };
+    let serviceGrpc: { [method: string]: Mock };
     let client: ClientGrpc;
 
     const createHelper = (options: any = { timeout: 1000 }): GrpcHelper<UserModel> =>
         GrpcHelper.with(client, UserModel, options);
 
     beforeAll(() => {
-        jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+        vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     });
 
     afterAll(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     beforeEach(() => {
         serviceGrpc = {};
-        client = { getService: jest.fn(() => serviceGrpc) } as any;
+        client = { getService: vi.fn(() => serviceGrpc) } as any;
     });
 
     describe('fluent api', () => {
@@ -52,7 +53,7 @@ describe('GrpcHelper', () => {
         });
 
         it('runs the requestInitializer against the metadata on creation', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ name: 'john' }));
+            serviceGrpc.findOne = vi.fn(() => of({ name: 'john' }));
             const helper = GrpcHelper.with(client, UserModel, {
                 timeout: 1000,
                 requestInitializer: (metadata) => metadata.set('x-request-id', 'abc-123')
@@ -66,7 +67,7 @@ describe('GrpcHelper', () => {
         });
 
         it('passes the raw payload when no parameter model is given', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ name: 'john' }));
+            serviceGrpc.findOne = vi.fn(() => of({ name: 'john' }));
             const payload = { name: 'john' };
 
             await createHelper().service('UserService').method('findOne').data(payload).getOne();
@@ -75,7 +76,7 @@ describe('GrpcHelper', () => {
         });
 
         it('clones the payload and applies __sendData transforms when a parameter model is given', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ name: 'john' }));
+            serviceGrpc.findOne = vi.fn(() => of({ name: 'john' }));
             const original = { name: 'john' };
 
             await createHelper().service('UserService').method('findOne').data(original, ParamModel).getOne();
@@ -88,7 +89,7 @@ describe('GrpcHelper', () => {
 
     describe('getMany / getOne', () => {
         it('wraps a single object response into an array and applies __getData transforms', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ name: 'john' }));
+            serviceGrpc.findOne = vi.fn(() => of({ name: 'john' }));
 
             const result = await createHelper().service('UserService').method('findOne').data({}).getMany();
 
@@ -96,7 +97,7 @@ describe('GrpcHelper', () => {
         });
 
         it('applies per-item __getData transforms to array responses', async () => {
-            serviceGrpc.findMany = jest.fn(() => of([{ name: 'john' }, { name: 'jane' }]));
+            serviceGrpc.findMany = vi.fn(() => of([{ name: 'john' }, { name: 'jane' }]));
 
             const result = await createHelper().service('UserService').method('findMany').data({}).getMany();
 
@@ -104,7 +105,7 @@ describe('GrpcHelper', () => {
         });
 
         it('unwraps grpcArray responses into their transformed items', async () => {
-            serviceGrpc.findMany = jest.fn(() => of({ grpcArray: true, items: [{ name: 'john' }] }));
+            serviceGrpc.findMany = vi.fn(() => of({ grpcArray: true, items: [{ name: 'john' }] }));
 
             const result = await createHelper().service('UserService').method('findMany').data({}).getMany();
 
@@ -112,7 +113,7 @@ describe('GrpcHelper', () => {
         });
 
         it('falls back to an empty array when a grpcArray response has no items', async () => {
-            serviceGrpc.findMany = jest.fn(() => of({ grpcArray: true }));
+            serviceGrpc.findMany = vi.fn(() => of({ grpcArray: true }));
 
             const result = await createHelper().service('UserService').method('findMany').data({}).getMany();
 
@@ -120,7 +121,7 @@ describe('GrpcHelper', () => {
         });
 
         it('unwraps grpcNative responses to their scalar value', async () => {
-            serviceGrpc.getName = jest.fn(() => of({ grpcNative: true, value: 'display-name' }));
+            serviceGrpc.getName = vi.fn(() => of({ grpcNative: true, value: 'display-name' }));
 
             const result = await createHelper().service('UserService').method('getName').data({}).getMany();
 
@@ -128,7 +129,7 @@ describe('GrpcHelper', () => {
         });
 
         it('keeps falsy native values', async () => {
-            serviceGrpc.isActive = jest.fn(() => of({ grpcNative: true, value: false }));
+            serviceGrpc.isActive = vi.fn(() => of({ grpcNative: true, value: false }));
 
             const result = await createHelper().service('UserService').method('isActive').data({}).getMany();
 
@@ -136,7 +137,7 @@ describe('GrpcHelper', () => {
         });
 
         it('unwraps grpcNullable responses to their transformed value', async () => {
-            serviceGrpc.findOrNull = jest.fn(() => of({ grpcNullable: true, value: { name: 'john' } }));
+            serviceGrpc.findOrNull = vi.fn(() => of({ grpcNullable: true, value: { name: 'john' } }));
 
             const result = await createHelper().service('UserService').method('findOrNull').data({}).getMany();
 
@@ -144,7 +145,7 @@ describe('GrpcHelper', () => {
         });
 
         it('returns [null] for empty grpcNullable responses', async () => {
-            serviceGrpc.findOrNull = jest.fn(() => of({ grpcNullable: true }));
+            serviceGrpc.findOrNull = vi.fn(() => of({ grpcNullable: true }));
 
             const result = await createHelper().service('UserService').method('findOrNull').data({}).getMany();
 
@@ -152,7 +153,7 @@ describe('GrpcHelper', () => {
         });
 
         it('getOne returns the first element of getMany', async () => {
-            serviceGrpc.findMany = jest.fn(() => of([{ name: 'john' }, { name: 'jane' }]));
+            serviceGrpc.findMany = vi.fn(() => of([{ name: 'john' }, { name: 'jane' }]));
 
             const result = await createHelper().service('UserService').method('findMany').data({}).getOne();
 
@@ -162,7 +163,7 @@ describe('GrpcHelper', () => {
 
     describe('stream', () => {
         it('maps each streamed chunk through __getData transforms', async () => {
-            serviceGrpc.streamIt = jest.fn(() => of({ name: 'john' }, { name: 'jane' }));
+            serviceGrpc.streamIt = vi.fn(() => of({ name: 'john' }, { name: 'jane' }));
 
             const result = await firstValueFrom(
                 createHelper().service('UserService').method('streamIt').data({}).stream().pipe(toArray())
@@ -172,7 +173,7 @@ describe('GrpcHelper', () => {
         });
 
         it('passes the payload and metadata to the grpc stream method', () => {
-            serviceGrpc.streamIt = jest.fn(() => of({ name: 'john' }));
+            serviceGrpc.streamIt = vi.fn(() => of({ name: 'john' }));
 
             createHelper().service('UserService').method('streamIt').data({ name: 'x' }).stream();
 
@@ -182,7 +183,7 @@ describe('GrpcHelper', () => {
 
     describe('error handling', () => {
         it('maps a timeout to a 500 HttpException with a translated message', async () => {
-            serviceGrpc.findOne = jest.fn(() => NEVER);
+            serviceGrpc.findOne = vi.fn(() => NEVER);
             const helper = createHelper({ timeout: 20 }).service('UserService').method('findOne').data({});
 
             await expect(helper.getOne()).rejects.toMatchObject({
@@ -197,7 +198,7 @@ describe('GrpcHelper', () => {
                 code: HttpStatus.UNPROCESSABLE_ENTITY,
                 errors: [{ field: 'name', message: 'required' }]
             });
-            serviceGrpc.findOne = jest.fn(() => throwError(() => ({ code: status.ABORTED, details })));
+            serviceGrpc.findOne = vi.fn(() => throwError(() => ({ code: status.ABORTED, details })));
             const helper = createHelper().service('UserService').method('findOne').data({});
 
             let caught: any;
@@ -214,7 +215,7 @@ describe('GrpcHelper', () => {
         });
 
         it('maps other coded gRPC errors to a generic 500 HttpException', async () => {
-            serviceGrpc.findOne = jest.fn(() =>
+            serviceGrpc.findOne = vi.fn(() =>
                 throwError(() => ({ code: status.INTERNAL, details: 'internal failure' }))
             );
             const helper = createHelper().service('UserService').method('findOne').data({});
@@ -227,7 +228,7 @@ describe('GrpcHelper', () => {
 
         it('rethrows errors without a gRPC code unchanged', async () => {
             const error = new Error('boom');
-            serviceGrpc.findOne = jest.fn(() => throwError(() => error));
+            serviceGrpc.findOne = vi.fn(() => throwError(() => error));
             const helper = createHelper().service('UserService').method('findOne').data({});
 
             await expect(helper.getOne()).rejects.toBe(error);

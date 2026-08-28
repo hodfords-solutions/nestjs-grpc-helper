@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { getPropertiesOfClass } from '@hodfords/nestjs-grpc-helper';
+import { getPropertiesOfClass } from '../index.js';
 import { ResponseMetadata } from '@hodfords/nestjs-response';
-import { isUndefined } from '@nestjs/common/utils/shared.utils';
+import { isUndefined } from '@nestjs/common/utils/shared.utils.js';
 import {
     DIRECT_PARAMETERS_METADATA_KEY,
     FLATTEN_PARAMETERS_METADATA_KEY,
     GRPC_PARAM_INDEX_METADATA_KEY
-} from '../constants/metadata-key.const';
-import { isPrimitiveType } from './type.helper';
+} from '../constants/metadata-key.const.js';
+import { isPrimitiveType } from './type.helper.js';
 
 export interface ResolvedMethodParams {
     parameterName?: string;

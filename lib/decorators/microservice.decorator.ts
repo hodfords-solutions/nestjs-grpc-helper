@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { microserviceStorage } from '../storages/microservice.storage';
+import { microserviceStorage } from '../storages/microservice.storage.js';
 import { GrpcMethod } from '@nestjs/microservices';
-import { overrideMethod } from '../helpers/flat-param.helper';
+import { overrideMethod } from '../helpers/flat-param.helper.js';
 import {
     DIRECT_PARAMETERS_METADATA_KEY,
     GRPC_DESCRIPTION_METADATA_KEY,
     GRPC_METADATA_PARAMETERS_METADATA_KEY,
     GRPC_METHOD_METADATA_KEY,
     GRPC_STREAM_METADATA_KEY
-} from '../constants/metadata-key.const';
-import { overrideMetadataMethod } from '../helpers/metadata-param.helper';
+} from '../constants/metadata-key.const.js';
+import { overrideMetadataMethod } from '../helpers/metadata-param.helper.js';
 
 export function RegisterGrpcMicroservice(description?: string): any {
     return (constructor: Function) => {

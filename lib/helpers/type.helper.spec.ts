@@ -1,4 +1,5 @@
-import { isPrimitiveType } from './type.helper';
+import { describe, expect, it } from 'vitest';
+import { isPrimitiveType } from './type.helper.js';
 
 describe('isPrimitiveType', () => {
     it('returns true for the String constructor', () => {

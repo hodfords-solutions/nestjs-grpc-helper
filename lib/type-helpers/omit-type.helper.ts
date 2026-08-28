@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { OmitType } from '@nestjs/swagger';
-import { propertyStorage } from '../storages/property.storage';
-import { addPropertyToStorage } from '@hodfords/nestjs-grpc-helper';
+import { propertyStorage } from '../storages/property.storage.js';
+import { addPropertyToStorage } from '../helpers/property.helper.js';
 
 export function OmitResponseType<T, K extends keyof T>(
     classRef: Type<T>,

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { PropertyOptionType, SdkBuildConfigType } from '@hodfords/nestjs-grpc-helper';
-import { isFunction } from '@nestjs/common/utils/shared.utils';
+import { PropertyOptionType } from '../types/property-option.type.js';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
+import { isFunction } from '@nestjs/common/utils/shared.utils.js';
 import { ApiPropertyOptions } from '@nestjs/swagger';
-import { isEnumProperty } from '../helpers/api-property.helper';
-import { HbsGeneratorService } from './hbs-generator.service';
+import { isEnumProperty } from '../helpers/api-property.helper.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
 
 export class ServiceTemplateService extends HbsGeneratorService {
     constructor(private config: SdkBuildConfigType) {

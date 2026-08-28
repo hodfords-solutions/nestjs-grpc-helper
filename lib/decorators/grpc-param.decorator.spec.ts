@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import {
     GrpcEnum,
@@ -8,11 +9,11 @@ import {
     GrpcParam,
     GrpcSort,
     SdkFlattenParams
-} from './grpc-param.decorator';
-import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { PaginationDto } from '../dto/pagination.dto';
-import { SortDto } from '../dto/sort.dto';
+} from './grpc-param.decorator.js';
+import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { PaginationDto } from '../dto/pagination.dto.js';
+import { SortDto } from '../dto/sort.dto.js';
 
 enum StringEnum {
     STANDARD = 'standard',

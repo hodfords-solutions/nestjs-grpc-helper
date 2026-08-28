@@ -1,19 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-/* eslint-disable @typescript-eslint/no-require-imports */
-import { extractProperties } from '@hodfords/nestjs-grpc-helper';
+
+import { extractProperties } from '../index.js';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
-import { camelCase, upperFirst } from 'lodash';
+import fs from 'fs-extra';
+import { camelCase, upperFirst } from 'es-toolkit';
 import * as process from 'node:process';
 import path from 'path';
-import { isEnumProperty } from '../helpers/api-property.helper';
-import { getReturnType, resolveMethodParams } from '../helpers/grpc-method.helper';
-import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { PropertyType } from '../types/property-option.type';
-import { SdkBuildConfigType } from '../types/sdk-build-config.type';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { GRPC_DESCRIPTION_METADATA_KEY, GRPC_METHOD_METADATA_KEY } from '../constants/metadata-key.const';
+import { isEnumProperty } from '../helpers/api-property.helper.js';
+import { getReturnType, resolveMethodParams } from '../helpers/grpc-method.helper.js';
+import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { PropertyType } from '../types/property-option.type.js';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { GRPC_DESCRIPTION_METADATA_KEY, GRPC_METHOD_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 export class GenerateSkillService extends HbsGeneratorService {
     constructor(private config: SdkBuildConfigType) {

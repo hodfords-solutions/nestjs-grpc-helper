@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AppMicroservice } from './app.microservice';
-import { MicroserviceDocumentModule } from '@hodfords/nestjs-grpc-helper';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
+import { AppMicroservice } from './app.microservice.js';
+import { MicroserviceDocumentModule } from '../lib/index.js';
 import path from 'path';
 import { CommandModule } from '@hodfords/nestjs-command';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
+import { CustomGrpcClient } from '../lib/index.js';
 import { ResponseModule } from '@hodfords/nestjs-response';
+import { fileURLToPath } from 'node:url';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 export const commandModule = CommandModule.register(false, false);
 
@@ -23,14 +26,14 @@ export const commandModule = CommandModule.register(false, false);
                 options: {
                     url: '0.0.0.0:50059',
                     package: 'sdkName',
-                    protoPath: path.join(__dirname, '../../proto/microservice.proto')
+                    protoPath: path.join(currentDir, '../../proto/microservice.proto')
                 }
             }
         }),
         TypeOrmModule.forRoot({
-            type: 'sqlite',
+            type: 'better-sqlite3',
             entities: [],
-            database: 'test'
+            database: ':memory:'
         })
     ],
     controllers: [AppController, AppMicroservice],

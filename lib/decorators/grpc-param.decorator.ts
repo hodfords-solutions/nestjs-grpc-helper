@@ -1,9 +1,8 @@
-import { ParameterOptionType } from '../types/parameter-option.type';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
 import { IsArray, IsEnum, IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
-import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
-import { EnumAllowedTypes } from '@nestjs/swagger/dist/interfaces/schema-object-metadata.interface';
-import { PaginationDto } from '../dto/pagination.dto';
-import { SortDto } from '../dto/sort.dto';
+import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { PaginationDto } from '../dto/pagination.dto.js';
+import { SortDto } from '../dto/sort.dto.js';
 import { Type } from 'class-transformer';
 
 export function SdkFlattenParams(): MethodDecorator {
@@ -51,6 +50,13 @@ export function GrpcIds(name: string): ParameterDecorator {
         decorators: [IsNotEmpty(), IsUUID('all', { each: true })]
     });
 }
+
+/**
+ * Mirrors `EnumAllowedTypes` from `@nestjs/swagger/dist/interfaces/schema-object-metadata.interface`.
+ * That subpath is not reachable through the v12 `exports` map and the type is not re-exported from
+ * the package root, so it is declared locally.
+ */
+type EnumAllowedTypes = any[] | Record<string, any> | (() => any[] | Record<string, any>);
 
 type EnumParamOptionType = { enumName: string; enum: EnumAllowedTypes } & ParameterOptionType;
 

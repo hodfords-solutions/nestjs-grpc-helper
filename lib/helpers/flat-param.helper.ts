@@ -1,8 +1,9 @@
-import { Property } from '../decorators/property.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { camelCase, upperFirst, omit } from 'lodash';
-import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { Property } from '../decorators/property.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { camelCase, upperFirst } from 'es-toolkit';
+import { omit } from 'es-toolkit/compat';
+import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 

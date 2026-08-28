@@ -1,6 +1,7 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { ServiceTemplateService } from './service-template.service';
+import { ServiceTemplateService } from './service-template.service.js';
 
 class NestedClassFixture {}
 

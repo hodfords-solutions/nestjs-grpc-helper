@@ -1,4 +1,5 @@
-import { isEnumProperty } from './api-property.helper';
+import { describe, expect, it } from 'vitest';
+import { isEnumProperty } from './api-property.helper.js';
 
 enum ApiFixtureEnum {
     ONE = 'ONE',

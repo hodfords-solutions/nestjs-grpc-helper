@@ -3,8 +3,8 @@ import { firstValueFrom, map, Observable, timeout, TimeoutError } from 'rxjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { trans } from '@hodfords/nestjs-cls-translation';
 import { Metadata, status } from '@grpc/grpc-js';
-import { MicroserviceClientOptionType } from '../types/microservice-option.type';
-import { Logger } from '@nestjs/common/services/logger.service';
+import { MicroserviceClientOptionType } from '../types/microservice-option.type.js';
+import { Logger } from '@nestjs/common/services/logger.service.js';
 import { applyTransforms } from '@hodfords/nestjs-response';
 
 export class GrpcHelper<Model> {

@@ -1,6 +1,7 @@
+import { describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { AnyType } from './any-type.decorator';
+import { AnyType } from './any-type.decorator.js';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 class AnyPayload {

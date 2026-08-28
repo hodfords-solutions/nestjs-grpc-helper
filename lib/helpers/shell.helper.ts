@@ -1,4 +1,6 @@
-import { exec } from 'shelljs';
+import shelljs from 'shelljs';
+
+const { exec } = shelljs;
 
 export function runCommand(command: string, cwd: string = process.cwd()): any {
     const result = exec(command, { silent: true, cwd: cwd });

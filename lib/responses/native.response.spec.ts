@@ -1,7 +1,8 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { sdkDtos } from '../storages/property.storage';
-import { NativeBooleanValue, NativeNumberValue, NativeResponseValue, NativeStringValue } from './native.response';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { sdkDtos } from '../storages/property.storage.js';
+import { NativeBooleanValue, NativeNumberValue, NativeResponseValue, NativeStringValue } from './native.response.js';
 
 describe('native responses', () => {
     it('defaults grpcNative to true on every native value instance', () => {

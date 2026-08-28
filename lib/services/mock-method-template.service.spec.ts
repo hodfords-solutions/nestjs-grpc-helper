@@ -1,7 +1,8 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { MockResponseCallback, MockResponseMethod, MockResponseSample } from '../decorators/mock.decorator';
-import { MockMethodTemplateService } from './mock-method-template.service';
+import { MockResponseCallback, MockResponseMethod, MockResponseSample } from '../decorators/mock.decorator.js';
+import { MockMethodTemplateService } from './mock-method-template.service.js';
 
 class UserResponseFixture {}
 
@@ -21,7 +22,13 @@ class MockTargetFixture {
 describe('MockMethodTemplateService', () => {
     let service: MockMethodTemplateService;
 
-    const normalize = (value: string): string => value.replace(/\s+/g, ' ').trim();
+    // The callback is inlined via Function.prototype.toString(), so its exact spacing depends on
+    // the transformer: SWC re-prints arrows as `)=>`, ts-jest preserved `) => `. Normalise both.
+    const normalize = (value: string): string =>
+        value
+            .replace(/\s+/g, ' ')
+            .replace(/\s*=>\s*/g, ' => ')
+            .trim();
     const singleResponse = { responseClass: UserResponseFixture, isArray: false } as any;
     const arrayResponse = { responseClass: UserResponseFixture, isArray: true } as any;
 

@@ -1,5 +1,6 @@
+import { beforeAll, describe, expect, it } from 'vitest';
 import 'reflect-metadata';
-import { ModuleTemplateService } from './module-template.service';
+import { ModuleTemplateService } from './module-template.service.js';
 
 describe('ModuleTemplateService', () => {
     const normalize = (value: string): string => value.replace(/\s+/g, ' ').trim();
@@ -18,7 +19,9 @@ describe('ModuleTemplateService', () => {
     });
 
     it('should import the generated services from the service file', () => {
-        expect(content).toContain("import { UserMicroservice,OrderMicroservice } from './services/user-sdk.service';");
+        expect(content).toContain(
+            "import { UserMicroservice,OrderMicroservice } from './services/user-sdk.service.js';"
+        );
     });
 
     it('should provide and export every service', () => {
@@ -31,6 +34,6 @@ describe('ModuleTemplateService', () => {
         expect(content).toContain("provide: 'userSdk_OPTIONS'");
         expect(content).toContain("name: 'userSdk_PACKAGE'");
         expect(content).toContain("package: 'userSdk'");
-        expect(content).toContain("protoPath: path.join(__dirname, 'microservice.proto')");
+        expect(content).toContain("protoPath: path.join(currentDir, 'microservice.proto')");
     });
 });

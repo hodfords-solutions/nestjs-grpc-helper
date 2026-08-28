@@ -1,6 +1,7 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { MethodTemplateService } from './method-template.service';
+import { MethodTemplateService } from './method-template.service.js';
 
 class UserResponseFixture {}
 

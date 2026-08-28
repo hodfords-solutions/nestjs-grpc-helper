@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
-import { propertyStorage, sdkDtos, sdkExposedClasses } from '../storages/property.storage';
-import { differenceBy } from 'lodash';
-import { PropertyOptionType, PropertyType } from '../types/property-option.type';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils.js';
+import { propertyStorage, sdkDtos, sdkExposedClasses } from '../storages/property.storage.js';
+import { differenceBy } from 'es-toolkit';
+import { PropertyOptionType, PropertyType } from '../types/property-option.type.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import { isPrimitiveType } from './type.helper';
+import { isPrimitiveType } from './type.helper.js';
 
 export function getClassHasProperties() {
     return propertyStorage.keys();

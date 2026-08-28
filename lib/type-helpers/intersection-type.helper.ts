@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { IntersectionType } from '@nestjs/swagger';
-import { propertyStorage } from '../storages/property.storage';
-import { addPropertyToStorage } from '@hodfords/nestjs-grpc-helper';
+import { propertyStorage } from '../storages/property.storage.js';
+import { addPropertyToStorage } from '../helpers/property.helper.js';
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 

@@ -1,22 +1,26 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 
 // @faker-js/faker ships ESM only and cannot be parsed by this jest setup; it is irrelevant for generation
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
 
 // Register the Native*Value response classes exactly like importing the library index does in production
-import '../responses/native.response';
+import '../responses/native.response.js';
 import { ResponseModel } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
-import { GrpcId } from '../decorators/grpc-param.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
-import { MockResponseSample } from '../decorators/mock.decorator';
-import { Property } from '../decorators/property.decorator';
-import { SdkExpose } from '../decorators/sdk-expose.decorator';
-import { GenerateMicroserviceService } from './generate-microservice.service';
+import { GrpcId } from '../decorators/grpc-param.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
+import { MockResponseSample } from '../decorators/mock.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { SdkExpose } from '../decorators/sdk-expose.decorator.js';
+import { GenerateMicroserviceService } from './generate-microservice.service.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 enum SdkStatusEnum {
     ACTIVE = 'ACTIVE',
@@ -134,11 +138,11 @@ describe('GenerateMicroserviceService', () => {
 
     it('should generate the index file re-exporting the kebab-cased module files', () => {
         const indexContent = fs.readFileSync(path.join(outputDir, 'index.ts'), 'utf8');
-        expect(indexContent).toContain("export * from './helpers/grpc.helper'");
-        expect(indexContent).toContain("export * from './fixture-sdk.module'");
-        expect(indexContent).toContain("export * from './fixture-sdk.mock.module'");
-        expect(indexContent).toContain("export * from './services/fixture-sdk.service';");
-        expect(indexContent).toContain("export * from './types/microservice-option.type';");
+        expect(indexContent).toContain("export * from './helpers/grpc.helper.js'");
+        expect(indexContent).toContain("export * from './fixture-sdk.module.js'");
+        expect(indexContent).toContain("export * from './fixture-sdk.mock.module.js'");
+        expect(indexContent).toContain("export * from './services/fixture-sdk.service.js';");
+        expect(indexContent).toContain("export * from './types/microservice-option.type.js';");
     });
 
     it('should generate the proto definition alongside the sdk', () => {
@@ -242,7 +246,9 @@ describe('GenerateMicroserviceService', () => {
             expect(moduleContent).toContain('export class FixtureSdkModule {');
             expect(moduleContent).toContain("name: 'fixtureSdk_PACKAGE'");
             expect(moduleContent).toContain("provide: 'fixtureSdk_OPTIONS'");
-            expect(moduleContent).toContain("import { SdkFixtureMicroservice } from './services/fixture-sdk.service';");
+            expect(moduleContent).toContain(
+                "import { SdkFixtureMicroservice } from './services/fixture-sdk.service.js';"
+            );
         });
 
         it('should generate the mock module providing mock implementations', () => {
@@ -256,7 +262,7 @@ describe('GenerateMicroserviceService', () => {
     describe('generated package.json', () => {
         it('should write the package file with the configured package name', () => {
             const sdkPackage = fs.readJsonSync(path.join(outputDir, 'package.json'));
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
+
             const hostPackage = require(path.join(process.cwd(), 'package.json'));
 
             expect(sdkPackage.name).toBe('@test/fixture-sdk');
@@ -277,7 +283,7 @@ describe('GenerateMicroserviceService', () => {
 
             expect(packageContent.scripts).toEqual({});
             expect(packageContent.peerDependencies['class-validator']).toBeUndefined();
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
+
             const hostPackage = require(path.join(process.cwd(), 'package.json'));
             expect(packageContent.name).toBe(hostPackage.name);
         });

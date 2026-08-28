@@ -1,4 +1,4 @@
-import { sdkExposedClasses } from '../storages/property.storage';
+import { sdkExposedClasses } from '../storages/property.storage.js';
 
 export function SdkExpose() {
     // eslint-disable-next-line @typescript-eslint/naming-convention

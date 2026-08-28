@@ -2,7 +2,7 @@ import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
 import * as fs from 'node:fs';
 import path from 'path';
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'es-toolkit';
 
 @Command({
     signature: 'update-ai-skill <packageName> <ai>',

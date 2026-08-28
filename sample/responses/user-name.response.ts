@@ -1,9 +1,9 @@
-import { UserResponse } from './user.response';
-import { ExtendType, MockMethod, PickResponseType, Property } from '@hodfords/nestjs-grpc-helper';
+import { UserResponse } from './user.response.js';
+import { ExtendType, MockMethod, PickResponseType, Property } from '../../lib/index.js';
 import { IsOptional, IsString } from 'class-validator';
-import { IntersectionResponseType } from 'lib/type-helpers/intersection-type.helper';
-import { OmitResponseType } from 'lib/type-helpers/omit-type.helper';
-import { PartialResponseType } from 'lib/type-helpers/partial-type.helper';
+import { IntersectionResponseType } from '../../lib/type-helpers/intersection-type.helper.js';
+import { OmitResponseType } from '../../lib/type-helpers/omit-type.helper.js';
+import { PartialResponseType } from '../../lib/type-helpers/partial-type.helper.js';
 
 @ExtendType()
 export class UserNameResponse extends PickResponseType(UserResponse, ['name', 'type']) {}

@@ -1,14 +1,15 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/naming-convention */
-jest.mock('@hodfords/nestjs-cls-translation', () => ({
-    runInLanguage: jest.fn((params: any, callback: () => any) => callback())
+vi.mock('@hodfords/nestjs-cls-translation', () => ({
+    runInLanguage: vi.fn((params: any, callback: () => any) => callback())
 }));
 
 import 'reflect-metadata';
 import { runInLanguage } from '@hodfords/nestjs-cls-translation';
 import { CallHandler, ExecutionContext } from '@nestjs/common';
 import { firstValueFrom, Observable, of } from 'rxjs';
-import { GrpcTranslationInterceptor } from './grpc-translation.interceptor';
+import { GrpcTranslationInterceptor } from './grpc-translation.interceptor.js';
 
 describe('GrpcTranslationInterceptor', () => {
     let request: any;
@@ -21,10 +22,10 @@ describe('GrpcTranslationInterceptor', () => {
         } as any;
     };
 
-    const createCallHandler = (value: unknown): CallHandler => ({ handle: jest.fn(() => of(value)) });
+    const createCallHandler = (value: unknown): CallHandler => ({ handle: vi.fn(() => of(value)) });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('extracts the configured language keys from the gRPC metadata and runs in that language', async () => {

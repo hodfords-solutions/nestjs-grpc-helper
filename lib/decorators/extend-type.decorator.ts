@@ -1,4 +1,4 @@
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
 
 const extendClassNames = ['IntersectionTypeClass', 'PickTypeClass', 'OmitTypeClass', 'PartialTypeClass'];
 

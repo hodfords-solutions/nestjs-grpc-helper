@@ -1,4 +1,4 @@
-import { GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
 
 export function GrpcValue(): ParameterDecorator {
     return function (target: object, propertyKey: string | symbol, parameterIndex: number) {

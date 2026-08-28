@@ -1,15 +1,19 @@
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
+import { describe, expect, it, vi } from 'vitest';
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
 
 import 'reflect-metadata';
 import { DynamicModule } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
 import path from 'path';
-import { GenerateSdkCommand } from '../commands/generate-sdk.command';
-import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command';
-import { GenerateProtoCommand } from '../commands/generate-proto.command';
-import { DocumentModuleOptionType } from '../types/document-module-option.type';
-import { MicroserviceDocumentController } from './microservice-document.controller';
-import { MicroserviceDocumentModule } from './microservice-document.module';
+import { GenerateSdkCommand } from '../commands/generate-sdk.command.js';
+import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command.js';
+import { GenerateProtoCommand } from '../commands/generate-proto.command.js';
+import { DocumentModuleOptionType } from '../types/document-module-option.type.js';
+import { MicroserviceDocumentController } from './microservice-document.controller.js';
+import { MicroserviceDocumentModule } from './microservice-document.module.js';
+import { fileURLToPath } from 'node:url';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 const createOptions = (overrides: Partial<DocumentModuleOptionType> = {}): DocumentModuleOptionType => ({
     isEnable: true,
@@ -19,7 +23,7 @@ const createOptions = (overrides: Partial<DocumentModuleOptionType> = {}): Docum
         transport: Transport.GRPC,
         options: {
             package: 'sdkName',
-            protoPath: path.join(__dirname, '../../proto/microservice.proto'),
+            protoPath: path.join(currentDir, '../../proto/microservice.proto'),
             url: 'localhost:50099'
         }
     },

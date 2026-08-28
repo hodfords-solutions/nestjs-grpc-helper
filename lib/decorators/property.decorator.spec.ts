@@ -1,9 +1,10 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { Property } from './property.decorator';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { PropertyType } from '../types/property-option.type';
+import { Property } from './property.decorator.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
+import { PropertyType } from '../types/property-option.type.js';
 
 const apiModelPropertiesKey = 'swagger/apiModelProperties';
 

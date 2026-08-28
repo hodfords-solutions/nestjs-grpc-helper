@@ -1,7 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { SdkExpose } from './sdk-expose.decorator';
-import { propertyStorage, sdkDtos, sdkExposedClasses } from '../storages/property.storage';
+import { SdkExpose } from './sdk-expose.decorator.js';
+import { propertyStorage, sdkDtos, sdkExposedClasses } from '../storages/property.storage.js';
 
 describe('SdkExpose', () => {
     let savedExposedClasses: Function[];

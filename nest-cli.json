@@ -15,7 +15,7 @@
             {
                 "include": "../lib/**/*.hbs",
                 "watchAssets": true,
-                "outDir": "dist/lib"
+                "outDir": "dist"
             },
             {
                 "include": "../lib/public/**",
@@ -27,7 +27,7 @@
             },
             {
                 "include": "../sdk-config.json",
-                "outDir": "./dist/sdk-config.json",
+                "outDir": "dist/lib",
                 "watchAssets": true
             }
         ]

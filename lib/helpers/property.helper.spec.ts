@@ -1,13 +1,14 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
-import { Property } from '../decorators/property.decorator';
-import { SdkExpose } from '../decorators/sdk-expose.decorator';
-import { NativeBooleanValue } from '../responses/native.response';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
+import { GRPC_METHOD_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { Property } from '../decorators/property.decorator.js';
+import { SdkExpose } from '../decorators/sdk-expose.decorator.js';
+import { NativeBooleanValue } from '../responses/native.response.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
 import {
     addPropertyToStorage,
     collectMethodUsedClasses,
@@ -15,7 +16,7 @@ import {
     getClassHasProperties,
     getPropertiesOfClass,
     traverseSDKProperties
-} from './property.helper';
+} from './property.helper.js';
 
 enum UserTypeFixtureEnum {
     ADMIN = 'ADMIN',

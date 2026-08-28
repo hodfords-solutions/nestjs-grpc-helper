@@ -1,15 +1,19 @@
+import { beforeAll, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 // Register the Native*Value response classes exactly like importing the library index does in production
-import '../responses/native.response';
+import '../responses/native.response.js';
 import { ResponseModel } from '@hodfords/nestjs-response';
 import path from 'path';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
-import { Property } from '../decorators/property.decorator';
-import { propertyStorage } from '../storages/property.storage';
-import { DocumentType } from '../types/document.type';
-import { GenerateDocumentService } from './generate-document.service';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { propertyStorage } from '../storages/property.storage.js';
+import { DocumentType } from '../types/document.type.js';
+import { GenerateDocumentService } from './generate-document.service.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 class DocNestedResponse {
     @Property({ type: String })
@@ -60,7 +64,7 @@ export class DocFixtureMicroservice {
 
 describe('GenerateDocumentService', () => {
     let document: DocumentType;
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+
     const packageFile = require(path.join(process.cwd(), 'package.json'));
 
     beforeAll(() => {

@@ -1,7 +1,8 @@
 import { Metadata } from '@grpc/grpc-js';
 import { runInLanguage } from '@hodfords/nestjs-cls-translation';
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
-import { first } from 'lodash';
+import { head } from 'es-toolkit';
+
 import { firstValueFrom, from, Observable } from 'rxjs';
 
 export class GrpcTranslationInterceptor implements NestInterceptor {
@@ -13,7 +14,7 @@ export class GrpcTranslationInterceptor implements NestInterceptor {
             values[key] = metadata[key];
             return values;
         }, {});
-        context.switchToHttp().getRequest().i18nLang = metadata[first(this.metadataLanguageKeys)];
+        context.switchToHttp().getRequest().i18nLang = metadata[head(this.metadataLanguageKeys)];
         return runInLanguage(params, () => from(firstValueFrom(next.handle())));
     }
 }

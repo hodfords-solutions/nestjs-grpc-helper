@@ -1,14 +1,15 @@
+import { describe, expect, it, vi } from 'vitest';
 import 'reflect-metadata';
 import { ResponseMetadata } from '@hodfords/nestjs-response';
 
 // @faker-js/faker v10 is ESM-only and cannot be loaded by the CommonJS jest transform.
 // It is pulled in transitively through the library index and is not used by these tests.
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
 
-import { GrpcParam, SdkFlattenParams } from '../decorators/grpc-param.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { Property } from '../decorators/property.decorator';
-import { getReturnType, resolveMethodParams } from './grpc-method.helper';
+import { GrpcParam, SdkFlattenParams } from '../decorators/grpc-param.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { getReturnType, resolveMethodParams } from './grpc-method.helper.js';
 
 class SearchQueryFixtureDto {
     @Property({ type: String })

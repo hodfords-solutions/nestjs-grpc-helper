@@ -1,12 +1,15 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { MicroserviceDocumentController } from './microservice-document.controller';
-import { DocumentModuleOptionType } from '../types/document-module-option.type';
+import { MicroserviceDocumentController } from './microservice-document.controller.js';
+import { DocumentModuleOptionType } from '../types/document-module-option.type.js';
 import { ClientsModule } from '@nestjs/microservices';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
-import { GenerateSdkCommand } from '../commands/generate-sdk.command';
-import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command';
-import { GenerateProtoCommand } from '../commands/generate-proto.command';
+import { GenerateSdkCommand } from '../commands/generate-sdk.command.js';
+import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command.js';
+import { GenerateProtoCommand } from '../commands/generate-proto.command.js';
+import { fileURLToPath } from 'node:url';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 @Module({})
 export class MicroserviceDocumentModule {
@@ -40,7 +43,7 @@ export class MicroserviceDocumentModule {
                     imports: [
                         ClientsModule.register([{ name: 'HERO_PACKAGE', ...options.clientOptions }]),
                         ServeStaticModule.forRoot({
-                            rootPath: path.resolve(__dirname, `../frontend`),
+                            rootPath: path.resolve(currentDir, `../frontend`),
                             renderPath: '/{*splat}',
                             serveRoot: serveRoot
                         })

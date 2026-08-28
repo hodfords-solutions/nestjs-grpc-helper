@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { UseResponseInterceptor, ResponseModel } from '@hodfords/nestjs-response';
-import { UserResponse } from './responses/user.response';
-import { UserPaginationResponse } from './responses/user-pagination.response';
-import { generateDocumentService } from '@hodfords/nestjs-grpc-helper';
-import { UserNameResponse } from './responses/user-name.response';
+import { UserResponse } from './responses/user.response.js';
+import { UserPaginationResponse } from './responses/user-pagination.response.js';
+import { generateDocumentService } from '../lib/index.js';
+import { UserNameResponse } from './responses/user-name.response.js';
 
 @Controller()
 @UseResponseInterceptor()

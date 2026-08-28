@@ -1,8 +1,8 @@
 import { IsArray, ValidateNested } from 'class-validator';
-import { PaginationResponse } from './pagination.response';
-import { UserResponse } from './user.response';
+import { PaginationResponse } from './pagination.response.js';
+import { UserResponse } from './user.response.js';
 import { Type } from 'class-transformer';
-import { MockNested, Property } from '@hodfords/nestjs-grpc-helper';
+import { MockNested, Property } from '../../lib/index.js';
 
 export class UserPaginationResponse extends PaginationResponse {
     @IsArray()

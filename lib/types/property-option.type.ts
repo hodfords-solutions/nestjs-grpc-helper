@@ -1,5 +1,5 @@
 import { ApiPropertyOptions } from '@nestjs/swagger';
-import { MockOptionType } from './mock-option.type';
+import { MockOptionType } from './mock-option.type.js';
 
 export type PropertyType = { name: string; option: PropertyOptionType };
 

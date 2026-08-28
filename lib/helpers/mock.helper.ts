@@ -1,8 +1,8 @@
-import { getPropertiesOfClass } from './property.helper';
+import { getPropertiesOfClass } from './property.helper.js';
 import { faker } from '@faker-js/faker';
-import { get } from 'lodash';
-import { PropertyOptionType } from '../types/property-option.type';
-import { MockOptionType } from '../types/mock-option.type';
+import { get } from 'es-toolkit/compat';
+import { PropertyOptionType } from '../types/property-option.type.js';
+import { MockOptionType } from '../types/mock-option.type.js';
 import { applyTransforms } from '@hodfords/nestjs-response';
 
 function resolveType(type: any) {

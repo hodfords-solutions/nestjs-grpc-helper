@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
@@ -8,10 +9,10 @@ import {
     MockResponseMethod,
     MockResponseSample,
     MockSample
-} from './mock.decorator';
-import { Property } from './property.decorator';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { PropertyType } from '../types/property-option.type';
+} from './mock.decorator.js';
+import { Property } from './property.decorator.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
+import { PropertyType } from '../types/property-option.type.js';
 
 describe('Mock decorators', () => {
     let savedProperties: Array<[Function, PropertyType[]]>;

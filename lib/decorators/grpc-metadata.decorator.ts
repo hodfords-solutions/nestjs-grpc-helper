@@ -1,6 +1,6 @@
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
-import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type.js';
 import { isNotEmpty, isUUID } from 'class-validator';
 
 export function GrpcMetadata(option: MetadataParameterOptionType): ParameterDecorator {

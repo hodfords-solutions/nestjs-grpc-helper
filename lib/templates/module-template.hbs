@@ -1,10 +1,13 @@
 import { DynamicModule, Module, Global } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import path from 'path';
-import { MicroserviceModuleOptionType } from './types/microservice-option.type';
-import { {{#each services}}{{this}}{{#unless @last}},{{/unless}}{{/each}} } from './services/{{fileName}}.service';
+import { fileURLToPath } from 'url';
+import { MicroserviceModuleOptionType } from './types/microservice-option.type.js';
+import { {{#each services}}{{this}}{{#unless @last}},{{/unless}}{{/each}} } from './services/{{fileName}}.service.js';
 import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
 import * as grpc from '@grpc/grpc-js';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 
 @Global()
@@ -30,7 +33,7 @@ export class {{moduleName}}Module {
                             ...options,
                             url: options.url,
                             package: '{{packageName}}',
-                            protoPath: path.join(__dirname, 'microservice.proto'),
+                            protoPath: path.join(currentDir, 'microservice.proto'),
                             credentials: options.ssl ? grpc.credentials.createSsl() : undefined,
                             maxReceiveMessageLength: options.maxReceiveMessageLength ?? 4 * 1024 * 1024,
                             loader: {

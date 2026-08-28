@@ -1,7 +1,7 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper.js';
 
 export class MethodTemplateService extends HbsGeneratorService {
     constructor() {

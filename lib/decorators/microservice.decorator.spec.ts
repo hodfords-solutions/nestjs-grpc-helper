@@ -1,21 +1,22 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from './microservice.decorator';
-import { GrpcValue } from './grpc-value.decorator';
-import { GrpcId } from './grpc-param.decorator';
-import { GrpcMetadataId } from './grpc-metadata.decorator';
-import { Property } from './property.decorator';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from './microservice.decorator.js';
+import { GrpcValue } from './grpc-value.decorator.js';
+import { GrpcId } from './grpc-param.decorator.js';
+import { GrpcMetadataId } from './grpc-metadata.decorator.js';
+import { Property } from './property.decorator.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
 import {
     DIRECT_PARAMETERS_METADATA_KEY,
     GRPC_DESCRIPTION_METADATA_KEY,
     GRPC_METHOD_METADATA_KEY,
     GRPC_PARAM_INDEX_METADATA_KEY,
     GRPC_STREAM_METADATA_KEY
-} from '../constants/metadata-key.const';
-import { PropertyType } from '../types/property-option.type';
+} from '../constants/metadata-key.const.js';
+import { PropertyType } from '../types/property-option.type.js';
 
 const workspaceUuid = '550e8400-e29b-41d4-a716-446655440000';
 

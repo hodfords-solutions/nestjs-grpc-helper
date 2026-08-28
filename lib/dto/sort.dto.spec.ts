@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { SortDto } from './sort.dto';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { SortDto } from './sort.dto.js';
 
 describe('SortDto', () => {
     const buildDto = (data: object): SortDto => plainToInstance(SortDto, data);

@@ -1,17 +1,21 @@
+import { Mock, afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'reflect-metadata';
-import { Logger } from '@nestjs/common/services/logger.service';
-import { GRPC_DEFAULT_URL } from '@nestjs/microservices/constants';
-import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invalid-grpc-package.exception';
-import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception';
-import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/invalid-proto-definition.exception';
+import { Logger } from '@nestjs/common/services/logger.service.js';
+import { GRPC_DEFAULT_URL } from '@nestjs/microservices/constants.js';
+import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invalid-grpc-package.exception.js';
+import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception.js';
+import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/invalid-proto-definition.exception.js';
 import { EventEmitter } from 'events';
 import path from 'path';
 import { firstValueFrom, lastValueFrom, toArray } from 'rxjs';
-import { CustomGrpcClient } from './custom-grpc.client';
+import { CustomGrpcClient } from './custom-grpc.client.js';
+import { fileURLToPath } from 'node:url';
 
-const PROTO_PATH = path.join(__dirname, '../../proto/microservice.proto');
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+const PROTO_PATH = path.join(currentDir, '../../proto/microservice.proto');
 
 let fakePackages: any[] = [];
 
@@ -26,14 +30,14 @@ type FakeServiceFixture = {
     instances: any[];
     unaryCalls: any[];
     streamCalls: any[];
-    pendingCancelSpies: jest.Mock[];
+    pendingCancelSpies: Mock[];
 };
 
 function createFakeServiceFixture(): FakeServiceFixture {
     const instances: any[] = [];
     const unaryCalls: any[] = [];
     const streamCalls: any[] = [];
-    const pendingCancelSpies: jest.Mock[] = [];
+    const pendingCancelSpies: Mock[] = [];
 
     function FakeService(this: any, url: string, credentials: any, channelOptions: any) {
         this.url = url;
@@ -46,7 +50,7 @@ function createFakeServiceFixture(): FakeServiceFixture {
         const callback = args[args.length - 1];
         unaryCalls.push(args.slice(0, -1));
         callback(null, { echoed: args[0] });
-        return { finished: true, cancel: jest.fn() };
+        return { finished: true, cancel: vi.fn() };
     };
     FakeService.prototype.echo.requestStream = false;
     FakeService.prototype.echo.responseStream = false;
@@ -54,13 +58,13 @@ function createFakeServiceFixture(): FakeServiceFixture {
     FakeService.prototype.fail = function (...args: any[]): any {
         const callback = args[args.length - 1];
         callback({ message: 'unary failed' });
-        return { finished: true, cancel: jest.fn() };
+        return { finished: true, cancel: vi.fn() };
     };
     FakeService.prototype.fail.requestStream = false;
     FakeService.prototype.fail.responseStream = false;
 
     FakeService.prototype.hang = function (): any {
-        const cancel = jest.fn();
+        const cancel = vi.fn();
         pendingCancelSpies.push(cancel);
         return { finished: false, cancel };
     };
@@ -70,7 +74,7 @@ function createFakeServiceFixture(): FakeServiceFixture {
     FakeService.prototype.streamNumbers = function (): any {
         const call: any = new EventEmitter();
         call.finished = false;
-        call.cancel = jest.fn();
+        call.cancel = vi.fn();
         streamCalls.push(call);
         return call;
     };
@@ -87,11 +91,11 @@ function createClient(options: any, packages: any[]): TestableGrpcClient {
 
 describe('CustomGrpcClient', () => {
     beforeAll(() => {
-        jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+        vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     });
 
     afterAll(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
     });
 
     describe('proto loading and package lookup', () => {
@@ -126,7 +130,7 @@ describe('CustomGrpcClient', () => {
                     new CustomGrpcClient({
                         url: 'localhost:50099',
                         package: 'sdkName',
-                        protoPath: path.join(__dirname, 'does-not-exist.proto')
+                        protoPath: path.join(currentDir, 'does-not-exist.proto')
                     })
             ).toThrow(InvalidProtoDefinitionException);
         });
@@ -279,7 +283,7 @@ describe('CustomGrpcClient', () => {
 
             const resultPromise = lastValueFrom(service.streamNumbers({}).pipe(toArray()));
             const call = fixture.streamCalls[0];
-            call.removeAllListeners = jest.fn(call.removeAllListeners.bind(call));
+            call.removeAllListeners = vi.fn(call.removeAllListeners.bind(call));
             call.emit('data', 1);
             call.emit('data', 2);
             call.emit('end');
@@ -314,7 +318,7 @@ describe('CustomGrpcClient', () => {
     describe('lifecycle and unsupported proxy methods', () => {
         it('close() closes closable package entries and clears the registry', () => {
             const fixture = createFakeServiceFixture();
-            const closablePackage: any = { EchoService: fixture.ctor, close: jest.fn() };
+            const closablePackage: any = { EchoService: fixture.ctor, close: vi.fn() };
             const client = createClient({}, [closablePackage]);
 
             client.close();

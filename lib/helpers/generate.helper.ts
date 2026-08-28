@@ -1,7 +1,7 @@
-import { GenerateMicroserviceService } from '../services/generate-microservice.service';
-import { GenerateProtoService } from '../services/generate-proto.service';
-import { GenerateDocumentService } from '../services/generate-document.service';
-import { SdkBuildConfigType } from '../types/sdk-build-config.type';
+import { GenerateMicroserviceService } from '../services/generate-microservice.service.js';
+import { GenerateProtoService } from '../services/generate-proto.service.js';
+import { GenerateDocumentService } from '../services/generate-document.service.js';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
 
 export function generateSdk(config: SdkBuildConfigType) {
     new GenerateMicroserviceService(config).generate();

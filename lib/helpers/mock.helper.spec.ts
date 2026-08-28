@@ -1,11 +1,12 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 import { faker } from '@faker-js/faker';
-import { MockMethod, MockNested, MockSample } from '../decorators/mock.decorator';
+import { MockMethod, MockNested, MockSample } from '../decorators/mock.decorator.js';
 
 // @faker-js/faker v10 is ESM-only and cannot be loaded by the CommonJS jest transform,
 // so a deterministic seedable stub exposing the faker API used by the fixtures is provided instead.
-jest.mock('@faker-js/faker', () => {
+vi.mock('@faker-js/faker', () => {
     let state = 1;
     const next = (): number => {
         state = (state * 1103515245 + 12345) % 2147483648;
@@ -37,8 +38,8 @@ jest.mock('@faker-js/faker', () => {
         }
     };
 });
-import { Property } from '../decorators/property.decorator';
-import { sample, sampleMethod } from './mock.helper';
+import { Property } from '../decorators/property.decorator.js';
+import { sample, sampleMethod } from './mock.helper.js';
 
 class MockAddressFixture {
     @Property({ type: String })

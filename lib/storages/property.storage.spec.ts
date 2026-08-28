@@ -1,9 +1,10 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { propertyStorage, sdkDtos, sdkExposedClasses } from './property.storage';
-import { Property } from '../decorators/property.decorator';
-import { PropertyType } from '../types/property-option.type';
+import { propertyStorage, sdkDtos, sdkExposedClasses } from './property.storage.js';
+import { Property } from '../decorators/property.decorator.js';
+import { PropertyType } from '../types/property-option.type.js';
 
 describe('property storages', () => {
     let savedProperties: Array<[Function, PropertyType[]]>;

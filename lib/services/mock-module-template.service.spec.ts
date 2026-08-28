@@ -1,5 +1,6 @@
+import { beforeAll, describe, expect, it } from 'vitest';
 import 'reflect-metadata';
-import { MockModuleTemplateService } from './mock-module-template.service';
+import { MockModuleTemplateService } from './mock-module-template.service.js';
 
 describe('MockModuleTemplateService', () => {
     const normalize = (value: string): string => value.replace(/\s+/g, ' ').trim();
@@ -19,7 +20,7 @@ describe('MockModuleTemplateService', () => {
     it('should import both the real and the mock services', () => {
         expect(content).toContain(
             'import { UserMicroservice,OrderMicroservice,MockUserMicroservice,MockOrderMicroservice }' +
-                " from './services/user-sdk.service';"
+                " from './services/user-sdk.service.js';"
         );
     });
 

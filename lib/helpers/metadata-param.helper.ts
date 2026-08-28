@@ -1,6 +1,6 @@
-import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
-import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type';
-import { moveMetadata } from './flat-param.helper';
+import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type.js';
+import { moveMetadata } from './flat-param.helper.js';
 
 export function overrideMetadataMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;

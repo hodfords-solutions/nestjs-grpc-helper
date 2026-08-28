@@ -11,17 +11,17 @@ import {
     GrpcPagination,
     GrpcSort,
     GrpcMetadataId
-} from '@hodfords/nestjs-grpc-helper';
-import { UserPaginationResponse } from './responses/user-pagination.response';
-import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto';
+} from '../lib/index.js';
+import { UserPaginationResponse } from './responses/user-pagination.response.js';
+import { AnyDto, FindManyDto, ParamDto, ParamNestedDto } from './dto/param.dto.js';
 import { ApiOperation } from '@nestjs/swagger';
-import { UserResponse } from './responses/user.response';
-import { GrpcEnum, GrpcId, GrpcIds } from '@hodfords/nestjs-grpc-helper';
+import { UserResponse } from './responses/user.response.js';
+import { GrpcEnum, GrpcId, GrpcIds } from '../lib/index.js';
 import { Metadata } from '@grpc/grpc-js';
 import { GrpcExceptionFilter } from '@hodfords/nestjs-exception';
-import { UserTypeEnum } from './enums/user-type.enum';
-import { PaginationDto } from '../lib/dto/pagination.dto';
-import { SortDto } from '../lib/dto/sort.dto';
+import { UserTypeEnum } from './enums/user-type.enum.js';
+import { PaginationDto } from '../lib/dto/pagination.dto.js';
+import { SortDto } from '../lib/dto/sort.dto.js';
 
 @Controller()
 @RegisterGrpcMicroservice('User management microservice for handling user CRUD operations and queries')

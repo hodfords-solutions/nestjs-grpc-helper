@@ -1,6 +1,6 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { MethodTemplateService } from './method-template.service';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { MethodTemplateService } from './method-template.service.js';
 
 export class MockMethodTemplateService extends MethodTemplateService {
     templateBody(

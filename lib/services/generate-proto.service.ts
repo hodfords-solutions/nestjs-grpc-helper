@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { NullableGrpcClassResponseNamePrefix, RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
-import * as fs from 'fs-extra';
+import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils.js';
+import fs from 'fs-extra';
 import path from 'path';
-import { extractProperties } from '../helpers/property.helper';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { PropertyOptionType } from 'lib/types/property-option.type';
-import { isNil } from 'lodash';
-import { isPrimitiveType } from '../helpers/type.helper';
+import { extractProperties } from '../helpers/property.helper.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { PropertyOptionType } from '../types/property-option.type.js';
+import { isNil } from 'es-toolkit';
+import { isPrimitiveType } from '../helpers/type.helper.js';
 import {
     GRPC_METHOD_METADATA_KEY,
     GRPC_PARAM_INDEX_METADATA_KEY,
     GRPC_STREAM_METADATA_KEY
-} from '../constants/metadata-key.const';
+} from '../constants/metadata-key.const.js';
 
 export class GenerateProtoService extends HbsGeneratorService {
     private nullableResponseTypes: Set<string> = new Set();

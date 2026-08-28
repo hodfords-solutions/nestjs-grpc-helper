@@ -1,15 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module';
-import { generateProtoService, generateSdk } from '@hodfords/nestjs-grpc-helper';
+import { AppModule } from './app.module.js';
+// generateSdk is kept for the commented-out usage example below.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { generateProtoService, generateSdk } from '../lib/index.js';
 import path from 'path';
 import { Transport } from '@nestjs/microservices';
-import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
+import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface.js';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { fileURLToPath } from 'node:url';
 
-// generateProtoService('sdkName', path.join(__dirname, '../../proto'));
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-// generateSdk(require(path.join(__dirname, '../sdk-config.json')));
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+
+// The proto file is generated (and gitignored), so it must be written before the app boots.
+generateProtoService('sdkName', path.join(currentDir, '../../proto'));
+
+// generateSdk(require(path.join(currentDir, '../sdk-config.json')));
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -33,7 +39,7 @@ async function bootstrap() {
         options: {
             url: '0.0.0.0:50059',
             package: 'sdkName',
-            protoPath: path.join(__dirname, '../../proto/microservice.proto')
+            protoPath: path.join(currentDir, '../../proto/microservice.proto')
         }
     });
 

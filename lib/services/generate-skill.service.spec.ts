@@ -1,20 +1,24 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 
 // @faker-js/faker ships ESM only and cannot be parsed by this jest setup; it is irrelevant for generation
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
 
 // Register the Native*Value response classes exactly like importing the library index does in production
-import '../responses/native.response';
+import '../responses/native.response.js';
 import { ResponseModel } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
-import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
-import { Property } from '../decorators/property.decorator';
-import { GenerateSkillService } from './generate-skill.service';
+import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { GrpcAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { GenerateSkillService } from './generate-skill.service.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 enum SkillStatusEnum {
     ACTIVE = 'ACTIVE',
@@ -61,7 +65,7 @@ export class SkillFixtureMicroservice {
 describe('GenerateSkillService', () => {
     let outputDir: string;
     let skillContent: string;
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+
     const hostPackage = require(path.join(process.cwd(), 'package.json'));
 
     beforeAll(() => {

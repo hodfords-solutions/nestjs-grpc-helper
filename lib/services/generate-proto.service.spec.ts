@@ -1,16 +1,17 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
 // Register the Native*Value response classes exactly like importing the library index does in production
-import '../responses/native.response';
+import '../responses/native.response.js';
 import { ResponseModel } from '@hodfords/nestjs-response';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import * as os from 'os';
 import path from 'path';
-import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
-import { Property } from '../decorators/property.decorator';
-import { GenerateProtoService } from './generate-proto.service';
+import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { GenerateProtoService } from './generate-proto.service.js';
 
 enum ProtoStatusEnum {
     ACTIVE = 'ACTIVE',

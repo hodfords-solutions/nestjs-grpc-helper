@@ -1,7 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import 'reflect-metadata';
-import { microserviceStorage } from './microservice.storage';
-import { RegisterGrpcMicroservice } from '../decorators/microservice.decorator';
+import { microserviceStorage } from './microservice.storage.js';
+import { RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
 
 describe('microserviceStorage', () => {
     let savedMicroservices: Function[];

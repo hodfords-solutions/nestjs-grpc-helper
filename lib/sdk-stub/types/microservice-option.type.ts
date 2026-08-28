@@ -1,5 +1,5 @@
 import { Metadata } from '@grpc/grpc-js';
-import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
+import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface.js';
 
 export type MicroserviceModuleOptionType = {
     timeout: number;

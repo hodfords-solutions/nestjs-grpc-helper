@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { {{#each importServices}}{{this}}{{#unless @last}},{{/unless}}{{/each}} } from './services/{{fileName}}.service';
+import { {{#each importServices}}{{this}}{{#unless @last}},{{/unless}}{{/each}} } from './services/{{fileName}}.service.js';
 
 @Global()
 @Module({

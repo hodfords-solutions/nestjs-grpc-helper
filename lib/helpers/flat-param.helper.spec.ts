@@ -1,13 +1,14 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
-import { GrpcParam } from '../decorators/grpc-param.decorator';
-import { GrpcValue } from '../decorators/grpc-value.decorator';
-import { Property } from '../decorators/property.decorator';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { ParameterOptionType } from '../types/parameter-option.type';
-import { checkParamsIsContinuous, createParamDto, moveMetadata, overrideMethod } from './flat-param.helper';
+import { DIRECT_PARAMETERS_METADATA_KEY, GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { GrpcParam } from '../decorators/grpc-param.decorator.js';
+import { GrpcValue } from '../decorators/grpc-value.decorator.js';
+import { Property } from '../decorators/property.decorator.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
+import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { checkParamsIsContinuous, createParamDto, moveMetadata, overrideMethod } from './flat-param.helper.js';
 
 class BodyFixtureDto {
     @Property({ type: String })

@@ -1,4 +1,5 @@
-import { convertProtoTypeToSwagger, convertProtoTypeToTypescript } from './proto-type.helper';
+import { describe, expect, it } from 'vitest';
+import { convertProtoTypeToSwagger, convertProtoTypeToTypescript } from './proto-type.helper.js';
 
 enum ProtoFixtureEnum {
     FIRST = 'FIRST',

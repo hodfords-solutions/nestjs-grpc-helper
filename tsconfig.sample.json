@@ -1,15 +1,18 @@
 {
     "extends": "./tsconfig.json",
+    "include": [
+        "lib",
+        "sample"
+    ],
     "exclude": [
         "node_modules",
-        "tests",
-        "test",
-        "sample",
         "dist",
-        "**/*spec.ts",
+        "tests",
+        "**/*.spec.ts",
         "sdk",
-        "sample/consumer",
+        "sdkBuild",
         "frontend",
+        "sample/consumer",
         "lib/sdk-stub"
     ]
 }

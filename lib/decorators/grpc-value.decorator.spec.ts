@@ -1,6 +1,7 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
-import { GrpcValue } from './grpc-value.decorator';
-import { GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const';
+import { GrpcValue } from './grpc-value.decorator.js';
+import { GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
 
 describe('GrpcValue', () => {
     it('records the parameter index on the method', () => {

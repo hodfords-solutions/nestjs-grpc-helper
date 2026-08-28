@@ -1,10 +1,11 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { Property } from '../decorators/property.decorator';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { propertyStorage, sdkDtos } from '../storages/property.storage';
-import { PickResponseType } from './pick-type.helper';
+import { Property } from '../decorators/property.decorator.js';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
+import { PickResponseType } from './pick-type.helper.js';
 
 class PickBaseFixture {
     @Property({ type: String, description: 'user name' })

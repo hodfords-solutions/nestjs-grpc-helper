@@ -1,4 +1,4 @@
-import { Property } from '../decorators/property.decorator';
+import { Property } from '../decorators/property.decorator.js';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class PaginationDto {

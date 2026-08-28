@@ -1,10 +1,13 @@
+import { Mock, afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 /* eslint-disable max-lines-per-function */
 /* eslint-disable @typescript-eslint/naming-convention */
-jest.mock('@faker-js/faker', () => ({ faker: {} }));
-jest.mock('../services/generate-document.service', () => ({
-    GenerateDocumentService: jest.fn().mockImplementation((packageName: string) => ({
-        generate: () => ({ name: packageName, services: [] })
-    }))
+vi.mock('@faker-js/faker', () => ({ faker: {} }));
+// Arrow functions cannot be constructed, and the helper calls this with `new`.
+// jest.fn() tolerated that; vi.fn() does not, so the implementation is a real function.
+vi.mock('../services/generate-document.service.js', () => ({
+    GenerateDocumentService: vi.fn(function (this: any, packageName: string) {
+        this.generate = () => ({ name: packageName, services: [] });
+    })
 }));
 
 import 'reflect-metadata';
@@ -13,13 +16,13 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { of } from 'rxjs';
 import request from 'supertest';
-import { GenerateDocumentService } from '../services/generate-document.service';
-import { MicroserviceDocumentController } from './microservice-document.controller';
+import { GenerateDocumentService } from '../services/generate-document.service.js';
+import { MicroserviceDocumentController } from './microservice-document.controller.js';
 
 describe('MicroserviceDocumentController', () => {
     let app: INestApplication;
-    let serviceGrpc: { [method: string]: jest.Mock };
-    let clientMock: { getService: jest.Mock };
+    let serviceGrpc: { [method: string]: Mock };
+    let clientMock: { getService: Mock };
 
     const documentOptions = {
         isEnable: true,
@@ -29,7 +32,7 @@ describe('MicroserviceDocumentController', () => {
 
     beforeAll(async () => {
         serviceGrpc = {};
-        clientMock = { getService: jest.fn(() => serviceGrpc) };
+        clientMock = { getService: vi.fn(() => serviceGrpc) };
 
         const moduleRef = await Test.createTestingModule({
             controllers: [MicroserviceDocumentController],
@@ -48,7 +51,7 @@ describe('MicroserviceDocumentController', () => {
     });
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('GET /microservice-documents/json', () => {
@@ -62,7 +65,7 @@ describe('MicroserviceDocumentController', () => {
 
     describe('POST /microservice-documents/test', () => {
         it('calls the requested service method and returns a single result when isFindMany is false', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ id: 1, name: 'john' }));
+            serviceGrpc.findOne = vi.fn(() => of({ id: 1, name: 'john' }));
 
             const response = await request(app.getHttpServer())
                 .post('/microservice-documents/test')
@@ -80,7 +83,7 @@ describe('MicroserviceDocumentController', () => {
         });
 
         it('returns the full list when isFindMany is true', async () => {
-            serviceGrpc.findMany = jest.fn(() => of({ grpcArray: true, items: [{ id: 1 }, { id: 2 }] }));
+            serviceGrpc.findMany = vi.fn(() => of({ grpcArray: true, items: [{ id: 1 }, { id: 2 }] }));
 
             const response = await request(app.getHttpServer())
                 .post('/microservice-documents/test')
@@ -96,7 +99,7 @@ describe('MicroserviceDocumentController', () => {
         });
 
         it('forwards the request metadata to the gRPC call', async () => {
-            serviceGrpc.findOne = jest.fn(() => of({ id: 1 }));
+            serviceGrpc.findOne = vi.fn(() => of({ id: 1 }));
 
             await request(app.getHttpServer())
                 .post('/microservice-documents/test')

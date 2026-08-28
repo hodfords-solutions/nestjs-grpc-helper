@@ -1,27 +1,32 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-/* eslint-disable @typescript-eslint/no-require-imports */
-import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
+
+import { extractProperties, generateProtoService } from '../index.js';
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
 import { copyFileSync, rmSync, writeFileSync } from 'fs';
-import * as fs from 'fs-extra';
-import { kebabCase } from 'lodash';
+import fs from 'fs-extra';
+import { kebabCase } from 'es-toolkit';
 import * as process from 'node:process';
 import path from 'path';
-import { isEnumProperty } from '../helpers/api-property.helper';
-import { getReturnType, resolveMethodParams } from '../helpers/grpc-method.helper';
-import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
-import { runCommand } from '../helpers/shell.helper';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { SdkBuildConfigType } from '../types/sdk-build-config.type';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { MethodTemplateService } from './method-template.service';
-import { MockMethodTemplateService } from './mock-method-template.service';
-import { MockModuleTemplateService } from './mock-module-template.service';
-import { ModuleTemplateService } from './module-template.service';
-import { ServiceTemplateService } from './service-template.service';
-import { GenerateSkillService } from './generate-skill.service';
-import { GRPC_METHOD_METADATA_KEY, GRPC_STREAM_METADATA_KEY } from '../constants/metadata-key.const';
+import { isEnumProperty } from '../helpers/api-property.helper.js';
+import { getReturnType, resolveMethodParams } from '../helpers/grpc-method.helper.js';
+import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper.js';
+import { runCommand } from '../helpers/shell.helper.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { MethodTemplateService } from './method-template.service.js';
+import { MockMethodTemplateService } from './mock-method-template.service.js';
+import { MockModuleTemplateService } from './mock-module-template.service.js';
+import { ModuleTemplateService } from './module-template.service.js';
+import { ServiceTemplateService } from './service-template.service.js';
+import { GenerateSkillService } from './generate-skill.service.js';
+import { GRPC_METHOD_METADATA_KEY, GRPC_STREAM_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -68,11 +73,11 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         fs.ensureDirSync(path.join(this.config.output, 'types'));
         fs.ensureDirSync(path.join(this.config.output, 'constants'));
 
-        let dirPath = __dirname;
-        if (fs.existsSync(path.join(__dirname, '../../sdk-stub/helpers/grpc.helper.ts'))) {
-            dirPath = path.join(__dirname, '../../sdk-stub');
+        let dirPath = currentDir;
+        if (fs.existsSync(path.join(currentDir, '../../sdk-stub/helpers/grpc.helper.ts'))) {
+            dirPath = path.join(currentDir, '../../sdk-stub');
         } else {
-            dirPath = path.join(__dirname, '../sdk-stub');
+            dirPath = path.join(currentDir, '../sdk-stub');
         }
         if (!fs.existsSync(path.join(this.config.output, 'helpers/grpc.helper.ts'))) {
             copyFileSync(

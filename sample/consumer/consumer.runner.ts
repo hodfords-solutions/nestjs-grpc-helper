@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AppMicroservice, UserTypeEnum } from '../../sdk';
+import { AppMicroservice, UserTypeEnum } from '../../sdk/index.js';
 
 // @GrpcId / @GrpcIds / @GrpcMetadataId parameters are validated as UUIDs on the server.
 const userId = '550e8400-e29b-41d4-a716-446655440000';

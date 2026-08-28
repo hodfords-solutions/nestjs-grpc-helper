@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Metadata } from '@grpc/grpc-js';
-import { SdkNameModule } from '../../sdk';
-import { ConsumerRunner } from './consumer.runner';
+import { SdkNameModule } from '../../sdk/index.js';
+import { ConsumerRunner } from './consumer.runner.js';
 
 /**
  * A consumer application that imports the generated SDK (`sdk/`) and uses it to

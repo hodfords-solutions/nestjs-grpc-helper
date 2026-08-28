@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest';
 /* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { GrpcMetadata, GrpcMetadataId } from './grpc-metadata.decorator';
-import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const';
-import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type';
+import { GrpcMetadata, GrpcMetadataId } from './grpc-metadata.decorator.js';
+import { GRPC_METADATA_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
+import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type.js';
 import { isNotEmpty, isUUID } from 'class-validator';
 
 function getParams(target: object, propertyKey: string): MetadataParameterOptionType[] {
