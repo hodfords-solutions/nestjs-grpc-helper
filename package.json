@@ -108,9 +108,6 @@
         "@nestjs/schematics": {
             "typescript": "$typescript"
         },
-        "@nestjs/cli": {
-            "typescript": "$typescript"
-        },
         "nestjs-cls": {
             "@nestjs/common": "$@nestjs/common",
             "@nestjs/core": "$@nestjs/core"
