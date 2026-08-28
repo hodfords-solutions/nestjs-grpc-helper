@@ -1,6 +1,6 @@
 import { isFunction, isString } from '@nestjs/common/utils/shared.utils';
-import { isEnumProperty } from './api-property.helper';
-import { PropertyOptionType } from '@hodfords/nestjs-grpc-helper';
+import { isEnumProperty } from './api-property.helper.js';
+import { PropertyOptionType } from '../types/property-option.type.js';
 
 export function convertProtoTypeToSwagger(option: PropertyOptionType): PropertyOptionType['type'] | string {
     if (isFunction(option.type)) {

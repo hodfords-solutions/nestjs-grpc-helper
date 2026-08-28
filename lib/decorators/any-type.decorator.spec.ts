@@ -1,6 +1,7 @@
+import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { plainToInstance } from 'class-transformer';
-import { AnyType } from './any-type.decorator';
+import { AnyType } from './any-type.decorator.js';
 
 class Response {
     @AnyType()

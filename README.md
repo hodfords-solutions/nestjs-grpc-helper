@@ -8,6 +8,14 @@
 
 ## Installation 🤖
 
+> **This package is ESM-only.** It ships `"type": "module"` and must be loaded with `import`
+> (`require()` is not supported). Node **>= 20.19** is required.
+
+| `@hodfords/nestjs-grpc-helper` | NestJS  |
+| ------------------------------ | ------- |
+| `12.x`                         | `12.x`  |
+| `11.x`                         | `11.x`  |
+
 Install the `nestjs-grpc-helper` package with:
 
 ```bash

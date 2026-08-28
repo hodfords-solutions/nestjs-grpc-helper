@@ -1,5 +1,5 @@
 import { IsNumber } from 'class-validator';
-import { MockMethod, MockSample, Property } from '@hodfords/nestjs-grpc-helper';
+import { MockMethod, MockSample, Property } from '../../lib/index.js';
 
 export abstract class PaginationResponse {
     abstract items: any[];

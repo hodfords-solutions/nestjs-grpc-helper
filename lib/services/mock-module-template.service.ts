@@ -1,5 +1,7 @@
-import { camelCase, upperFirst } from 'lodash';
-import { HbsGeneratorService } from './hbs-generator.service';
+import lodash from 'lodash';
+
+const { camelCase, upperFirst } = lodash;
+import { HbsGeneratorService } from './hbs-generator.service.js';
 
 export class MockModuleTemplateService extends HbsGeneratorService {
     constructor(

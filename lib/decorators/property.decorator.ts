@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { convertProtoTypeToSwagger } from '../helpers/proto-type.helper';
-import { addPropertyToStorage } from '../helpers/property.helper';
-import { PropertyOptionType } from '../types/property-option.type';
+import { convertProtoTypeToSwagger } from '../helpers/proto-type.helper.js';
+import { addPropertyToStorage } from '../helpers/property.helper.js';
+import { PropertyOptionType } from '../types/property-option.type.js';
 
 /*
     type: Value should not be named as "type" (E.g: type: type)

@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { PartialType } from '@nestjs/swagger';
-import { propertyStorage } from '../storages/property.storage';
-import { addPropertyToStorage } from '@hodfords/nestjs-grpc-helper';
+import { propertyStorage } from '../storages/property.storage.js';
+import { addPropertyToStorage } from '../helpers/property.helper.js';
 
 export function PartialResponseType<T>(classRef: Type<T>): Type<Partial<T>> {
     const swaggerPartialType: any = PartialType(classRef);

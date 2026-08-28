@@ -1,6 +1,8 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { generateSdk } from 'lib/helpers/generate.helper';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { generateSdk } from '../helpers/generate.helper.js';
 
 @Command({
     signature: 'make-sdk [configFile]',
@@ -13,8 +15,7 @@ export class GenerateSdkCommand extends BaseCommand {
         if (!configFile) {
             configFile = 'sdk-config.json';
         }
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const options = require(configFile);
+        const options = JSON.parse(readFileSync(path.resolve(process.cwd(), configFile), 'utf8'));
         generateSdk(options);
         this.success(`Create sdk successfully!`);
     }

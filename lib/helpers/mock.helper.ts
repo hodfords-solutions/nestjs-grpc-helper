@@ -1,9 +1,11 @@
-import { getPropertiesOfClass } from './property.helper';
+import { getPropertiesOfClass } from './property.helper.js';
 import { plainToInstance } from 'class-transformer';
 import { faker } from '@faker-js/faker';
-import { get } from 'lodash';
-import { PropertyOptionType } from '../types/property-option.type';
-import { MockOptionType } from '../types/mock-option.type';
+import lodash from 'lodash';
+
+const { get } = lodash;
+import { PropertyOptionType } from '../types/property-option.type.js';
+import { MockOptionType } from '../types/mock-option.type.js';
 
 function getData(option: PropertyOptionType) {
     const { mock } = option;

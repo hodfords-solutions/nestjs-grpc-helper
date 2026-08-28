@@ -4,31 +4,42 @@
   "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
   "author": "",
   "license": "UNLICENSED",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hodfords-solutions/nestjs-grpc-helper.git"
   },
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "tsc -p tsconfig.build.json",
+    "postbuild": "node scripts/copy-assets.mjs && cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib",
     "format": "prettier --write \"sample/**/*.ts\" \"lib/**/*.ts\"",
     "start": "nest start",
     "start:dev": "npm run prebuild && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "postbuild": "cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib",
     "lint": "eslint \"{sample,apps,lib,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
     "wz-command": "wz-command",
     "prepare": "is-ci || husky",
     "version": "auto-changelog && git add CHANGELOG.md",
     "release:patch": "git add CHANGELOG.md && npm version patch --tag-version-prefix='' -f -m 'chore: release to %s'",
     "release:push": "git push --no-verify && git push --tags --no-verify",
-    "build-sdk": "nestjs-grpc-helper",
     "cspell": "cspell",
     "lint-staged": "lint-staged"
   },
@@ -47,71 +58,67 @@
     "shelljs": "*"
   },
   "devDependencies": {
-    "@hodfords/nestjs-cls-translation": "11.0.2",
-    "@hodfords/nestjs-command": "11.0.6",
+    "@hodfords/nestjs-cls-translation": "11.1.2",
+    "@hodfords/nestjs-command": "11.0.10",
     "@hodfords/nestjs-eslint-config": "11.0.2",
     "@hodfords/nestjs-prettier-config": "11.0.1",
-    "@hodfords/nestjs-response": "11.0.4",
-    "@nestjs/cli": "11.0.10",
-    "@nestjs/common": "11.1.6",
-    "@nestjs/core": "11.1.6",
-    "@nestjs/microservices": "11.1.6",
-    "@nestjs/platform-express": "11.1.6",
-    "@nestjs/schematics": "11.0.7",
-    "@nestjs/serve-static": "5.0.3",
-    "@nestjs/swagger": "11.2.0",
-    "@nestjs/testing": "11.1.6",
-    "@nestjs/typeorm": "11.0.0",
+    "@hodfords/nestjs-response": "11.1.5",
+    "@nestjs/cli": "12.0.0",
+    "@nestjs/common": "12.0.1",
+    "@nestjs/core": "12.0.1",
+    "@nestjs/mapped-types": "12.0.0",
+    "@nestjs/microservices": "12.0.1",
+    "@nestjs/platform-express": "12.0.1",
+    "@nestjs/schematics": "12.0.0",
+    "@nestjs/serve-static": "12.0.0",
+    "@nestjs/swagger": "12.0.0",
+    "@nestjs/testing": "12.0.1",
+    "@nestjs/typeorm": "12.0.0",
+    "@swc/core": "^1.13.5",
     "@types/express": "5.0.3",
-    "@types/jest": "30.0.0",
     "@types/lodash": "4.17.20",
-    "@types/node": "24.3.0",
+    "@types/node": "25.2.0",
     "@types/supertest": "6.0.3",
     "auto-changelog": "2.5.0",
+    "better-sqlite3": "^12.4.1",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.2",
     "cspell": "9.2.0",
     "eslint": "9.34.0",
+    "fs-extra": "11.3.2",
     "husky": "9.1.7",
     "is-ci": "4.1.0",
-    "jest": "30.0.5",
     "lint-staged": "16.1.5",
     "lodash": "4.17.21",
     "reflect-metadata": "0.2.2",
     "rimraf": "6.0.1",
     "rxjs": "7.8.2",
+    "shelljs": "0.10.0",
     "source-map-support": "0.5.21",
-    "sqlite3": "^5.1.7",
     "supertest": "7.1.4",
-    "ts-jest": "29.4.1",
-    "ts-loader": "9.5.2",
-    "ts-node": "10.9.2",
-    "tsconfig-paths": "4.2.0",
-    "typeorm": "0.3.26",
-    "typescript": "5.9.2"
+    "typeorm": "1.1.0",
+    "typescript": "5.9.3",
+    "unplugin-swc": "^1.5.7",
+    "vitest": "^4.1.10"
   },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+  "overrides": {
+    "@hodfords/nestjs-command": {
+      "@nestjs/common": "$@nestjs/common",
+      "@nestjs/core": "$@nestjs/core"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/sample/",
-      "<rootDir>/lib/"
-    ],
-    "moduleNameMapper": {
-      "^@hodfords/nestjs-grpc-helper(|/.*)$": "<rootDir>/lib/nestjs-grpc-helper/src/$1"
+    "@hodfords/nestjs-cls-translation": {
+      "@nestjs/common": "$@nestjs/common",
+      "@nestjs/core": "$@nestjs/core"
+    },
+    "@hodfords/nestjs-response": {
+      "@nestjs/common": "$@nestjs/common",
+      "@nestjs/core": "$@nestjs/core"
+    },
+    "@nestjs/schematics": {
+      "typescript": "$typescript"
+    },
+    "@nestjs/cli": {
+      "typescript": "$typescript"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Property } from '../decorators/property.decorator';
+import { Property } from '../decorators/property.decorator.js';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
 export class NativeResponseValue {

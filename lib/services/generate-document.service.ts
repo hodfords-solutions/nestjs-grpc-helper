@@ -1,21 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import path from 'path';
+import { readFileSync } from 'node:fs';
 import { isFunction } from '@nestjs/common/utils/shared.utils';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { propertyStorage } from '../storages/property.storage';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { propertyStorage } from '../storages/property.storage.js';
 import {
     DocumentType,
     MethodDocumentType,
     MicroserviceDocumentType,
     ModelDocumentType,
     PropertyDocumentType
-} from '../types/document.type';
-import { camelCase, cloneDeep, upperFirst } from 'lodash';
+} from '../types/document.type.js';
+import lodash from 'lodash';
+
+const { camelCase, cloneDeep, upperFirst } = lodash;
 import { randomUUID } from 'crypto';
-import { getPropertiesOfClass } from '../helpers/property.helper';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { isPrimitiveType } from '../helpers/type.helper';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { isPrimitiveType } from '../helpers/type.helper.js';
 
 export class GenerateDocumentService extends HbsGeneratorService {
     private document: DocumentType;
@@ -26,8 +29,7 @@ export class GenerateDocumentService extends HbsGeneratorService {
 
     generate() {
         const moduleName = upperFirst(camelCase(this.packageName));
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const packageFile = require(path.join(process.cwd(), 'package.json'));
+        const packageFile = JSON.parse(readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
         this.document = {
             title: this.packageName,
             package: this.packageName,

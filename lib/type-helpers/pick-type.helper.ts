@@ -1,7 +1,7 @@
 import { Type } from '@nestjs/common';
 import { PickType } from '@nestjs/swagger';
-import { addPropertyToStorage } from '../helpers/property.helper';
-import { propertyStorage } from '../storages/property.storage';
+import { addPropertyToStorage } from '../helpers/property.helper.js';
+import { propertyStorage } from '../storages/property.storage.js';
 
 export function PickResponseType<T, K extends keyof T>(
     classRef: Type<T>,

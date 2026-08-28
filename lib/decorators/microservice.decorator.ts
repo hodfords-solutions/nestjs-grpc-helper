@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { microserviceStorage } from '../storages/microservice.storage';
+import { microserviceStorage } from '../storages/microservice.storage.js';
 import { GrpcMethod } from '@nestjs/microservices';
 
 export function RegisterGrpcMicroservice(description?: string): any {

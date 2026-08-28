@@ -1,4 +1,14 @@
 {
     "extends": "./tsconfig.json",
-    "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "sdk", "frontend", "lib/sdk-stub"]
+    "exclude": [
+        "node_modules",
+        "tests",
+        "test",
+        "sample",
+        "dist",
+        "**/*spec.ts",
+        "sdk",
+        "frontend",
+        "lib/sdk-stub"
+    ]
 }

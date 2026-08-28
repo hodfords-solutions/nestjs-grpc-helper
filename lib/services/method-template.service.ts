@@ -1,5 +1,5 @@
 import { ResponseMetadata } from '@hodfords/nestjs-response';
-import { HbsGeneratorService } from './hbs-generator.service';
+import { HbsGeneratorService } from './hbs-generator.service.js';
 
 export class MethodTemplateService extends HbsGeneratorService {
     constructor() {

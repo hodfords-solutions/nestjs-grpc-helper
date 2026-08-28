@@ -1,15 +1,18 @@
+import { readFileSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module';
-import { generateProtoService, generateSdk } from '@hodfords/nestjs-grpc-helper';
+import { AppModule } from './app.module.js';
+import { generateProtoService, generateSdk } from '../lib/index.js';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
+
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-generateProtoService('HERO', path.join(__dirname, '../../proto'));
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-generateSdk(require(path.join(__dirname, '../sdk-config.json')));
+generateProtoService('HERO', path.join(currentDir, '../../proto'));
+generateSdk(JSON.parse(readFileSync(path.join(currentDir, '../sdk-config.json'), 'utf8')));
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -33,7 +36,7 @@ async function bootstrap() {
         options: {
             url: '0.0.0.0:50051',
             package: 'HERO',
-            protoPath: path.join(__dirname, '../../proto/microservice.proto')
+            protoPath: path.join(currentDir, '../../proto/microservice.proto')
         }
     });
 

@@ -6,11 +6,11 @@ import {
     MockResponseMethod,
     MockResponseSample,
     RegisterGrpcMicroservice
-} from '@hodfords/nestjs-grpc-helper';
-import { UserPaginationResponse } from './responses/user-pagination.response';
-import { AnyDto, FindManyDto, ParamDto } from './dto/param.dto';
+} from '../lib/index.js';
+import { UserPaginationResponse } from './responses/user-pagination.response.js';
+import { AnyDto, FindManyDto, ParamDto } from './dto/param.dto.js';
 import { ApiOperation } from '@nestjs/swagger';
-import { UserResponse } from './responses/user.response';
+import { UserResponse } from './responses/user.response.js';
 
 @Controller()
 @RegisterGrpcMicroservice()

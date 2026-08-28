@@ -1,5 +1,5 @@
 import { IsString } from 'class-validator';
-import { AnyType, Property } from '@hodfords/nestjs-grpc-helper';
+import { AnyType, Property } from '../../lib/index.js';
 
 export class ParamNestedDto {
     @Property({

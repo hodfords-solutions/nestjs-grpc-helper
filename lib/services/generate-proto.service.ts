@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
-import * as fs from 'fs-extra';
+import fs from 'fs-extra';
 import path from 'path';
-import { extractProperties } from '../helpers/property.helper';
-import { microserviceStorage } from '../storages/microservice.storage';
-import { HbsGeneratorService } from './hbs-generator.service';
-import { PropertyOptionType } from 'lib/types/property-option.type';
-import { isNil } from 'lodash';
-import { isPrimitiveType } from '../helpers/type.helper';
+import { extractProperties } from '../helpers/property.helper.js';
+import { microserviceStorage } from '../storages/microservice.storage.js';
+import { HbsGeneratorService } from './hbs-generator.service.js';
+import { PropertyOptionType } from '../types/property-option.type.js';
+import lodash from 'lodash';
+
+const { isNil } = lodash;
+import { isPrimitiveType } from '../helpers/type.helper.js';
 
 export class GenerateProtoService extends HbsGeneratorService {
     constructor(

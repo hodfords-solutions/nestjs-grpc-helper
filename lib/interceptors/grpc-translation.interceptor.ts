@@ -1,7 +1,9 @@
 import { Metadata } from '@grpc/grpc-js';
 import { runInLanguage } from '@hodfords/nestjs-cls-translation';
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
-import { first } from 'lodash';
+import lodash from 'lodash';
+
+const { first } = lodash;
 import { firstValueFrom, from, Observable } from 'rxjs';
 
 export class GrpcTranslationInterceptor implements NestInterceptor {

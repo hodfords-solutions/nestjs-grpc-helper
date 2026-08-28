@@ -1,8 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post } from '@nestjs/common';
-import { generateDocumentService, GrpcHelper } from '@hodfords/nestjs-grpc-helper';
-import { DocumentModuleOptionType } from '../types/document-module-option.type';
+import { generateDocumentService } from '../helpers/generate.helper.js';
+import { GrpcHelper } from '../sdk-stub/helpers/grpc.helper.js';
+import { DocumentModuleOptionType } from '../types/document-module-option.type.js';
 import { ClientGrpc } from '@nestjs/microservices';
-import { GrpcTestDto } from './grpc-test.dto';
+import { GrpcTestDto } from './grpc-test.dto.js';
 
 @Controller('microservice-documents')
 export class MicroserviceDocumentController {
