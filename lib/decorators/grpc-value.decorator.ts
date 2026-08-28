@@ -1,8 +1,8 @@
-import { Body } from '@nestjs/common';
+import { GRPC_PARAM_INDEX_METADATA_KEY } from '../constants/metadata-key.const.js';
 
 export function GrpcValue(): ParameterDecorator {
     return function (target: object, propertyKey: string | symbol, parameterIndex: number) {
-        Reflect.defineMetadata('grpc:parameter-index', parameterIndex, target, propertyKey);
-        Body()(target, propertyKey, parameterIndex);
+        Reflect.defineMetadata(GRPC_PARAM_INDEX_METADATA_KEY, parameterIndex, target, propertyKey);
+        // Body()(target, propertyKey, parameterIndex); // Not work with metadata
     };
 }

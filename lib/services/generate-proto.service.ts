@@ -1,17 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
+import { NullableGrpcClassResponseNamePrefix, RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils.js';
-import fs from 'fs-extra';
+import * as fs from 'fs-extra';
 import path from 'path';
 import { extractProperties } from '../helpers/property.helper.js';
 import { microserviceStorage } from '../storages/microservice.storage.js';
 import { HbsGeneratorService } from './hbs-generator.service.js';
 import { PropertyOptionType } from '../types/property-option.type.js';
 import { isNil } from 'es-toolkit';
-
 import { isPrimitiveType } from '../helpers/type.helper.js';
+import {
+    GRPC_METHOD_METADATA_KEY,
+    GRPC_PARAM_INDEX_METADATA_KEY,
+    GRPC_STREAM_METADATA_KEY
+} from '../constants/metadata-key.const.js';
 
 export class GenerateProtoService extends HbsGeneratorService {
+    private nullableResponseTypes: Set<string> = new Set();
+
     constructor(
         private packageName: string,
         private dirPath: string
@@ -41,6 +47,7 @@ export class GenerateProtoService extends HbsGeneratorService {
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
         content = content.concat(this.generateNativeModelList());
+        content = content.concat(this.generateNullableWrapperMessages());
         return content.reverse().join('\n');
     }
 
@@ -73,6 +80,16 @@ export class GenerateProtoService extends HbsGeneratorService {
                 type: key
             })
         );
+    }
+
+    generateNullableWrapperMessages(): string[] {
+        return Array.from(this.nullableResponseTypes).map((typeName) => {
+            return `message ${NullableGrpcClassResponseNamePrefix}${typeName} {
+                    \t${typeName} value = 1;
+                    \tbool grpcNullable = 2;
+                }
+            `;
+        });
     }
 
     getProtoType(option: PropertyOptionType): string {
@@ -126,13 +143,18 @@ export class GenerateProtoService extends HbsGeneratorService {
     }
 
     generateRpcMethod(constructor, propertyKey: string): string {
-        if (Reflect.hasMetadata('grpc:method', constructor.prototype, propertyKey)) {
+        if (Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
             const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
-            const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
+            const parameterIndex = Reflect.getMetadata(
+                GRPC_PARAM_INDEX_METADATA_KEY,
+                constructor.prototype,
+                propertyKey
+            );
             let parameterName = 'google.protobuf.Empty';
             if (!isUndefined(parameterIndex)) {
                 parameterName = params[parameterIndex].name;
             }
+
             const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
             let returnType = 'google.protobuf.Empty';
             if (response) {
@@ -140,11 +162,14 @@ export class GenerateProtoService extends HbsGeneratorService {
                     returnType = `Proto${response.responseClass.name}List`;
                 } else if (isPrimitiveType(response.responseClass)) {
                     returnType = `Native${response.responseClass.name}Value`;
+                } else if (response.isAllowEmpty) {
+                    returnType = `${NullableGrpcClassResponseNamePrefix}${response.responseClass.name}`;
+                    this.nullableResponseTypes.add(response.responseClass.name);
                 } else {
                     returnType = response.responseClass.name;
                 }
             }
-            const isStream = Reflect.getMetadata('grpc:stream', constructor.prototype, propertyKey);
+            const isStream = Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, constructor.prototype, propertyKey);
             const returnClause = isStream ? `stream ${returnType}` : returnType;
             return `rpc ${propertyKey} (${parameterName}) returns (${returnClause}) {}`;
         }

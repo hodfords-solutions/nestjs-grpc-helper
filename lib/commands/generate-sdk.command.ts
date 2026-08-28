@@ -1,8 +1,9 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { generateSdk } from '../helpers/generate.helper.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 @Command({
     signature: 'make-sdk [configFile]',
@@ -15,7 +16,8 @@ export class GenerateSdkCommand extends BaseCommand {
         if (!configFile) {
             configFile = 'sdk-config.json';
         }
-        const options = JSON.parse(readFileSync(path.resolve(process.cwd(), configFile), 'utf8'));
+
+        const options = require(configFile);
         generateSdk(options);
         this.success(`Create sdk successfully!`);
     }

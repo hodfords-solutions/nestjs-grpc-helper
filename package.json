@@ -41,13 +41,17 @@
         "release:patch": "git add CHANGELOG.md && npm version patch --tag-version-prefix='' -f -m 'chore: release to %s'",
         "release:push": "git push --no-verify && git push --tags --no-verify",
         "cspell": "cspell",
-        "lint-staged": "lint-staged"
+        "lint-staged": "lint-staged",
+        "start:consumer": "ts-node --transpile-only -r tsconfig-paths/register sample/consumer/main.ts",
+        "build:sample-sdk": "npm run prebuild && nest start -- --exit",
+        "build-sdk": "nestjs-grpc-helper"
     },
     "dependencies": {
         "@faker-js/faker": "*",
         "@grpc/grpc-js": "*",
         "@grpc/proto-loader": "*",
         "es-toolkit": "1.51.0",
+        "fs-extra": "^11.3.4",
         "handlebars": "4.7.8"
     },
     "peerDependencies": {
@@ -56,12 +60,14 @@
         "@grpc/proto-loader": "*",
         "@hodfords/nestjs-cls-translation": "*",
         "chalk": "*",
+        "fs-extra": "*",
         "shelljs": "*"
     },
     "devDependencies": {
         "@hodfords/nestjs-cls-translation": "12.0.0",
         "@hodfords/nestjs-command": "12.0.0",
         "@hodfords/nestjs-eslint-config": "11.0.2",
+        "@hodfords/nestjs-exception": "12.0.0",
         "@hodfords/nestjs-prettier-config": "11.0.1",
         "@hodfords/nestjs-response": "11.1.5",
         "@nestjs/cli": "12.0.0",

@@ -2,34 +2,36 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AppMicroservice } from './app.microservice.js';
-import { MicroserviceDocumentModule } from '../lib/index.js';
+import { MicroserviceDocumentModule } from '@hodfords/nestjs-grpc-helper';
 import path from 'path';
+import { CommandModule } from '@hodfords/nestjs-command';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomGrpcClient } from '@hodfords/nestjs-grpc-helper';
+import { ResponseModule } from '@hodfords/nestjs-response';
 import { fileURLToPath } from 'node:url';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
-import { CommandModule } from '@hodfords/nestjs-command';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomGrpcClient } from '../lib/index.js';
-import { ResponseModule } from '@hodfords/nestjs-response';
+
+export const commandModule = CommandModule.register(false, false);
 
 @Module({
     imports: [
-        CommandModule,
+        commandModule,
         ResponseModule.forRoot(),
         MicroserviceDocumentModule.register({
             isEnable: true,
-            packageName: 'HERO',
+            packageName: 'sdkName',
             clientOptions: {
                 customClass: CustomGrpcClient,
                 options: {
-                    url: '0.0.0.0:50051',
-                    package: 'HERO',
+                    url: '0.0.0.0:50059',
+                    package: 'sdkName',
                     protoPath: path.join(currentDir, '../../proto/microservice.proto')
                 }
             }
         }),
         TypeOrmModule.forRoot({
-            type: 'better-sqlite3',
+            type: 'sqlite',
             entities: [],
             database: 'test'
         })

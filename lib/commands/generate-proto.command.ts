@@ -1,9 +1,10 @@
 import { BaseCommand, Command } from '@hodfords/nestjs-command';
 import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { generateProtoService } from '../helpers/generate.helper.js';
 import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 @Command({
     signature: 'make:proto [configFile] [outputPath]',
@@ -17,7 +18,8 @@ export class GenerateProtoCommand extends BaseCommand {
         if (!configFile) {
             configFile = 'sdk-config.json';
         }
-        const options: SdkBuildConfigType = JSON.parse(readFileSync(path.resolve(process.cwd(), configFile), 'utf8'));
+
+        const options: SdkBuildConfigType = require(configFile);
         generateProtoService(options.name, outputPath || options.output);
         this.success(`Create proto file successfully!`);
     }

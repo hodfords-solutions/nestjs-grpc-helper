@@ -4,9 +4,10 @@ import { DocumentModuleOptionType } from '../types/document-module-option.type.j
 import { ClientsModule } from '@nestjs/microservices';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
 import { GenerateSdkCommand } from '../commands/generate-sdk.command.js';
+import { UpdateAiSkillCommand } from '../commands/update-ai-skill.command.js';
 import { GenerateProtoCommand } from '../commands/generate-proto.command.js';
+import { fileURLToPath } from 'node:url';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,6 +36,7 @@ export class MicroserviceDocumentModule {
                             useValue: options
                         },
                         GenerateSdkCommand,
+                        UpdateAiSkillCommand,
                         GenerateProtoCommand
                     ],
                     controllers: [MicroserviceDocumentController],

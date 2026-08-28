@@ -2,7 +2,7 @@
 
 import { ChannelOptions } from '@grpc/grpc-js';
 import { Logger } from '@nestjs/common/services/logger.service.js';
-import { loadPackage } from '@nestjs/common/utils/load-package.util.js';
+import { loadPackageSync } from '@nestjs/common/utils/load-package.util.js';
 import { isFunction, isObject } from '@nestjs/common/utils/shared.utils.js';
 import { ClientGrpc, ClientGrpcProxy, ClientProxy, GrpcOptions } from '@nestjs/microservices';
 import { GRPC_DEFAULT_PROTO_LOADER, GRPC_DEFAULT_URL } from '@nestjs/microservices/constants.js';
@@ -10,17 +10,12 @@ import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invali
 import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception.js';
 import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/invalid-proto-definition.exception.js';
 import { randomUUID } from 'crypto';
-import { createRequire } from 'node:module';
 import { Observable, Subscription } from 'rxjs';
+import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-/**
- * NestJS 12 no longer exposes `@nestjs/microservices/client/constants`;
- * `GRPC_CANCELLED` is now a module-private constant of `client-grpc.js`.
- */
 const grpcCancelled = 'Cancelled';
-
 let grpcPackage: any = {};
 let grpcProtoLoaderPackage: any = {};
 
@@ -45,9 +40,10 @@ export class CustomGrpcClient extends ClientProxy implements ClientGrpc {
 
         const protoLoader = this.getOptionsProp(options, 'protoLoader') || GRPC_DEFAULT_PROTO_LOADER;
 
-        grpcPackage = loadPackage('@grpc/grpc-js', ClientGrpcProxy.name, () => require('@grpc/grpc-js'));
+        // NestJS 12 lam loadPackage() thanh async; constructor can ban dong bo.
+        grpcPackage = loadPackageSync('@grpc/grpc-js', ClientGrpcProxy.name, () => require('@grpc/grpc-js'));
 
-        grpcProtoLoaderPackage = loadPackage(protoLoader, ClientGrpcProxy.name, () =>
+        grpcProtoLoaderPackage = loadPackageSync(protoLoader, ClientGrpcProxy.name, () =>
             protoLoader === GRPC_DEFAULT_PROTO_LOADER ? require('@grpc/proto-loader') : require(protoLoader)
         );
         grpcClients[this.classId] = this.createClients();

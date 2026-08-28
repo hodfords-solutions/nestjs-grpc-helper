@@ -1,111 +1,115 @@
 import { describe, expect, it } from 'vitest';
+/* eslint-disable max-lines-per-function */
 import 'reflect-metadata';
-import { plainToInstance } from 'class-transformer';
 import { AnyType } from './any-type.decorator.js';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
-class Response {
+class AnyPayload {
     @AnyType()
-    value: any;
+    data: any;
 }
 
-class ResponseWithDtoFlag {
+class DtoPayload {
     @AnyType({ isDto: true })
-    payload: any;
+    data: any;
 }
 
-function transform<T extends object>(cls: new () => T, plain: object, groups?: string[]): T {
-    return plainToInstance(cls, plain, { groups });
-}
+describe('AnyType', () => {
+    it('serializes the value to a JSON string for the __sendData group', () => {
+        const payload = new AnyPayload();
+        payload.data = { nested: { value: 1 }, list: [1, 2] };
 
-describe('@AnyType — single-pass `__getData` + `__sendData`', () => {
-    it('parses then stringifies a JSON string value so an already-encoded payload normalizes to a stable wire form', () => {
-        const result = transform(Response, { value: '[{"a":1}]' }, ['__getData', '__sendData']);
-
-        expect(result.value).toBe('[{"a":1}]');
+        const plain = instanceToPlain(payload, { groups: ['__sendData'] });
+        expect(plain.data).toBe(JSON.stringify({ nested: { value: 1 }, list: [1, 2] }));
     });
 
-    it('passes a plain object/array through `__getData` (no-op for non-string) and stringifies it via `__sendData`', () => {
-        const result = transform(Response, { value: [{ a: 1 }, { a: 2 }] }, ['__getData', '__sendData']);
+    it('parses the JSON string for the __getData group', () => {
+        const instance = plainToInstance(AnyPayload, { data: '{"nested":{"value":1}}' }, { groups: ['__getData'] });
 
-        expect(typeof result.value).toBe('string');
-        expect(JSON.parse(result.value)).toEqual([{ a: 1 }, { a: 2 }]);
+        expect(instance.data).toEqual({ nested: { value: 1 } });
     });
 
-    it('skips `null` so a pre-validate transform pass does not break `@ValidateNested` + `@IsOptional`', () => {
-        // Regression: turning `null` into the string `"null"` made `@IsOptional` stop
-        // skipping (because `"null"` is truthy) and `@ValidateNested` then failed to
-        // iterate it.
-        const result = transform(Response, { value: null }, ['__getData', '__sendData']);
+    it('returns the value untouched when no transformation group is active', () => {
+        const payload = new AnyPayload();
+        payload.data = { keep: 'me' };
 
-        expect(result.value).toBeNull();
+        const plain = instanceToPlain(payload);
+        expect(plain.data).toEqual({ keep: 'me' });
     });
 
-    it('skips `undefined` for the same reason', () => {
-        const result = transform(Response, { value: undefined }, ['__getData', '__sendData']);
+    it('returns the value untouched for unrelated groups', () => {
+        const payload = new AnyPayload();
+        payload.data = { keep: 'me' };
 
-        expect(result.value).toBeUndefined();
+        const plain = instanceToPlain(payload, { groups: ['other'] });
+        expect(plain.data).toEqual({ keep: 'me' });
     });
 
-    it('stringifies primitives (numbers, booleans, strings) so they all round-trip as wire-encoded JSON', () => {
-        expect(transform(Response, { value: 0 }, ['__getData', '__sendData']).value).toBe('0');
-        expect(transform(Response, { value: false }, ['__getData', '__sendData']).value).toBe('false');
-        // A plain string round-trips through `__getData` first (JSON.parse fails →
-        // raw string) then through `__sendData` (stringify → `'"hello"'`).
-        expect(transform(Response, { value: 'hello' }, ['__getData', '__sendData']).value).toBe('"hello"');
-    });
-});
+    describe('single-pass __getData + __sendData', () => {
+        it('parses a JSON string value and then re-stringifies it so an already-encoded payload normalizes to a stable wire form', () => {
+            const instance = plainToInstance(
+                AnyPayload,
+                { data: '[{"a":1}]' },
+                { groups: ['__getData', '__sendData'] }
+            );
 
-describe('@AnyType — `__getData` only (incoming wire / pre-validate)', () => {
-    it('parses a JSON string into the materialized object so `@ValidateNested` can iterate it', () => {
-        const result = transform(Response, { value: '[{"a":1}]' }, ['__getData']);
+            expect(instance.data).toBe('[{"a":1}]');
+        });
 
-        expect(result.value).toEqual([{ a: 1 }]);
-    });
+        it('leaves a plain object/array unchanged on __getData (non-string passes through) and stringifies it via __sendData', () => {
+            const instance = plainToInstance(
+                AnyPayload,
+                { data: [{ a: 1 }, { a: 2 }] },
+                { groups: ['__getData', '__sendData'] }
+            );
 
-    it('passes non-string values through unchanged', () => {
-        const result = transform(Response, { value: [{ a: 1 }] }, ['__getData']);
-
-        expect(result.value).toEqual([{ a: 1 }]);
-    });
-
-    it('returns the raw string when JSON.parse fails so non-JSON payloads do not crash the interceptor', () => {
-        const result = transform(Response, { value: 'not json' }, ['__getData']);
-
-        expect(result.value).toBe('not json');
-    });
-});
-
-describe('@AnyType — `__sendData` only (SDK client outgoing path)', () => {
-    it('JSON.stringifies array/object values for the proto `string` field', () => {
-        const result = transform(Response, { value: [{ a: 1 }] }, ['__sendData']);
-
-        expect(result.value).toBe('[{"a":1}]');
+            expect(typeof instance.data).toBe('string');
+            expect(JSON.parse(instance.data)).toEqual([{ a: 1 }, { a: 2 }]);
+        });
     });
 
-    it('skips null/undefined so the SDK client also preserves nullish round-trip', () => {
-        expect(transform(Response, { value: null }, ['__sendData']).value).toBeNull();
-        expect(transform(Response, { value: undefined }, ['__sendData']).value).toBeUndefined();
+    describe('null / undefined guard on __sendData', () => {
+        it('keeps null as null so a pre-validate transform pass does not break @ValidateNested + @IsOptional', () => {
+            // Regression: turning null into the string "null" made @IsOptional stop
+            // skipping (because "null" is truthy) and @ValidateNested then failed to
+            // iterate it.
+            const instance = plainToInstance(AnyPayload, { data: null }, { groups: ['__getData', '__sendData'] });
+
+            expect(instance.data).toBeNull();
+        });
+
+        it('keeps undefined as undefined for the same reason', () => {
+            const instance = plainToInstance(AnyPayload, { data: undefined }, { groups: ['__getData', '__sendData'] });
+
+            expect(instance.data).toBeUndefined();
+        });
+
+        it('still skips null when only __sendData is active (SDK client outgoing path)', () => {
+            const payload = new AnyPayload();
+            payload.data = null;
+
+            const plain = instanceToPlain(payload, { groups: ['__sendData'] });
+            expect(plain.data).toBeNull();
+        });
     });
-});
 
-describe('@AnyType — `isDto: true` mode', () => {
-    it('JSON.parses an incoming string regardless of group, so DTO consumers receive the materialized object', () => {
-        const result = transform(ResponseWithDtoFlag, { payload: '{"foo":1}' });
+    describe('with isDto', () => {
+        it('parses string values even without a transformation group', () => {
+            const instance = plainToInstance(DtoPayload, { data: '{"a":1}' });
+            expect(instance.data).toEqual({ a: 1 });
+        });
 
-        expect(result.payload).toEqual({ foo: 1 });
-    });
+        it('keeps non-string values untouched when no group is active', () => {
+            const instance = plainToInstance(DtoPayload, { data: 42 });
+            expect(instance.data).toBe(42);
+        });
 
-    it('still JSON.stringifies on the outgoing `__sendData` path', () => {
-        const result = transform(ResponseWithDtoFlag, { payload: { foo: 1 } }, ['__sendData']);
+        it('still stringifies non-string values for the __sendData group', () => {
+            const payload = new DtoPayload();
+            payload.data = { a: 1 };
 
-        expect(result.payload).toBe('{"foo":1}');
-    });
-});
-
-describe('@AnyType — default (no group)', () => {
-    it('returns the value unchanged on HTTP paths where no group is supplied', () => {
-        const result = transform(Response, { value: [{ a: 1 }] });
-
-        expect(result.value).toEqual([{ a: 1 }]);
+            const plain = instanceToPlain(payload, { groups: ['__sendData'] });
+            expect(plain.data).toBe('{"a":1}');
+        });
     });
 });

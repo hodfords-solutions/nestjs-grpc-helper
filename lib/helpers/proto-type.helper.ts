@@ -28,5 +28,9 @@ export function convertProtoTypeToTypescript(option: PropertyOptionType, isGener
         }
     }
 
+    if (type === undefined || type === null) {
+        throw new Error('Property requires a "type" option (or an "enum" with "enumName" for enum properties)');
+    }
+
     return type.toString();
 }

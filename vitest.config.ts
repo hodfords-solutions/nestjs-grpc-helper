@@ -17,7 +17,10 @@ export default defineConfig({
         environment: 'node',
         include: ['{tests,test,lib,src}/**/*.{spec,test}.ts'],
         setupFiles: ['./vitest.setup.ts'],
-        testTimeout: 450_000,
+        // Jest o repo nay dung timeout mac dinh (5s); moi test dat deu chay duoi 1s.
+        // 30s la du rong ma khong lam CI treo khi mot test that su hong.
+        testTimeout: 30_000,
+        hookTimeout: 30_000,
         passWithNoTests: true,
         coverage: { provider: 'v8', reporter: ['text', 'lcov'], include: ['lib/**/*.ts'] }
     }
