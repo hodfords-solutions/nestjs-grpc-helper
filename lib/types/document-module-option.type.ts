@@ -1,4 +1,4 @@
-import { ClientProvider } from '@nestjs/microservices/module/interfaces/clients-module.interface';
+import { ClientProvider } from '@nestjs/microservices/module/interfaces/clients-module.interface.js';
 
 export type DocumentModuleOptionType = {
     isEnable: boolean;

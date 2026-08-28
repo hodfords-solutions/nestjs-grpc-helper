@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
-import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils';
+import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils.js';
 import fs from 'fs-extra';
 import path from 'path';
 import { extractProperties } from '../helpers/property.helper.js';

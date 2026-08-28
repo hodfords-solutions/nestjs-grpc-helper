@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 import { Transport } from '@nestjs/microservices';
-import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
+import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface.js';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 generateProtoService('HERO', path.join(currentDir, '../../proto'));

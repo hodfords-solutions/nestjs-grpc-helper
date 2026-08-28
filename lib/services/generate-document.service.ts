@@ -2,7 +2,7 @@
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import path from 'path';
 import { readFileSync } from 'node:fs';
-import { isFunction } from '@nestjs/common/utils/shared.utils';
+import { isFunction } from '@nestjs/common/utils/shared.utils.js';
 import { microserviceStorage } from '../storages/microservice.storage.js';
 import { propertyStorage } from '../storages/property.storage.js';
 import {

@@ -5,7 +5,7 @@ import { plainToInstance } from 'class-transformer';
 import { trans } from '@hodfords/nestjs-cls-translation';
 import { Metadata, status } from '@grpc/grpc-js';
 import { MicroserviceClientOptionType } from '../types/microservice-option.type.js';
-import { Logger } from '@nestjs/common/services/logger.service';
+import { Logger } from '@nestjs/common/services/logger.service.js';
 
 export class GrpcHelper<Model> {
     private serviceGrpc: any;

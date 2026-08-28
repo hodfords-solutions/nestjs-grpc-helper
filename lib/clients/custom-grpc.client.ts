@@ -1,14 +1,14 @@
 /* eslint-disable max-lines-per-function */
 
 import { ChannelOptions } from '@grpc/grpc-js';
-import { Logger } from '@nestjs/common/services/logger.service';
-import { loadPackage } from '@nestjs/common/utils/load-package.util';
-import { isFunction, isObject } from '@nestjs/common/utils/shared.utils';
+import { Logger } from '@nestjs/common/services/logger.service.js';
+import { loadPackage } from '@nestjs/common/utils/load-package.util.js';
+import { isFunction, isObject } from '@nestjs/common/utils/shared.utils.js';
 import { ClientGrpc, ClientGrpcProxy, ClientProxy, GrpcOptions } from '@nestjs/microservices';
-import { GRPC_DEFAULT_PROTO_LOADER, GRPC_DEFAULT_URL } from '@nestjs/microservices/constants';
-import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invalid-grpc-package.exception';
-import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception';
-import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/invalid-proto-definition.exception';
+import { GRPC_DEFAULT_PROTO_LOADER, GRPC_DEFAULT_URL } from '@nestjs/microservices/constants.js';
+import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invalid-grpc-package.exception.js';
+import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception.js';
+import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/invalid-proto-definition.exception.js';
 import { randomUUID } from 'crypto';
 import { createRequire } from 'node:module';
 import { Observable, Subscription } from 'rxjs';

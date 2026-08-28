@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { isFunction } from '@nestjs/common/utils/shared.utils';
+import { isFunction } from '@nestjs/common/utils/shared.utils.js';
 import { propertyStorage, sdkDtos } from '../storages/property.storage.js';
 import { differenceBy } from 'es-toolkit';
 

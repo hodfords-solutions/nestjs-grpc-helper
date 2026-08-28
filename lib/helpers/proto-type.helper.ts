@@ -1,4 +1,4 @@
-import { isFunction, isString } from '@nestjs/common/utils/shared.utils';
+import { isFunction, isString } from '@nestjs/common/utils/shared.utils.js';
 import { isEnumProperty } from './api-property.helper.js';
 import { PropertyOptionType } from '../types/property-option.type.js';
 

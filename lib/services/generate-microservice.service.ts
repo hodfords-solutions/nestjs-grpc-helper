@@ -3,7 +3,7 @@ import { extractProperties } from '../helpers/property.helper.js';
 import { generateProtoService } from '../helpers/generate.helper.js';
 import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
-import { isUndefined } from '@nestjs/common/utils/shared.utils';
+import { isUndefined } from '@nestjs/common/utils/shared.utils.js';
 import { copyFileSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import fs from 'fs-extra';
 import { kebabCase } from 'es-toolkit';
