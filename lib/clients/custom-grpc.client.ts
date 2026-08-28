@@ -5,7 +5,6 @@ import { Logger } from '@nestjs/common/services/logger.service';
 import { loadPackage } from '@nestjs/common/utils/load-package.util';
 import { isFunction, isObject } from '@nestjs/common/utils/shared.utils';
 import { ClientGrpc, ClientGrpcProxy, ClientProxy, GrpcOptions } from '@nestjs/microservices';
-import { GRPC_CANCELLED } from '@nestjs/microservices/client/constants';
 import { GRPC_DEFAULT_PROTO_LOADER, GRPC_DEFAULT_URL } from '@nestjs/microservices/constants';
 import { InvalidGrpcPackageException } from '@nestjs/microservices/errors/invalid-grpc-package.exception';
 import { InvalidGrpcServiceException } from '@nestjs/microservices/errors/invalid-grpc-service.exception';
@@ -13,6 +12,7 @@ import { InvalidProtoDefinitionException } from '@nestjs/microservices/errors/in
 import { randomUUID } from 'crypto';
 import { Observable, Subscription } from 'rxjs';
 
+const grpcCancelled = 'Cancelled';
 let grpcPackage: any = {};
 let grpcProtoLoaderPackage: any = {};
 
@@ -153,7 +153,7 @@ export class CustomGrpcClient extends ClientProxy implements ClientGrpc {
                 }
                 call.on('data', (data: any) => observer.next(data));
                 call.on('error', (error: any) => {
-                    if (error.details === GRPC_CANCELLED) {
+                    if (error.details === grpcCancelled) {
                         call.destroy();
                         if (isClientCanceled) {
                             return;
@@ -198,7 +198,7 @@ export class CustomGrpcClient extends ClientProxy implements ClientGrpc {
                     const callArgs = [
                         (error: any, data: unknown) => {
                             if (error) {
-                                if (error.details === GRPC_CANCELLED || error.code === 1) {
+                                if (error.details === grpcCancelled || error.code === 1) {
                                     call.destroy();
                                     if (isClientCanceled) {
                                         return;

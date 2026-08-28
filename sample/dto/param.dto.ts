@@ -1,5 +1,6 @@
-import { IsString } from 'class-validator';
-import { AnyType, Property } from '@hodfords/nestjs-grpc-helper';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { AnyType, MockSample, Property } from '@hodfords/nestjs-grpc-helper';
+import { UserTypeEnum } from '../enums/user-type.enum';
 
 export class ParamNestedDto {
     @Property({
@@ -7,6 +8,17 @@ export class ParamNestedDto {
     })
     @IsString()
     address: string;
+
+    @Property({
+        type: String,
+        required: false,
+        enum: UserTypeEnum,
+        enumName: 'UserTypeEnum'
+    })
+    @MockSample(UserTypeEnum.STANDARD)
+    @IsEnum(UserTypeEnum)
+    @IsOptional()
+    type?: UserTypeEnum;
 }
 
 export class ParamDto {

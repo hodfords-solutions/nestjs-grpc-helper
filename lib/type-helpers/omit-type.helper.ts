@@ -10,7 +10,7 @@ export function OmitResponseType<T, K extends keyof T>(
     const swaggerOmitTypes: any = OmitType(classRef, keys);
 
     abstract class OmitTypeClass extends swaggerOmitTypes {}
-    const properties = propertyStorage.get(classRef);
+    const properties = propertyStorage.get(classRef) || [];
     for (const property of properties) {
         if (!keys.includes(property.name as K)) {
             addPropertyToStorage(OmitTypeClass, property.name, { ...property.option });

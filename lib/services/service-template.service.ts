@@ -38,7 +38,7 @@ export class ServiceTemplateService extends HbsGeneratorService {
         return {
             enumName,
             keys: Object.keys(properties)
-                .filter((key) => !parseInt(key))
+                .filter((key) => isNaN(Number(key)))
                 .map((key) => `${key} = ${valueFormatter(properties[key])}`)
         };
     }

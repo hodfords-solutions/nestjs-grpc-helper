@@ -7,9 +7,9 @@ import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-generateProtoService('HERO', path.join(__dirname, '../../proto'));
+// generateProtoService('sdkName', path.join(__dirname, '../../proto'));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-generateSdk(require(path.join(__dirname, '../sdk-config.json')));
+// generateSdk(require(path.join(__dirname, '../sdk-config.json')));
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -31,14 +31,21 @@ async function bootstrap() {
     app.connectMicroservice<GrpcOptions>({
         transport: Transport.GRPC,
         options: {
-            url: '0.0.0.0:50051',
-            package: 'HERO',
+            url: '0.0.0.0:50059',
+            package: 'sdkName',
             protoPath: path.join(__dirname, '../../proto/microservice.proto')
         }
     });
 
     await app.startAllMicroservices();
     await app.listen(2013);
+    console.log('App start with gRPC microservice on port 50051 and HTTP server on port 2013');
 }
 
-bootstrap().then();
+bootstrap().then(() => {
+    for (const arg of process.argv) {
+        if (arg === '--exit') {
+            process.exit(0);
+        }
+    }
+});

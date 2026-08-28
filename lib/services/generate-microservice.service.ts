@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { extractProperties, generateProtoService } from '@hodfords/nestjs-grpc-helper';
-import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
+import { RESPONSE_METADATA_KEY } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
-import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { copyFileSync, rmSync, writeFileSync } from 'fs';
 import * as fs from 'fs-extra';
 import { kebabCase } from 'lodash';
 import * as process from 'node:process';
 import path from 'path';
 import { isEnumProperty } from '../helpers/api-property.helper';
+import { getReturnType, resolveMethodParams } from '../helpers/grpc-method.helper';
 import { convertProtoTypeToTypescript } from '../helpers/proto-type.helper';
 import { runCommand } from '../helpers/shell.helper';
 import { microserviceStorage } from '../storages/microservice.storage';
@@ -20,7 +20,8 @@ import { MockMethodTemplateService } from './mock-method-template.service';
 import { MockModuleTemplateService } from './mock-module-template.service';
 import { ModuleTemplateService } from './module-template.service';
 import { ServiceTemplateService } from './service-template.service';
-import { isPrimitiveType } from '../helpers/type.helper';
+import { GenerateSkillService } from './generate-skill.service';
+import { GRPC_METHOD_METADATA_KEY, GRPC_STREAM_METADATA_KEY } from '../constants/metadata-key.const';
 
 export class GenerateMicroserviceService extends HbsGeneratorService {
     private serviceTemplateService: ServiceTemplateService;
@@ -53,6 +54,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         this.writeFile(content, `services/${this.fileName}.service.ts`);
         this.copySdk();
         this.generatePackageFile();
+        new GenerateSkillService(this.config).generate();
         if (this.config.format) {
             this.formatCode();
         }
@@ -144,7 +146,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateModels() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         const contents = Object.keys(dtoWithProperties).map((name) =>
             this.generateModel({ name } as Function, dtoWithProperties[name])
         );
@@ -161,7 +163,7 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateEnums() {
-        const dtoWithProperties = extractProperties();
+        const dtoWithProperties = extractProperties({ includeSdkExposed: true });
         const properties = Object.values(dtoWithProperties).flat();
         const generatedEnumAuditor = new Set<string>();
         const contents = [];
@@ -203,54 +205,45 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
     }
 
     generateRpcMethod(constructor, propertyKey: string, isMock: boolean): string {
-        if (!Reflect.hasMetadata('grpc:method', constructor.prototype, propertyKey)) {
+        if (!Reflect.hasMetadata(GRPC_METHOD_METADATA_KEY, constructor.prototype, propertyKey)) {
             return;
         }
 
-        const params = Reflect.getMetadata('design:paramtypes', constructor.prototype, propertyKey);
-        const parameterIndex = Reflect.getMetadata('grpc:parameter-index', constructor.prototype, propertyKey);
-        let parameterName;
-        if (!isUndefined(parameterIndex)) {
-            parameterName = params[parameterIndex].name;
-        }
+        const { parameterName, directParams } = resolveMethodParams(constructor, propertyKey);
         const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
-        const isStream = Boolean(Reflect.getMetadata('grpc:stream', constructor.prototype, propertyKey));
+        const isStream = Boolean(Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, constructor.prototype, propertyKey));
         const methodTemplateService = isMock ? new MockMethodTemplateService() : new MethodTemplateService();
         const body =
             methodTemplateService instanceof MockMethodTemplateService
-                ? methodTemplateService.templateBody(response, constructor, propertyKey, isStream)
+                ? methodTemplateService.templateBody(response, constructor, propertyKey, directParams, isStream)
                 : methodTemplateService.templateBody(
                       response,
                       constructor.name,
                       propertyKey,
                       parameterName,
                       parameterName,
+                      directParams,
                       isStream
                   );
-        const returnType = this.getReturnType(response);
-        return methodTemplateService.methodTemplate(propertyKey, parameterName, returnType, body, isStream);
-    }
-
-    getReturnType(response: ResponseMetadata): string {
-        if (response) {
-            if (response.isArray) {
-                return `${response.responseClass.name}[]`;
-            } else {
-                if (isPrimitiveType(response.responseClass)) {
-                    return response.responseClass.name.toLowerCase();
-                }
-                return response.responseClass.name;
-            }
-        }
-
-        return 'void';
+        const returnType = getReturnType(response);
+        return methodTemplateService.methodTemplate(
+            propertyKey,
+            parameterName,
+            returnType,
+            body,
+            directParams,
+            isStream
+        );
     }
 
     formatCode() {
-        this.logger.log('Start formatting code');
-        const response = runCommand(
-            `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`
-        );
+        const formatter = this.config.formatter ?? 'prettier';
+        this.logger.log(`Start formatting code with ${formatter}`);
+        const command =
+            formatter === 'oxfmt'
+                ? `oxfmt ${this.config.output}`
+                : `prettier --write ${this.config.output}/**/*.ts ${this.config.output}/*.ts ${this.config.output}/*.json`;
+        const response = runCommand(command);
         if (response.stderr) {
             this.logger.error(response.stderr);
         } else {
@@ -280,6 +273,16 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
             path.join(process.cwd(), this.config.output, 'microservice.proto'),
             path.join(process.cwd(), this.config.outputBuild, 'microservice.proto')
         );
+
+        const skillMdPath = path.join(process.cwd(), this.config.output, 'SKILL.md');
+        if (fs.existsSync(skillMdPath)) {
+            copyFileSync(skillMdPath, path.join(process.cwd(), this.config.outputBuild, 'SKILL.md'));
+        }
+
+        const skillConfigPath = path.join(process.cwd(), this.config.output, 'skill.json');
+        if (fs.existsSync(skillConfigPath)) {
+            copyFileSync(skillConfigPath, path.join(process.cwd(), this.config.outputBuild, 'skill.json'));
+        }
 
         if (this.config.tsconfig) {
             fs.unlinkSync(path.join(process.cwd(), tsConfigName));

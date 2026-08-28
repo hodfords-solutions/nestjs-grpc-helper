@@ -19,10 +19,20 @@ export class MicroserviceDocumentController {
     @Post('test')
     @HttpCode(HttpStatus.OK)
     async grpcTest(@Body() value: GrpcTestDto) {
-        const helper = GrpcHelper.with(this.client, null, { timeout: 10000 })
+        const helper = GrpcHelper.with(this.client, null, {
+            timeout: 10000,
+            requestInitializer: (metadata) => {
+                if (value.metadata) {
+                    for (const key of Object.keys(value.metadata)) {
+                        metadata.set(key, value.metadata[key]);
+                    }
+                }
+            }
+        })
             .service(value.serviceName)
             .method(value.methodName)
             .data(value.data);
+
         if (value.isFindMany) {
             return helper.getMany();
         }

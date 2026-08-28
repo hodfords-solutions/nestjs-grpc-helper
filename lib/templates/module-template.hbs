@@ -27,6 +27,7 @@ export class {{moduleName}}Module {
                         name: '{{packageName}}_PACKAGE',
                         customClass: CustomGrpcClient as any,
                         options: {
+                            ...options,
                             url: options.url,
                             package: '{{packageName}}',
                             protoPath: path.join(__dirname, 'microservice.proto'),
