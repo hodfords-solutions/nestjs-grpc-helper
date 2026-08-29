@@ -120,6 +120,11 @@ export class GenerateMicroserviceService extends HbsGeneratorService {
         return {
             name: this.config.packageName || packageFile.name,
             version: packageFile.version,
+            // The generated sources are ESM. Without an explicit type Node falls back to
+            // syntax detection and emits a module-type warning on every load.
+            type: 'module',
+            main: './index.js',
+            types: './index.d.ts',
             publishConfig: packageFile.publishConfig,
             license: packageFile.license,
             repository: packageFile.repository,
