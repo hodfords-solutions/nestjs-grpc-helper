@@ -17,8 +17,8 @@ export default defineConfig({
         environment: 'node',
         include: ['{tests,test,lib,src}/**/*.{spec,test}.ts'],
         setupFiles: ['./vitest.setup.ts'],
-        // Jest o repo nay dung timeout mac dinh (5s); moi test dat deu chay duoi 1s.
-        // 30s la du rong ma khong lam CI treo khi mot test that su hong.
+        // Jest in this repo used the default timeout (5s); every test here runs under 1s.
+        // 30s is generous enough without letting CI hang when a test genuinely breaks.
         testTimeout: 30_000,
         hookTimeout: 30_000,
         passWithNoTests: true,

@@ -27,6 +27,7 @@
         "node_modules/**",
         "cspell.json",
         "frontend",
-        "CLAUDE.md"
+        "CLAUDE.md",
+        "CHANGELOG.md"
     ]
 }

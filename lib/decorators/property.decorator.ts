@@ -8,7 +8,7 @@ import { PropertyOptionType } from '../types/property-option.type.js';
     type: Value should not be named as "type" (E.g: type: type)
 */
 export function Property(option: PropertyOptionType): PropertyDecorator {
-    return function (target: object, propertyName: string): void {
+    return function (target: object, propertyName: string | symbol): void {
         // For enum properties `convertProtoTypeToSwagger()` returns the enum *name*, which is what
         // the proto/TypeScript generators want but is not a valid OpenAPI `type`. @nestjs/swagger v11
         // silently overwrote it with the derived JSON type; v12 only fills `type` in when it is not
@@ -30,6 +30,6 @@ export function Property(option: PropertyOptionType): PropertyDecorator {
             option.type = 'any';
         }
 
-        addPropertyToStorage(target.constructor, propertyName, option);
+        addPropertyToStorage(target.constructor, propertyName as string, option);
     };
 }

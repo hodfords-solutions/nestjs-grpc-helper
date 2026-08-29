@@ -8,13 +8,16 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 export class HbsGeneratorService {
     constructor() {
-        Handlebars.registerHelper('hasItems', function (items: any[], options) {
-            if (items && items.length > 0) {
-                return options.fn(this);
-            } else {
-                return options.inverse(this);
+        Handlebars.registerHelper(
+            'hasItems',
+            function (this: unknown, items: any[], options: Handlebars.HelperOptions) {
+                if (items && items.length > 0) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
             }
-        });
+        );
         Handlebars.registerHelper('camelCase', function (str: string) {
             return camelCase(str);
         });

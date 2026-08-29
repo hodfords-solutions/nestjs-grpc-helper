@@ -283,8 +283,9 @@ export class CustomGrpcClient extends ClientProxy implements ClientGrpc {
             const packageObject = grpcPackage.loadPackageDefinition(packageDefinition);
             return packageObject;
         } catch (err) {
-            const invalidProtoError = new InvalidProtoDefinitionException(err.path);
-            const message = err && err.message ? err.message : invalidProtoError.message;
+            const { path, message: errMessage } = (err ?? {}) as { path?: string; message?: string };
+            const invalidProtoError = new InvalidProtoDefinitionException(path);
+            const message = errMessage ? errMessage : invalidProtoError.message;
 
             this.logger.error(message, invalidProtoError.stack);
             throw invalidProtoError;
