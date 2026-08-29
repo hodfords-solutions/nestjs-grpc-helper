@@ -1,6 +1,6 @@
 {
     "name": "@hodfords/nestjs-grpc-helper",
-    "version": "12.0.1",
+    "version": "12.1.0",
     "description": "A utility for simplifying gRPC integration and communication in NestJS applications",
     "author": "",
     "license": "UNLICENSED",
@@ -23,7 +23,7 @@
         "url": "git+https://github.com/hodfords-solutions/nestjs-grpc-helper.git"
     },
     "scripts": {
-        "prebuild": "rimraf dist",
+        "prebuild": "rimraf dist *.tsbuildinfo",
         "build": "tsc -p tsconfig.build.json",
         "postbuild": "node scripts/copy-assets.mjs && cp package.json dist/lib && cp README.md dist/lib && cp .npmrc dist/lib",
         "format": "prettier --write \"sample/**/*.ts\" \"lib/**/*.ts\"",
@@ -51,7 +51,7 @@
         "@grpc/grpc-js": "*",
         "@grpc/proto-loader": "*",
         "es-toolkit": "1.51.0",
-        "fs-extra": "^11.3.4",
+        "fs-extra": "*",
         "handlebars": "4.7.8"
     },
     "peerDependencies": {
@@ -102,14 +102,11 @@
         "source-map-support": "0.5.21",
         "supertest": "7.1.4",
         "typeorm": "1.1.0",
-        "typescript": "5.9.3",
+        "typescript": "6.0.3",
         "unplugin-swc": "^1.5.7",
         "vitest": "^4.1.10"
     },
     "overrides": {
-        "@nestjs/schematics": {
-            "typescript": "$typescript"
-        },
         "nestjs-cls": {
             "@nestjs/common": "$@nestjs/common",
             "@nestjs/core": "$@nestjs/core"

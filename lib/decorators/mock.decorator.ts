@@ -2,8 +2,8 @@ import { MockMethodType } from '../types/mock-option.type.js';
 import { addPropertyToStorage } from '../helpers/property.helper.js';
 
 export function MockMethod(method: MockMethodType, args?: any[]): PropertyDecorator {
-    return function (target: object, propertyName: string): void {
-        addPropertyToStorage(target.constructor, propertyName, {
+    return function (target: object, propertyName: string | symbol): void {
+        addPropertyToStorage(target.constructor, propertyName as string, {
             mock: {
                 method,
                 args: args || []
@@ -13,8 +13,8 @@ export function MockMethod(method: MockMethodType, args?: any[]): PropertyDecora
 }
 
 export function MockNested(maxSize: number = 1): PropertyDecorator {
-    return function (target: object, propertyName: string): void {
-        addPropertyToStorage(target.constructor, propertyName, {
+    return function (target: object, propertyName: string | symbol): void {
+        addPropertyToStorage(target.constructor, propertyName as string, {
             mock: {
                 nestedMaxSize: maxSize
             }
@@ -23,15 +23,15 @@ export function MockNested(maxSize: number = 1): PropertyDecorator {
 }
 
 export function MockSample(sample: any): PropertyDecorator {
-    return function (target: object, propertyName: string): void {
-        addPropertyToStorage(target.constructor, propertyName, {
+    return function (target: object, propertyName: string | symbol): void {
+        addPropertyToStorage(target.constructor, propertyName as string, {
             mock: { sample }
         });
     };
 }
 
 export function MockResponseSample(sample: any): MethodDecorator {
-    return function (target: object, propertyKey: string): void {
+    return function (target: object, propertyKey: string | symbol): void {
         Reflect.defineMetadata(
             'mock:response',
             {
@@ -44,7 +44,7 @@ export function MockResponseSample(sample: any): MethodDecorator {
 }
 
 export function MockResponseMethod(method: MockMethodType, args?: any[]): MethodDecorator {
-    return function (target: object, propertyKey: string): void {
+    return function (target: object, propertyKey: string | symbol): void {
         Reflect.defineMetadata(
             'mock:response',
             {
@@ -58,7 +58,7 @@ export function MockResponseMethod(method: MockMethodType, args?: any[]): Method
 }
 
 export function MockResponseCallback(callback: (...args: any[]) => any): MethodDecorator {
-    return function (target: object, propertyKey: string): void {
+    return function (target: object, propertyKey: string | symbol): void {
         Reflect.defineMetadata(
             'mock:response',
             {
