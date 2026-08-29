@@ -272,6 +272,14 @@ describe('GenerateMicroserviceService', () => {
             expect(sdkPackage.peerDependencies['class-validator']).toBe('*');
         });
 
+        it('should mark the generated package as esm with an entry point', () => {
+            const sdkPackage = fs.readJsonSync(path.join(outputDir, 'package.json'));
+
+            expect(sdkPackage.type).toBe('module');
+            expect(sdkPackage.main).toBe('./index.js');
+            expect(sdkPackage.types).toBe('./index.d.ts');
+        });
+
         it('should omit class-validator and the build script depending on the config', () => {
             const service = new GenerateMicroserviceService({
                 name: 'fixtureSdk',
