@@ -14,11 +14,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run build          # Build library (cleans dist/, runs nest build, copies assets)
-npm run lint           # ESLint with auto-fix
-npm run format         # Prettier formatting
-npm run start:dev      # Run sample app in watch mode
-npm run build:sample-sdk      # Build sample sdk app
+pnpm run build          # Build library (cleans dist/, runs nest build, copies assets)
+pnpm run lint           # ESLint with auto-fix
+pnpm run format         # Prettier formatting
+pnpm run start:dev      # Run sample app in watch mode
+pnpm run build:sample-sdk      # Build sample sdk app
 ```
 
 ## Code Style

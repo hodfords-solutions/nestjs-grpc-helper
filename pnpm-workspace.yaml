@@ -1,0 +1,10 @@
+overrides:
+    'nestjs-cls>@nestjs/common': '$@nestjs/common'
+    'nestjs-cls>@nestjs/core': '$@nestjs/core'
+    'class-validator': 'npm:@hodfords/turbo-validator@1.0.0'
+
+allowBuilds:
+    '@scarf/scarf': false
+    '@swc/core': true
+    'better-sqlite3': true
+    'protobufjs': true
