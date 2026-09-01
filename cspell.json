@@ -28,6 +28,9 @@
         "cspell.json",
         "frontend",
         "CLAUDE.md",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml"
     ]
 }

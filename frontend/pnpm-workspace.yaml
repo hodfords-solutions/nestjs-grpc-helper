@@ -1,0 +1,2 @@
+# Anchors this sub-project as its own pnpm root (separate from the library above).
+packages: []

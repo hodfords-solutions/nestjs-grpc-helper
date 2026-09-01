@@ -7,14 +7,24 @@ on:
 jobs:
   lint:
     uses: hodfords-solutions/actions/.github/workflows/lint.yaml@main
+    with:
+      package_manager: pnpm
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
+      - uses: pnpm/action-setup@v4
+      - name: Configure registry authentication
+        # pnpm 12 no longer expands ${NODE_AUTH_TOKEN} in a project .npmrc, it just drops the
+        # line, so the token has to be written out. It goes to the home directory rather than
+        # the package directory so it can never end up inside a published tarball.
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: printf '//registry.npmjs.org/:_authToken=%s\n' "$NODE_AUTH_TOKEN" > "$HOME/.npmrc"
       - run: sh scripts/publish.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
