@@ -55,9 +55,10 @@ export class GenerateProtoService extends HbsGeneratorService {
         const propertyContent = properties
             .map(
                 (property, index) =>
-                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(property.option)} ${
-                        property.name
-                    } = ${index + 1};`
+                    `${property.option.isArray ? 'repeated ' : ''}${this.getProtoType(
+                        property.option,
+                        `${dto.name}.${property.name}`
+                    )} ${property.name} = ${index + 1};`
             )
             .join('\n\t');
 
@@ -92,7 +93,7 @@ export class GenerateProtoService extends HbsGeneratorService {
         });
     }
 
-    getProtoType(option: PropertyOptionType): string {
+    getProtoType(option: PropertyOptionType, owner?: string): string {
         const { type, format } = option;
 
         if (isFunction(type)) {
@@ -106,7 +107,13 @@ export class GenerateProtoService extends HbsGeneratorService {
             return 'string';
         }
 
-        if (type === 'number' && !isNil(format)) {
+        if (type === 'number') {
+            if (isNil(format)) {
+                throw new Error(
+                    `${owner ?? 'Property'} has type "number" without a "format". ` +
+                        `Protobuf has no "number" type; set format to 'int32', 'int64', 'float' or 'double'.`
+                );
+            }
             return format;
         }
 

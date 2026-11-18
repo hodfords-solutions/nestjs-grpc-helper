@@ -78,10 +78,14 @@ function getEnumType(enumObj: EnumAllowedTypes): string {
     return type;
 }
 
+// A numeric enum without a format gets `int32` from @Property, which builds the params DTO.
+function resolveEnumOptions(option: EnumParamOptionType): EnumParamOptionType & { type: string } {
+    return { type: getEnumType(option.enum), ...option };
+}
+
 export function GrpcEnum(option: EnumParamOptionType): ParameterDecorator {
     return GrpcParam({
-        type: getEnumType(option.enum),
-        ...option,
+        ...resolveEnumOptions(option),
         required: true,
         decorators: [IsNotEmpty(), IsEnum(option.enum)]
     });
@@ -89,8 +93,7 @@ export function GrpcEnum(option: EnumParamOptionType): ParameterDecorator {
 
 export function GrpcEnums(option: EnumParamOptionType): ParameterDecorator {
     return GrpcParam({
-        type: getEnumType(option.enum),
-        ...option,
+        ...resolveEnumOptions(option),
         required: true,
         isArray: true,
         decorators: [IsArray(), IsEnum(option.enum, { each: true })]

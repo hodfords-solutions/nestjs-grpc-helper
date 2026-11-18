@@ -25,13 +25,29 @@ describe('GenerateSdkCommand', () => {
         vi.mocked(generateSdk).mockReset();
     });
 
-    it('reads the config from the application working directory', () => {
+    const createCommand = (args: string[], options: Record<string, string> = {}): GenerateSdkCommand => {
         const command = new GenerateSdkCommand();
-        vi.spyOn(command as any, 'params', 'get').mockReturnValue([]);
+        (command as any).program = { args, opts: () => options };
         (command as any).success = vi.fn();
+        return command;
+    };
 
-        command.handle();
+    it('reads the config from the application working directory', () => {
+        createCommand([]).handle();
 
-        expect(generateSdk).toHaveBeenCalledWith({ name: 'fromApp', output: 'sdk' });
+        expect(generateSdk).toHaveBeenCalledWith({ name: 'fromApp', output: 'sdk' }, undefined);
+    });
+
+    it('passes the language from --lang', () => {
+        createCommand([], { lang: 'rust' }).handle();
+
+        expect(generateSdk).toHaveBeenCalledWith({ name: 'fromApp', output: 'sdk' }, ['rust']);
+    });
+
+    it('rejects an unknown --lang value', () => {
+        expect(() => createCommand([], { lang: 'python' }).handle()).toThrow(
+            'Unknown --lang "python". Use ts, rust or go.'
+        );
+        expect(generateSdk).not.toHaveBeenCalled();
     });
 });

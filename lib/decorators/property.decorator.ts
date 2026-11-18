@@ -9,13 +9,19 @@ import { PropertyOptionType } from '../types/property-option.type.js';
 */
 export function Property(option: PropertyOptionType): PropertyDecorator {
     return function (target: object, propertyName: string | symbol): void {
+        // Protobuf has no "number" type and enum values are integers: a numeric enum without a format is int32.
+        // @GrpcEnum / @GrpcEnums parameters get this default too, because their params DTO is built with @Property.
+        const isEnum = isEnumProperty(option);
+        const isNumber = option.type === Number || option.type === 'number';
+        if (isEnum && isNumber && !option.format) {
+            option.format = 'int32';
+        }
+
         // For enum properties `convertProtoTypeToSwagger()` returns the enum *name*, which is what
         // the proto/TypeScript generators want but is not a valid OpenAPI `type`. @nestjs/swagger v11
         // silently overwrote it with the derived JSON type; v12 only fills `type` in when it is not
         // already set, so passing it through would emit `type: 'UserTypeEnum'`. Let swagger derive it.
-        const apiOptions = isEnumProperty(option)
-            ? { ...option }
-            : { ...option, type: convertProtoTypeToSwagger(option) };
+        const apiOptions = isEnum ? { ...option } : { ...option, type: convertProtoTypeToSwagger(option) };
         ApiProperty(apiOptions)(target, propertyName);
 
         if (option.type == String || option.type == Number) {

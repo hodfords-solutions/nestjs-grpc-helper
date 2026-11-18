@@ -226,6 +226,9 @@ importers:
       lint-staged:
         specifier: 17.4.1
         version: 17.4.1
+      prettier:
+        specifier: 3.9.6
+        version: 3.9.6
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2

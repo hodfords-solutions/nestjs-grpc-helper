@@ -156,8 +156,13 @@ accepted):
 | `isArray`           | Marks the field as repeated                                                                 |
 | `required`          | `false` makes the field optional in the proto and SDK                                       |
 | `description`       | Description used in documentation and the AI skill                                          |
-| `format`            | Refines numbers (`'int32'`, `'float'`, …) or marks a string as dynamic JSON (`'any'`)       |
+| `format`            | Number type (`'int32'`, `'float'`, …; required for numbers) or `'any'` for dynamic JSON     |
 | `enum` / `enumName` | Declares an enum field; `enumName` names the generated enum                                 |
+
+> **Upgrading:** a `number` property without a `format` now fails proto generation (`make-sdk` and `make:proto`) with
+> the class and property name. Such a proto used `number` as a field type and could never be loaded, so only the error
+> moved earlier. A numeric enum without a `format` (`@Property({ type: Number, enum, enumName })`, `@GrpcEnum`,
+> `@GrpcEnums`) now defaults to `int32`.
 
 ### Dynamic (`any`) fields
 
@@ -356,6 +361,186 @@ npm run wz-command make-sdk
 The generated package contains the proto file, a typed service class per microservice, all models and enums, a dynamic
 module for registration, and a mock module for testing. It is published under the name and version from your
 `package.json`, and its method names, arguments, and response types match your service definitions exactly.
+
+### Generating Rust and Go SDKs
+
+`make-sdk` can also build a Rust crate and a Go module from the same proto. Add a `rust` and/or `go` block to
+`sdk-config.json`; the existing fields keep describing the TypeScript SDK.
+
+```json
+{
+    "name": "sdkName",
+    "packageName": "@hodfords/package-name",
+    "output": "sdk",
+    "rust": {
+        "crateName": "sdk-name",
+        "version": "1.0.0",
+        "output": "../sdk-rust",
+        "build": true
+    },
+    "go": {
+        "module": "github.com/org/sdk-name-go",
+        "output": "../sdk-go",
+        "build": true
+    }
+}
+```
+
+| Field            | Description                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| `rust.crateName` | Crate name written to `Cargo.toml`                                                     |
+| `rust.version`   | Crate version. Defaults to `0.1.0`                                                     |
+| `rust.output`    | Output directory of the crate                                                          |
+| `rust.build`     | Run `cargo check` after generation and fail if it does not compile. Default `false`    |
+| `go.module`      | Go module path written to `go.mod`. Go modules are versioned by git tag                |
+| `go.output`      | Output directory of the module                                                         |
+| `go.build`       | Run `go build ./...` after generation and fail if it does not compile. Default `false` |
+
+Without `--lang`, TypeScript is always built, plus Rust and Go when their block is present. Pass `--lang` to build one
+language only (`ts`, `rust` or `go`):
+
+```shell
+npm run wz-command make-sdk
+npm run wz-command make-sdk -- --lang=rust
+```
+
+The stubs are generated when you run `make-sdk`, so the machine that runs it needs `protoc` and the plugins below;
+projects that consume the SDK do not. Building the Rust crate (`rust.build`) needs Rust 1.85 or newer, and building the
+Go module (`go.build`) needs Go 1.23 or newer. With `rust.build` / `go.build` an older toolchain is reported as an
+error; the check runs in the build step, after the files are written. `protoc` and the plugins are checked first:
+when one is missing or has an unsupported version, `make-sdk` fails before any SDK, including the TypeScript one, is
+written, and the error lists every missing tool.
+
+```shell
+brew install protobuf   # Debian/Ubuntu: apt-get install -y protobuf-compiler libprotobuf-dev
+cargo install protoc-gen-prost@0.4.0 --locked
+cargo install protoc-gen-tonic@0.4.1 --locked
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.6
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+```
+
+The output directory is never wiped. Only the generated paths are replaced (`Cargo.toml`, `microservice.proto` and
+`src/` for Rust; `go.mod`, `microservice.proto`, `pb/`, `client.go`, `errors.go` and `enums.go` for Go), so the
+directory can be its own git repository. Each run generates the proto, the stubs and the wrapper in a temporary
+directory next to the output and replaces the generated paths only when all of that succeeded, so a failure while
+generating leaves the previous SDK as it was. Formatting, `go mod tidy` and the optional `rust.build` / `go.build`
+compile run after the replacement, so a failure there leaves the newly generated files in place.
+An output may not be the working directory or any of its parent directories,
+and may not be shared with, nested inside, or contain the TypeScript `output` / `outputBuild` or the other SDK's output
+(the TypeScript generator deletes its directories on every run); a sibling directory such as `../sdk-go` is fine.
+`rust.crateName` and `go.module` are required for the languages being built.
+
+After generation the output is formatted with `cargo fmt` / `gofmt`. If the formatter is missing or fails, a warning is
+logged and generation still succeeds. `go.mod` and `Cargo.toml` are rewritten on every run, so dependencies, `replace`
+lines or features added there by hand are lost. `go.sum` is kept, and `make-sdk` runs `go mod tidy` in the Go output
+itself when Go 1.23 or newer is on PATH; otherwise, or when `go mod tidy` fails (for example without network), it logs a
+warning and you need to run `go mod tidy` before the module builds. With `go.build` a failing `go mod tidy` is an error.
+
+Each microservice gets a client whose methods return the unwrapped value: a list, a native value, or an optional
+model instead of the wire envelope. Client and method names follow the language: `AppMicroserviceClient::find_many` in
+Rust, `NewAppMicroserviceClient` and `FindMany` in Go.
+
+```rust
+use sdk_name::{pb, AppMicroserviceClient, CallOptions, ClientOptions};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = AppMicroserviceClient::connect("http://localhost:50059", ClientOptions::default()).await?;
+
+    let mut options = CallOptions::default();
+    options.metadata.insert("workspace-id", "workspace-1".parse()?);
+
+    let users: Vec<pb::UserResponse> = client.find_many(pb::FindManyDto::default(), options).await?;
+    println!("{} users", users.len());
+    Ok(())
+}
+```
+
+The crate root re-exports `pb`, `SdkError`, `SdkStream`, `ClientOptions`, `CallOptions` and every client; the enum
+types live in `sdk_name::enums`. A crate name with hyphens is imported with underscores, and the consuming crate needs
+`tokio` (with the `macros` and `rt-multi-thread` features) for the example above.
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+
+	sdk "github.com/org/sdk-name-go"
+	"github.com/org/sdk-name-go/pb"
+)
+
+func main() {
+	conn, err := grpc.NewClient("localhost:50059", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	client := sdk.NewAppMicroserviceClient(conn, sdk.WithTimeout(5*time.Second))
+	users, err := client.FindMany(context.Background(), &pb.FindManyDto{},
+		sdk.WithMetadata(metadata.Pairs("workspace-id", "workspace-1")))
+
+	var serviceErr *sdk.Error
+	if errors.As(err, &serviceErr) {
+		fmt.Println("business error", serviceErr.Code, serviceErr.Message)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(len(users), "users")
+}
+```
+
+The Go package is named after the last segment of the module path, with characters that are not valid in an identifier
+removed and the rest lower-cased (`github.com/org/sdk-name-go` becomes `sdknamego`), so import it with an alias as above.
+A major-version suffix is skipped, as in Go (`github.com/org/sdk-go/v2` becomes `sdkgo`), and a name that is a Go
+keyword gets an `sdk` suffix (`github.com/org/user-sdk/go` becomes `gosdk`).
+`WithMetadata` can be passed to a constructor (as a default) and to a call; a later value for the same key replaces the
+earlier one, and keys are lower-cased.
+
+Business errors (gRPC `ABORTED` carrying `{ message, code, errors }`) become `SdkError::Service` in Rust and
+`*sdk.Error` in Go; every other status is returned unchanged. A client-side timeout is reported as `DEADLINE_EXCEEDED`
+in both languages. In Rust the timeout of a streaming call bounds only the wait for the first response (the response
+headers), not the whole stream; in Go it bounds the whole stream.
+
+Streaming methods return `SdkStream<T>` in Rust (a pinned, boxed `tokio_stream::Stream` of `Result<T, SdkError>`) and
+`*Stream[T]` in Go. In Go, `Recv` returns `io.EOF` when the server has finished, and `Close` must be called when you stop
+reading early.
+
+Differences from the TypeScript SDK:
+
+- Methods take the whole request message. `@SdkFlattenParams` and `@GrpcId`-style parameters are not flattened into
+  arguments.
+- Enum fields keep their wire type (string or integer). The allowed values are generated in `enums.rs` (Rust enums with
+  `value()` / `as_str()` and `from_value()` helpers) and `enums.go` (typed constants). An enum that cannot be rendered
+  safely — member names that collide or are empty once converted, mixed string and number values, a non-integer,
+  out-of-int32-range or repeated value, or `type: Number` with non-numeric values — is left out of both files with a
+  warning.
+- `format: 'any'` fields are JSON strings; encode and decode them yourself.
+- Metadata parameters (`@GrpcMetadata`, `@GrpcMetadataId`) are set through the per-call metadata option. The generated
+  doc comment of each method lists the keys the server reads.
+- A primitive response declared nullable returns the primitive type; it cannot express "no value". When Rust or Go is
+  built, `make-sdk` logs a warning for every rpc that declares one.
+- There is no mock client and no AI skill file.
+- `Number` responses (`@ResponseModel(Number)`) are `f32` in Rust and `float32` in Go, because the proto carries them as
+  `float`.
+- A `number` property must declare a `format` (`int32`, `int64`, `float` or `double`) in every SDK; `make-sdk` and
+  `make:proto` fail with the class and property name otherwise. A numeric enum (`@Property` with `enum` / `enumName`,
+  `@GrpcEnum`, `@GrpcEnums`) without a `format` defaults to `int32`.
+- Rust method and enum variant names that are keywords follow prost / tonic: an rpc `move` is `r#move`, and an enum
+  member `SELF` is the variant `Self_`. An rpc whose Rust name is `connect`, `new`, `with_origin`,
+  `with_interceptor`, `send_compressed`, `accept_compressed`, `max_decoding_message_size` or
+  `max_encoding_message_size` clashes with methods of the client or of tonic's generated client and fails generation;
+  rename it.
 
 ### Generating only the proto file
 

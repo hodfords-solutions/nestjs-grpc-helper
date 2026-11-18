@@ -146,6 +146,51 @@ describe('Property', () => {
         });
     });
 
+    describe('numeric enum format', () => {
+        enum LevelEnum {
+            LOW = 1,
+            HIGH = 2
+        }
+
+        it('defaults a numeric enum property without a format to "int32"', () => {
+            class Dto {
+                @Property({ type: Number, enum: LevelEnum, enumName: 'LevelEnum' })
+                level: LevelEnum;
+            }
+
+            expect(propertyStorage.get(Dto)[0].option).toMatchObject({ type: 'number', format: 'int32' });
+            const metadata = Reflect.getMetadata(apiModelPropertiesKey, Dto.prototype, 'level');
+            expect(metadata).toMatchObject({ type: Number, format: 'int32', enumName: 'LevelEnum', enum: [1, 2] });
+        });
+
+        it('keeps an explicit format on a numeric enum property', () => {
+            class Dto {
+                @Property({ type: 'number', format: 'int64', enum: LevelEnum, enumName: 'LevelEnum' })
+                level: LevelEnum;
+            }
+
+            expect(propertyStorage.get(Dto)[0].option.format).toBe('int64');
+        });
+
+        it('does not add a format to a string enum or a non-enum number', () => {
+            enum NameEnum {
+                A = 'a'
+            }
+
+            class Dto {
+                @Property({ type: String, enum: NameEnum, enumName: 'NameEnum' })
+                name: NameEnum;
+
+                @Property({ type: Number })
+                amount: number;
+            }
+
+            const [name, amount] = propertyStorage.get(Dto);
+            expect(name.option.format).toBeUndefined();
+            expect(amount.option.format).toBeUndefined();
+        });
+    });
+
     describe('swagger metadata', () => {
         it('applies ApiProperty with the proto type converted to a typescript type', () => {
             class Dto {
