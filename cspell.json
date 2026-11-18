@@ -44,7 +44,9 @@
         "typesdk",
         "funcsdk",
         "mapsdk",
-        "rangesdk"
+        "rangesdk",
+        "genproto",
+        "GOPATH"
     ],
     "flagWords": [
         "hte"
@@ -58,6 +60,8 @@
         "package-lock.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
-        "docs/superpowers/**"
+        "docs/superpowers/**",
+        "sample/consumer-go/go.sum",
+        "sample/consumer-rust/Cargo.lock"
     ]
 }

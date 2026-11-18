@@ -542,6 +542,14 @@ Differences from the TypeScript SDK:
   `max_encoding_message_size` clashes with methods of the client or of tonic's generated client and fails generation;
   rename it.
 
+#### Trying the Rust and Go SDKs
+
+The repository has a runnable example for each language: `pnpm run build:sample-sdk:native` generates both SDKs from
+the `sample` app using `sample/sdk-config.native.json` (it also rewrites the TypeScript SDK in `sdk/`; add `--lang go`
+or `--lang rust` to build one language), and the consumers call every rpc of the sample server and print the results.
+Follow [`sample/consumer-go/README.md`](sample/consumer-go/README.md) or
+[`sample/consumer-rust/README.md`](sample/consumer-rust/README.md) for the prerequisites, commands and expected output.
+
 ### Generating only the proto file
 
 To generate just the proto file, without building the whole SDK, use the `make:proto` command. It reuses the same

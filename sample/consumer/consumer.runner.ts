@@ -24,7 +24,7 @@ export class ConsumerRunner {
             // Single object / array-of-objects responses.
             ['findOne', () => sdk.findOne({ name: 'john', nestedDto: nested })],
             ['findMany', () => sdk.findMany({ name: 'john', nestedDto: [{ address: '123 Main St' }] })],
-            // Methods with no response model (return void).
+            // Despite their names, both declare a list response and return the sample users.
             ['emptyFunction', () => sdk.emptyFunction({ name: 'john', nestedDto: [{ address: '123 Main St' }] })],
             ['emptyParams', () => sdk.emptyParams()],
             // AnyType passthrough: `data` is serialized as JSON over the wire.

@@ -45,6 +45,7 @@
         "lint-staged": "lint-staged",
         "start:consumer": "ts-node --transpile-only -r tsconfig-paths/register sample/consumer/main.ts",
         "build:sample-sdk": "pnpm run prebuild && nest start -p tsconfig.sample.json -- --exit",
+        "build:sample-sdk:native": "pnpm run prebuild && nest build -p tsconfig.sample.json && CLI_PATH=dist/sample/cli.js wz-command make-sdk sample/sdk-config.native.json",
         "build-sdk": "nestjs-grpc-helper"
     },
     "dependencies": {
