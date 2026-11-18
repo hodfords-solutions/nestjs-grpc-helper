@@ -18,7 +18,35 @@
         "classpath",
         "keepalive",
         "myorg",
-        "parameterless"
+        "parameterless",
+        "protoc",
+        "prost",
+        "tonic",
+        "gofmt",
+        "thiserror",
+        "serde",
+        "emptypb",
+        "golang",
+        "repr",
+        "rustfmt",
+        "nolint",
+        "clippy",
+        "rustup",
+        "libprotobuf",
+        "sdknamego",
+        "fixturesdkgo",
+        "mmicroservice",
+        "unmarshal",
+        "println",
+        "strs",
+        "sdkgo",
+        "gosdk",
+        "typesdk",
+        "funcsdk",
+        "mapsdk",
+        "rangesdk",
+        "genproto",
+        "GOPATH"
     ],
     "flagWords": [
         "hte"
@@ -31,6 +59,9 @@
         "CHANGELOG.md",
         "package-lock.json",
         "pnpm-lock.yaml",
-        "pnpm-workspace.yaml"
+        "pnpm-workspace.yaml",
+        "docs/superpowers/**",
+        "sample/consumer-go/go.sum",
+        "sample/consumer-rust/Cargo.lock"
     ]
 }

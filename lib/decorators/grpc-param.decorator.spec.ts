@@ -1,3 +1,5 @@
+/* eslint-disable max-lines-per-function */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import {
@@ -12,6 +14,11 @@ import {
 } from './grpc-param.decorator.js';
 import { DIRECT_PARAMETERS_METADATA_KEY, FLATTEN_PARAMETERS_METADATA_KEY } from '../constants/metadata-key.const.js';
 import { ParameterOptionType } from '../types/parameter-option.type.js';
+import { PropertyOptionType } from '../types/property-option.type.js';
+import { propertyStorage } from '../storages/property.storage.js';
+import { GenerateProtoService } from '../services/generate-proto.service.js';
+import { GrpcAction } from './microservice.decorator.js';
+import os from 'node:os';
 import { PaginationDto } from '../dto/pagination.dto.js';
 import { SortDto } from '../dto/sort.dto.js';
 
@@ -158,6 +165,82 @@ describe('GrpcEnum', () => {
         expect(() => GrpcEnum({ name: 'value', enum: {}, enumName: 'EmptyEnum' })).toThrow(
             'Unable to determine enum type in GrpcEnum decorator'
         );
+    });
+});
+
+describe('GrpcEnum format', () => {
+    // The int32 default is applied by @Property, which @GrpcAction calls for every parameter of the params DTO
+    function paramsDtoOption(target: Function, propertyKey: string, name: string): PropertyOptionType {
+        const [paramsDto] = Reflect.getMetadata('design:paramtypes', target.prototype, propertyKey);
+        return propertyStorage.get(paramsDto).find((property) => property.name === name).option;
+    }
+
+    it('defaults numeric enums to format "int32" so the proto type is valid', () => {
+        class Service {
+            @GrpcAction()
+            getByLevel(@GrpcEnum({ name: 'level', enum: NumericEnum, enumName: 'NumericEnum' }) level: number): void {
+                void level;
+            }
+        }
+
+        const option = paramsDtoOption(Service, 'getByLevel', 'level');
+        expect(option).toMatchObject({ type: 'number', format: 'int32' });
+        expect(new GenerateProtoService('pkg', os.tmpdir()).getProtoType(option)).toBe('int32');
+    });
+
+    it('defaults numeric enum arrays to format "int32"', () => {
+        class Service {
+            @GrpcAction()
+            getByLevels(
+                @GrpcEnums({ name: 'levels', enum: NumericEnum, enumName: 'NumericEnum' }) levels: number[]
+            ): void {
+                void levels;
+            }
+        }
+
+        expect(paramsDtoOption(Service, 'getByLevels', 'levels')).toMatchObject({
+            type: 'number',
+            format: 'int32',
+            isArray: true
+        });
+    });
+
+    it('keeps an explicit format on numeric enums', () => {
+        class Service {
+            @GrpcAction()
+            getByLevel(
+                @GrpcEnum({ name: 'level', enum: NumericEnum, enumName: 'NumericEnum', format: 'int64' }) level: number
+            ): void {
+                void level;
+            }
+        }
+
+        expect(paramsDtoOption(Service, 'getByLevel', 'level').format).toBe('int64');
+    });
+
+    it('does not add a format to string enums', () => {
+        class Service {
+            @GrpcAction()
+            getByType(
+                @GrpcEnum({ name: 'userType', enum: StringEnum, enumName: 'StringEnum' }) userType: string
+            ): void {
+                void userType;
+            }
+        }
+
+        expect(paramsDtoOption(Service, 'getByType', 'userType').format).toBeUndefined();
+    });
+
+    it('leaves the format to @Property instead of adding it to the parameter options', () => {
+        class Service {
+            getByLevel(@GrpcEnum({ name: 'level', enum: NumericEnum, enumName: 'NumericEnum' }) level: number): void {
+                void level;
+            }
+        }
+
+        const [param] = getParams(Service.prototype, 'getByLevel');
+        expect(param.type).toBe('number');
+        expect(param.format).toBeUndefined();
     });
 });
 

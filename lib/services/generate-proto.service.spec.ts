@@ -11,6 +11,7 @@ import { GrpcId, GrpcIds } from '../decorators/grpc-param.decorator.js';
 import { GrpcValue } from '../decorators/grpc-value.decorator.js';
 import { GrpcAction, GrpcStreamAction, RegisterGrpcMicroservice } from '../decorators/microservice.decorator.js';
 import { Property } from '../decorators/property.decorator.js';
+import { getPropertiesOfClass } from '../helpers/property.helper.js';
 import { GenerateProtoService } from './generate-proto.service.js';
 
 enum ProtoStatusEnum {
@@ -248,6 +249,54 @@ describe('GenerateProtoService', () => {
                 { name: 'count', option: { type: 'number', format: 'int32' } }
             ]);
             expect(normalize(content)).toContain('message CustomModel { repeated string ids = 1; int32 count = 2; }');
+        });
+    });
+
+    describe('number properties without a format', () => {
+        it('should fail with the class and property name', () => {
+            const service = new GenerateProtoService('pkg', os.tmpdir());
+
+            expect(() =>
+                service.generateModel({ name: 'OrderDto' } as any, [{ name: 'amount', option: { type: 'number' } }])
+            ).toThrow('OrderDto.amount has type "number" without a "format"');
+        });
+
+        it('should emit int32 for a numeric enum property instead of failing', () => {
+            enum LevelEnum {
+                LOW = 1,
+                HIGH = 2
+            }
+            class LevelDto {
+                @Property({ type: Number, enum: LevelEnum, enumName: 'LevelEnum' })
+                level: LevelEnum;
+            }
+            const service = new GenerateProtoService('pkg', os.tmpdir());
+
+            const content = service.generateModel(LevelDto, getPropertiesOfClass(LevelDto));
+
+            expect(content).toContain('int32 level = 1;');
+        });
+
+        it('should still fail for a non-enum property declared with Number', () => {
+            class AmountDto {
+                @Property({ type: Number })
+                amount: number;
+            }
+            const service = new GenerateProtoService('pkg', os.tmpdir());
+
+            expect(() => service.generateModel(AmountDto, getPropertiesOfClass(AmountDto))).toThrow(
+                'AmountDto.amount has type "number" without a "format"'
+            );
+        });
+
+        it('should keep emitting the format when one is given', () => {
+            const service = new GenerateProtoService('pkg', os.tmpdir());
+
+            const content = service.generateModel({ name: 'OrderDto' } as any, [
+                { name: 'amount', option: { type: 'number', format: 'double' } }
+            ]);
+
+            expect(content).toContain('double amount = 1;');
         });
     });
 });

@@ -50,6 +50,5 @@ Notes:
 
 - `@GrpcId` / `@GrpcIds` / `@GrpcMetadataId` parameters are validated as **UUIDs** on the
   server, so the runner passes UUID values for ids and the `workspace-id` header.
-- `emptyFunction` / `emptyParams` are logged as `FAILED` — the sample server's void methods
-  return arrays against a `google.protobuf.Empty` response, which the SDK can't decode. This
-  is a quirk of those particular sample handlers, not of the SDK itself.
+- Despite their names, `emptyFunction` / `emptyParams` are ordinary list rpcs: both declare
+  `@ResponseModel(UserResponse, true)` on the sample server and return the two sample users.

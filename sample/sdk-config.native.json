@@ -1,0 +1,13 @@
+{
+    "name": "sdkName",
+    "packageName": "@hodfords/sample-sdk",
+    "output": "sdk",
+    "go": {
+        "module": "example.com/sample-sdk-go",
+        "output": "sdk-go"
+    },
+    "rust": {
+        "crateName": "sample-sdk",
+        "output": "sdk-rust"
+    }
+}
