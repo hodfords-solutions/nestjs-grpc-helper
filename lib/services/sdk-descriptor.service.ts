@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import {
-    NullableGrpcClassResponseNamePrefix,
-    RESPONSE_METADATA_KEY,
-    ResponseMetadata
-} from '@hodfords/nestjs-response';
+import { RESPONSE_METADATA_KEY, ResponseMetadata } from '@hodfords/nestjs-response';
 import { Logger } from '@nestjs/common';
 import { isFunction, isUndefined } from '@nestjs/common/utils/shared.utils.js';
 import { isEmpty } from 'es-toolkit/compat';
@@ -18,6 +14,7 @@ import { isEnumProperty } from '../helpers/api-property.helper.js';
 import { extractProperties } from '../helpers/property.helper.js';
 import { enumMemberName } from '../helpers/sdk-naming.helper.js';
 import { isPrimitiveType } from '../helpers/type.helper.js';
+import { resolveWireResponse } from '../helpers/wire-response.helper.js';
 import { microserviceStorage } from '../storages/microservice.storage.js';
 import { MetadataParameterOptionType } from '../types/metadata-parameter-option.type.js';
 import {
@@ -28,8 +25,6 @@ import {
     SdkServiceDescriptor
 } from '../types/sdk-descriptor.type.js';
 
-const emptyMessage = 'google.protobuf.Empty';
-
 // Mirrors GenerateProtoService.generateNativeModelList / NativeNumberValue: Number travels as `float`.
 const nativeTypes: Record<string, SdkNativeType> = {
     String: 'string',
@@ -37,15 +32,12 @@ const nativeTypes: Record<string, SdkNativeType> = {
     Number: 'float'
 };
 
-type ResponseDescription = Pick<
-    SdkMethodDescriptor,
-    'responseKind' | 'responseType' | 'wireResponseType' | 'isNullablePrimitive'
->;
+type ResponseDescription = Pick<SdkMethodDescriptor, 'responseKind' | 'responseType' | 'wireResponseType'>;
 
 /**
  * Turns the registered microservices into a language-neutral model for the Rust and Go generators.
- * The response classification repeats GenerateProtoService.generateRpcMethod, including its branch
- * order; sdk-descriptor.service.spec.ts compares both against the generated proto.
+ * The response classification is shared with GenerateProtoService through resolveWireResponse;
+ * sdk-descriptor.service.spec.ts still compares the descriptor against the generated proto.
  */
 export class SdkDescriptorService {
     private logger = new Logger(SdkDescriptorService.name);
@@ -90,47 +82,14 @@ export class SdkDescriptorService {
     }
 
     private describeResponse(response: ResponseMetadata): ResponseDescription {
-        if (!response) {
-            return {
-                responseKind: 'empty',
-                responseType: undefined,
-                wireResponseType: emptyMessage,
-                isNullablePrimitive: false
-            };
-        }
+        const { responseKind, wireResponseType } = resolveWireResponse(response);
+        const className = response?.responseClass.name;
 
-        const className = response.responseClass.name;
-        const isPrimitive = isPrimitiveType(response.responseClass);
-        const responseType = isPrimitive ? nativeTypes[className] : className;
-
-        if (response.isArray) {
-            return {
-                responseKind: isPrimitive ? 'nativeList' : 'list',
-                responseType,
-                wireResponseType: `Proto${className}List`,
-                isNullablePrimitive: false
-            };
-        }
-
-        if (isPrimitive) {
-            return {
-                responseKind: 'native',
-                responseType,
-                wireResponseType: `Native${className}Value`,
-                isNullablePrimitive: Boolean(response.isAllowEmpty)
-            };
-        }
-
-        if (response.isAllowEmpty) {
-            return {
-                responseKind: 'nullable',
-                responseType,
-                wireResponseType: `${NullableGrpcClassResponseNamePrefix}${className}`,
-                isNullablePrimitive: false
-            };
-        }
-
-        return { responseKind: 'single', responseType, wireResponseType: className, isNullablePrimitive: false };
+        return {
+            responseKind,
+            responseType: isPrimitiveType(response?.responseClass) ? nativeTypes[className] : className,
+            wireResponseType
+        };
     }
 
     private describeEnums(): SdkEnumDescriptor[] {

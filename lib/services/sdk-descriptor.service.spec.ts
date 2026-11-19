@@ -39,8 +39,7 @@ describe('SdkDescriptorService', () => {
             responseType: 'FixtureItemResponse',
             wireResponseType: 'FixtureItemResponse',
             isStream: false,
-            metadataKeys: [],
-            isNullablePrimitive: false
+            metadataKeys: []
         });
     });
 
@@ -82,17 +81,15 @@ describe('SdkDescriptorService', () => {
         expect(method('maybeFindOne')).toMatchObject({
             responseKind: 'nullable',
             responseType: 'FixtureItemResponse',
-            wireResponseType: 'NullableGrpcClassResponseOfFixtureItemResponse',
-            isNullablePrimitive: false
+            wireResponseType: 'NullableGrpcClassResponseOfFixtureItemResponse'
         });
     });
 
-    it('treats a nullable primitive as native, because the proto emits Native*Value for it', () => {
+    it('classifies a nullable primitive, wrapped like a nullable model around Native*Value', () => {
         expect(method('maybeGetName')).toMatchObject({
-            responseKind: 'native',
+            responseKind: 'nullableNative',
             responseType: 'string',
-            wireResponseType: 'NativeStringValue',
-            isNullablePrimitive: true
+            wireResponseType: 'NullableGrpcClassResponseOfNativeStringValue'
         });
     });
 

@@ -152,6 +152,29 @@ describe('GrpcHelper', () => {
             expect(result).toEqual([null]);
         });
 
+        it('unwraps a nullable primitive, which wraps a Native*Value', async () => {
+            serviceGrpc.findNameOrNull = vi.fn(() =>
+                of({ grpcNullable: true, value: { value: 'john', grpcNative: true } })
+            );
+            serviceGrpc.isActiveOrNull = vi.fn(() =>
+                of({ grpcNullable: true, value: { value: false, grpcNative: true } })
+            );
+
+            const name = await createHelper().service('UserService').method('findNameOrNull').data({}).getMany();
+            const isActive = await createHelper().service('UserService').method('isActiveOrNull').data({}).getMany();
+
+            expect(name).toEqual(['john']);
+            expect(isActive).toEqual([false]);
+        });
+
+        it('returns [null] for a nullable primitive without a value', async () => {
+            serviceGrpc.findNameOrNull = vi.fn(() => of({ grpcNullable: true, value: null }));
+
+            const result = await createHelper().service('UserService').method('findNameOrNull').data({}).getMany();
+
+            expect(result).toEqual([null]);
+        });
+
         it('getOne returns the first element of getMany', async () => {
             serviceGrpc.findMany = vi.fn(() => of([{ name: 'john' }, { name: 'jane' }]));
 
@@ -170,6 +193,29 @@ describe('GrpcHelper', () => {
             );
 
             expect(result).toEqual([{ name: 'JOHN' }, { name: 'JANE' }]);
+        });
+
+        it('unwraps primitive and nullable chunks like the unary calls do', async () => {
+            serviceGrpc.streamNames = vi.fn(() =>
+                of({ value: 'john', grpcNative: true }, { value: '', grpcNative: true })
+            );
+            serviceGrpc.streamMaybe = vi.fn(() =>
+                of(
+                    { grpcNullable: true, value: { name: 'john' } },
+                    { grpcNullable: true, value: null },
+                    { grpcNullable: true, value: { value: false, grpcNative: true } }
+                )
+            );
+
+            const names = await firstValueFrom(
+                createHelper().service('UserService').method('streamNames').data({}).stream().pipe(toArray())
+            );
+            const maybe = await firstValueFrom(
+                createHelper().service('UserService').method('streamMaybe').data({}).stream().pipe(toArray())
+            );
+
+            expect(names).toEqual(['john', '']);
+            expect(maybe).toEqual([{ name: 'JOHN' }, null, false]);
         });
 
         it('passes the payload and metadata to the grpc stream method', () => {

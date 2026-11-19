@@ -89,6 +89,12 @@ export class ProtoFixtureMicroservice {
         return param as any;
     }
 
+    @GrpcAction('Maybe get a name')
+    @ResponseModel(String, false, true)
+    maybeGetName(@GrpcValue() param: ProtoFixtureDto): any {
+        return param.name;
+    }
+
     @GrpcAction('Get by ids')
     @ResponseModel(String)
     getByIds(@GrpcId('userId') userId: string, @GrpcIds('ids') ids: string[]): any {
@@ -149,6 +155,15 @@ describe('GenerateProtoService', () => {
         const normalized = normalize(protoContent);
         expect(normalized).toContain(
             'message NullableGrpcClassResponseOfProtoFixtureResponse { ProtoFixtureResponse value = 1; bool grpcNullable = 2; }'
+        );
+    });
+
+    it('should wrap a nullable primitive response around its Native*Value message', () => {
+        expect(protoContent).toContain(
+            'rpc maybeGetName (ProtoFixtureDto) returns (NullableGrpcClassResponseOfNativeStringValue) {}'
+        );
+        expect(normalize(protoContent)).toContain(
+            'message NullableGrpcClassResponseOfNativeStringValue { NativeStringValue value = 1; bool grpcNullable = 2; }'
         );
     });
 

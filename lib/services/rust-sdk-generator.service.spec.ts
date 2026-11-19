@@ -162,6 +162,13 @@ describe('RustSdkGeneratorService', () => {
         expect(client).toContain('-> Result<bool, SdkError>');
         expect(client).toContain('-> Result<Vec<String>, SdkError>');
         expect(client).toContain('-> Result<Option<pb::FixtureItemResponse>, SdkError>');
+        expect(client).toContain(
+            'pub async fn maybe_get_name(&self, request: pb::FixtureQueryDto, options: CallOptions) -> Result<Option<String>, SdkError>'
+        );
+        expect(client).toContain('Ok(response.value.map(|native| native.value))');
+        expect(client).toContain('pub max_decoding_message_size: Option<usize>');
+        expect(client).toContain('inner = inner.max_decoding_message_size(limit);');
+        expect(client).toContain('inner = inner.max_encoding_message_size(limit);');
         expect(client).toContain('pub async fn ping(&self, options: CallOptions) -> Result<(), SdkError>');
         expect(client).toContain('Ok(response.items)');
         expect(client).toContain('Ok(response.value)');

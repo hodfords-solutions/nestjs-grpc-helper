@@ -4,7 +4,7 @@ import '../../tests/fixtures/sdk-fixture.microservice.js';
 import { SdkDescriptorService } from '../services/sdk-descriptor.service.js';
 import { SdkBuildConfigType } from '../types/sdk-build-config.type.js';
 
-const generators = vi.hoisted(() => ({ ts: vi.fn(), rust: vi.fn(), go: vi.fn(), warn: vi.fn(), assertTools: vi.fn() }));
+const generators = vi.hoisted(() => ({ ts: vi.fn(), rust: vi.fn(), go: vi.fn(), assertTools: vi.fn() }));
 const tools = vi.hoisted(() => ({
     protoc: { binary: 'protoc', install: 'install protoc' },
     prost: { binary: 'protoc-gen-prost', version: '0.4', install: 'install prost' },
@@ -33,17 +33,6 @@ vi.mock('../services/protoc.service.js', () => ({
         assertTools = generators.assertTools;
     }
 }));
-vi.mock('@nestjs/common', async (importOriginal) => {
-    const original = await importOriginal<typeof import('@nestjs/common')>();
-    return {
-        ...original,
-        Logger: class {
-            warn = generators.warn;
-            log = vi.fn();
-            error = vi.fn();
-        }
-    };
-});
 
 const { generateSdk, resolveSdkLanguages } = await import('./generate.helper.js');
 
@@ -124,18 +113,6 @@ describe('generateSdk', () => {
         } finally {
             describeSpy.mockRestore();
         }
-    });
-
-    it('warns about nullable primitive responses when building Rust or Go', () => {
-        generateSdk(allLanguages, ['go']);
-
-        expect(generators.warn).toHaveBeenCalledWith(expect.stringContaining('SdkFixtureMicroservice.maybeGetName'));
-    });
-
-    it('does not warn when only TypeScript is built', () => {
-        generateSdk(allLanguages, ['ts']);
-
-        expect(generators.warn).not.toHaveBeenCalled();
     });
 
     it('checks the tools of every Rust and Go target once, before any SDK is generated', () => {

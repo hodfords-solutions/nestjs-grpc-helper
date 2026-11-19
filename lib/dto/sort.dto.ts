@@ -12,5 +12,5 @@ export class SortDto {
     @Property({ type: String })
     @IsString()
     @IsEnum(['ASC', 'DESC'])
-    sortDirection: number;
+    sortDirection: 'ASC' | 'DESC';
 }

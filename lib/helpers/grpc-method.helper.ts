@@ -45,7 +45,7 @@ export function getReturnType(response: ResponseMetadata): string {
     }
     if (response.isArray) {
         return `${returnType}[]`;
-    } else {
-        return returnType;
     }
+    // A nullable result resolves to null when the server returns no value
+    return response.isAllowEmpty ? `${returnType} | null` : returnType;
 }

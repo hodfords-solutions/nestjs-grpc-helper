@@ -1,5 +1,5 @@
 export type SdkNativeType = 'string' | 'bool' | 'float';
-export type SdkResponseKind = 'empty' | 'single' | 'list' | 'native' | 'nativeList' | 'nullable';
+export type SdkResponseKind = 'empty' | 'single' | 'list' | 'native' | 'nativeList' | 'nullable' | 'nullableNative';
 export type SdkMethodDescriptor = {
     name: string;
     description?: string;
@@ -9,7 +9,6 @@ export type SdkMethodDescriptor = {
     wireResponseType: string;
     isStream: boolean;
     metadataKeys: string[];
-    isNullablePrimitive: boolean;
 };
 export type SdkServiceDescriptor = { name: string; description?: string; methods: SdkMethodDescriptor[] };
 export type SdkEnumDescriptor = {

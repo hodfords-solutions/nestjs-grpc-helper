@@ -143,6 +143,10 @@ describe('GoSdkGeneratorService', () => {
         expect(client).toContain(
             'MaybeFindOne(ctx context.Context, req *pb.FixtureQueryDto, opts ...Option) (*pb.FixtureItemResponse, error)'
         );
+        expect(client).toContain(
+            'MaybeGetName(ctx context.Context, req *pb.FixtureQueryDto, opts ...Option) (*string, error)'
+        );
+        expect(client).toContain('return optional(res.GetValue() != nil, res.GetValue().GetValue()), nil');
         expect(client).toContain('Ping(ctx context.Context, opts ...Option) error');
         expect(client).toContain('return res.GetItems(), nil');
         expect(client).toContain('return res.GetValue(), nil');

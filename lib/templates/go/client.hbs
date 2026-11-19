@@ -106,6 +106,14 @@ func wrapStreamError(err error) error {
 	}
 	return wrapError(err)
 }
+
+// optional returns nil when a nullable primitive response carries no value.
+func optional[T any](present bool, value T) *T {
+	if !present {
+		return nil
+	}
+	return &value
+}
 {{#each services}}
 
 {{#each docLines}}

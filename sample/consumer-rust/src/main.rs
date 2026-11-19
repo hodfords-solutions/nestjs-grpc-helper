@@ -76,6 +76,7 @@ async fn main() {
         .unwrap_or_else(|| "http://localhost:50059".to_string());
     let options = ClientOptions {
         timeout: Some(Duration::from_secs(5)),
+        ..Default::default()
     };
     let client = match AppMicroserviceClient::connect(url, options).await {
         Ok(client) => client,
@@ -187,7 +188,7 @@ async fn main() {
         "resolveAddress",
         client.resolve_address(nested("123 Main St"), plain()).await,
     );
-    // Nullable primitive response: the result is not meaningful (see README).
+    // Nullable primitive response: None (and no error) when the server returns no value.
     r.report(
         "findAddressOrNull",
         client

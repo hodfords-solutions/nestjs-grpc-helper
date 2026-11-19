@@ -23,6 +23,10 @@ pub type SdkStream<T> = Pin<Box<dyn Stream<Item = Result<T, SdkError>> + Send + 
 pub struct ClientOptions {
     /// Default timeout of unary calls. Streams never use it.
     pub timeout: Option<Duration>,
+    /// Largest response message, in bytes, the client accepts. `None` keeps tonic's default (4 MiB).
+    pub max_decoding_message_size: Option<usize>,
+    /// Largest request message, in bytes, the client sends. `None` keeps tonic's default (no limit).
+    pub max_encoding_message_size: Option<usize>,
 }
 
 /// Options of a single call.
@@ -64,7 +68,13 @@ impl {{clientName}} {
 
     /// Wraps an existing channel.
     pub fn new(channel: Channel, options: ClientOptions) -> Self {
-        let inner = pb::{{moduleName}}::{{clientName}}::new(channel);
+        let mut inner = pb::{{moduleName}}::{{clientName}}::new(channel);
+        if let Some(limit) = options.max_decoding_message_size {
+            inner = inner.max_decoding_message_size(limit);
+        }
+        if let Some(limit) = options.max_encoding_message_size {
+            inner = inner.max_encoding_message_size(limit);
+        }
         Self { inner, options }
     }
 {{#each methods}}

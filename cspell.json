@@ -46,7 +46,8 @@
         "mapsdk",
         "rangesdk",
         "genproto",
-        "GOPATH"
+        "GOPATH",
+        "usize"
     ],
     "flagWords": [
         "hte"

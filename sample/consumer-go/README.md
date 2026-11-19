@@ -53,8 +53,7 @@ All commands start in the repository root.
     pnpm run build:sample-sdk:native --lang go
     ```
 
-    The warning `AppMicroservice.findAddressOrNull declares a nullable primitive response` is expected (see below). If
-    the `go` on `PATH` is older than 1.23 while generating, `make-sdk` also warns that it could not run `go mod tidy` in
+    If the `go` on `PATH` is older than 1.23 while generating, `make-sdk` warns that it could not run `go mod tidy` in
     `sdk-go`; the example still works, because this consumer's `go.mod` / `go.sum` list every module the SDK needs.
 
 2. Start the sample server in a second terminal (HTTP on 2013, gRPC on 50059). It runs the build from step 1; stop it
@@ -91,7 +90,7 @@ getUserWithRelations -> "123"
 getUserByType -> "123"
 searchUsersFlattened -> "123"
 resolveAddress -> "123"
-findAddressOrNull -> ""
+findAddressOrNull -> null
 findUserByAddress(exists) -> {"name":"test"}
 findUserByAddress(missing) -> null
 listUsers -> "123"
@@ -112,10 +111,8 @@ Done: 1 call(s) failed
   repeated field as a nil slice, which `encoding/json` prints as `null`. `len()` is 0.
 - **`findUserByAddress`** returns the user for address `exists` and a nil `*pb.UserResponse` with a nil error for any
   other address.
-- **`findAddressOrNull -> ""`** is not a meaningful result. The rpc is declared as a nullable primitive
-  (`@ResponseModel(String, false, true)`); the proto returns `NativeStringValue`, which cannot express "no value", and
-  the server-side response interceptor wraps the handler's `null` in a shape that does not match that message, so the
-  client decodes the default `""`. `make-sdk` warns about this rpc for that reason.
+- **`findAddressOrNull -> null`**: the rpc returns a nullable primitive (`@ResponseModel(String, false, true)`) and the
+  handler returns `null`, so the SDK returns a nil `*string` with a nil error.
 - **`emptyFunction` / `emptyParams`** succeed through the Go SDK: both handlers declare
   `@ResponseModel(UserResponse, true)` and return two users, which arrive as `ProtoUserResponseList`. `emptyParams`
   takes no request message (the rpc takes `google.protobuf.Empty`), so the Go method has only `ctx` and options.
