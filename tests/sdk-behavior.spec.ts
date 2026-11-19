@@ -60,20 +60,13 @@ function run(command: string, args: string[], cwd: string): Promise<{ code: numb
         const options = {
             cwd,
             maxBuffer: 64 * 1024 * 1024,
-            timeout: CONSUMER_TIMEOUT,
-            env: { ...process.env, ...cargoEnv() }
+            timeout: CONSUMER_TIMEOUT
         };
         execFile(command, args, options, (error, stdout, stderr) => {
             const code = error ? (typeof error.code === 'number' ? error.code : 1) : 0;
             resolve({ code, output: `${stdout}\n${stderr}`.trim() });
         });
     });
-}
-
-// CI points this at a cached directory so the consumer's dependencies are compiled once.
-function cargoEnv(): Record<string, string> {
-    const targetDir = process.env.SDK_TEST_CARGO_TARGET_DIR;
-    return targetDir ? { CARGO_TARGET_DIR: targetDir } : {};
 }
 
 const unusableTools = findUnusableTools();
