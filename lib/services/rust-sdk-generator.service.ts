@@ -184,6 +184,8 @@ export class RustSdkGeneratorService extends HbsGeneratorService {
                 return `Vec<${rustNativeTypes[method.responseType]}>`;
             case 'nullable':
                 return `Option<pb::${rustTypeName(method.responseType)}>`;
+            case 'nullableNative':
+                return `Option<${rustNativeTypes[method.responseType]}>`;
             default:
                 return `pb::${rustTypeName(method.responseType)}`;
         }
@@ -197,6 +199,9 @@ export class RustSdkGeneratorService extends HbsGeneratorService {
             case 'native':
             case 'nullable':
                 return 'response.value';
+            case 'nullableNative':
+                // NullableGrpcClassResponseOfNative*Value { value: Option<Native*Value> }
+                return 'response.value.map(|native| native.value)';
             default:
                 return 'response';
         }

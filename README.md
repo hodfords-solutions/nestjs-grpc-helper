@@ -98,7 +98,24 @@ export class UserMicroservice {
 @ResponseModel(UserResponse, true)                  // array of objects
 @ResponseModel(String)                              // primitive (String, Number, Boolean)
 @ResponseModel(UserResponse, { isAllowEmpty: true }) // object or null
+@ResponseModel(String, false, true)                 // primitive or null
 ```
+
+For a nullable result the generated TypeScript method returns `Promise<UserResponse | null>` /
+`Promise<string | null>`.
+
+> **Upgrading to 12.5:** an rpc that returns a nullable primitive (`@ResponseModel(String, false, true)`, also with
+> `Number` or `Boolean`) now declares `NullableGrpcClassResponseOfNative*Value` in the proto instead of
+> `Native*Value`. Before, the proto could not carry "no value" and every SDK decoded such a response wrongly. The
+> return type of these rpcs changed on the wire, so regenerate the SDK and release the service together with the
+> consumers that call them. No other rpc is affected.
+>
+> The generated TypeScript methods of nullable rpcs (objects and primitives) are now typed `T | null`, which is what
+> they already returned. A consumer compiled with `strictNullChecks` gets a compile error wherever such a result is
+> used without a null check.
+>
+> The Rust `ClientOptions` struct gained two fields. Code that builds it with a full struct literal
+> (`ClientOptions { timeout: Some(..) }`) stops compiling after the SDK is regenerated; add `..Default::default()`.
 
 ### 3. Generate the proto file and start the gRPC server
 
@@ -456,6 +473,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+`ClientOptions` also takes `max_decoding_message_size` and `max_encoding_message_size` (in bytes). Responses larger
+than tonic's default of 4 MiB are rejected unless the first one is raised; build the options with
+`ClientOptions { max_decoding_message_size: Some(16 * 1024 * 1024), ..Default::default() }` so that fields added later
+do not break your code. In Go the limit belongs to the connection:
+`grpc.NewClient(address, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(16 * 1024 * 1024)), ...)`.
+
 The crate root re-exports `pb`, `SdkError`, `SdkStream`, `ClientOptions`, `CallOptions` and every client; the enum
 types live in `sdk_name::enums`. A crate name with hyphens is imported with underscores, and the consuming crate needs
 `tokio` (with the `macros` and `rt-multi-thread` features) for the example above.
@@ -528,8 +551,9 @@ Differences from the TypeScript SDK:
 - `format: 'any'` fields are JSON strings; encode and decode them yourself.
 - Metadata parameters (`@GrpcMetadata`, `@GrpcMetadataId`) are set through the per-call metadata option. The generated
   doc comment of each method lists the keys the server reads.
-- A primitive response declared nullable returns the primitive type; it cannot express "no value". When Rust or Go is
-  built, `make-sdk` logs a warning for every rpc that declares one.
+- A nullable primitive response (`@ResponseModel(String, false, true)`) is `Option<String>` in Rust and `*string` in
+  Go (likewise `Option<f32>` / `*float32` and `Option<bool>` / `*bool`); `None` / `nil` means the server returned no
+  value.
 - There is no mock client and no AI skill file.
 - `Number` responses (`@ResponseModel(Number)`) are `f32` in Rust and `float32` in Go, because the proto carries them as
   `float`.

@@ -55,8 +55,6 @@ All commands start in the repository root.
     pnpm run build:sample-sdk:native --lang rust
     ```
 
-    The warning `AppMicroservice.findAddressOrNull declares a nullable primitive response` is expected (see below).
-
 2. Start the sample server in a second terminal (HTTP on 2013, gRPC on 50059). It runs the build from step 1; stop it
    with Ctrl+C when you are done.
 
@@ -91,7 +89,7 @@ getUserWithRelations -> "123"
 getUserByType -> "123"
 searchUsersFlattened -> "123"
 resolveAddress -> "123"
-findAddressOrNull -> ""
+findAddressOrNull -> None
 findUserByAddress(exists) -> Some(UserResponse { name: "test", is_admin: false, r#type: "", nested: None })
 findUserByAddress(missing) -> None
 listUsers -> "123"
@@ -111,10 +109,8 @@ Done: 1 call(s) failed
 - **Unset fields print as defaults** (`is_admin: false`, `r#type: ""`, `nested: None`): proto3 does not send default
   values, and prost decodes missing scalars as their default. `r#type` is the field `type`, a Rust keyword.
 - **`findUserByAddress`** returns `Some(user)` for address `exists` and `None` without an error for any other address.
-- **`findAddressOrNull -> ""`** is not a meaningful result. The rpc is declared as a nullable primitive
-  (`@ResponseModel(String, false, true)`); the proto returns `NativeStringValue`, which cannot express "no value", and
-  the server-side response interceptor wraps the handler's `null` in a shape that does not match that message, so the
-  client decodes the default `""`. `make-sdk` warns about this rpc for that reason.
+- **`findAddressOrNull -> None`**: the rpc returns a nullable primitive (`@ResponseModel(String, false, true)`) and the
+  handler returns `null`, so the SDK returns `Ok(None)`.
 - **`emptyFunction` / `emptyParams`** succeed through the Rust SDK: both handlers declare
   `@ResponseModel(UserResponse, true)` and return two users, which arrive as `ProtoUserResponseList`. `emptyParams`
   takes no request message (the rpc takes `google.protobuf.Empty`), so the Rust method takes only `CallOptions`.

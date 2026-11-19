@@ -39,9 +39,20 @@ jobs:
         run: |
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
+      - name: Cache the Rust build of the behavior consumer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ${{ runner.temp }}/sdk-test-cargo-target
+          key: sdk-behavior-cargo-${{ hashFiles('lib/constants/sdk-toolchain.const.ts', 'lib/templates/rust/cargo-toml.hbs', 'tests/sdk-behavior.spec.ts') }}
+          restore-keys: |
+            sdk-behavior-cargo-
       - run: pnpm install --frozen-lockfile
       - name: Generate the sample proto
         run: pnpm run build:sample-sdk
       - run: pnpm test
         env:
           SDK_INTEGRATION_REQUIRED: '1'
+          SDK_TEST_CARGO_TARGET_DIR: ${{ runner.temp }}/sdk-test-cargo-target

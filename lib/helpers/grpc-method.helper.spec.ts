@@ -76,9 +76,17 @@ describe('resolveMethodParams', () => {
 });
 
 describe('getReturnType', () => {
-    function buildResponse(responseClass: any, isArray = false): ResponseMetadata {
-        return { responseClass, isArray, isAllowEmpty: false };
+    function buildResponse(responseClass: any, isArray = false, isAllowEmpty = false): ResponseMetadata {
+        return { responseClass, isArray, isAllowEmpty };
     }
+
+    it('adds null to a nullable object or primitive response, but not to an array', () => {
+        expect(getReturnType(buildResponse(UserResultFixtureResponse, false, true))).toBe(
+            'UserResultFixtureResponse | null'
+        );
+        expect(getReturnType(buildResponse(String, false, true))).toBe('string | null');
+        expect(getReturnType(buildResponse(String, true, true))).toBe('string[]');
+    });
 
     it('returns void when no response metadata exists', () => {
         expect(getReturnType(undefined)).toBe('void');

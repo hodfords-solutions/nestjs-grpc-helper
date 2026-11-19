@@ -66,7 +66,9 @@ export class GrpcHelper<Model> {
      */
     stream(): Observable<Model> {
         return this.serviceGrpc[this.methodName](this.payload, this.metadata).pipe(
-            map((chunk: any) => applyTransforms(chunk, this.model as any, { groups: ['__getData'] }))
+            map((chunk: any) =>
+                applyTransforms(this.unwrapEnvelope(chunk), this.model as any, { groups: ['__getData'] })
+            )
         );
     }
 
@@ -76,21 +78,26 @@ export class GrpcHelper<Model> {
             if (data.grpcArray) {
                 data = data.items || [];
             }
-            if (data.grpcNative) {
-                data = data.value;
-            } else if (data.grpcNullable) {
-                return [applyTransforms(data.value || null, this.model as any, { groups: ['__getData'] })];
-            }
-            if (Array.isArray(data)) {
-                // applyTransforms does not walk top-level arrays — transform each item individually
-                return data.map((item) => applyTransforms(item, this.model as any, { groups: ['__getData'] }));
-            } else {
-                return [applyTransforms(data, this.model as any, { groups: ['__getData'] })];
-            }
+            data = this.unwrapEnvelope(data);
+            // applyTransforms does not walk top-level arrays — transform each item individually
+            const items = Array.isArray(data) ? data : [data];
+            return items.map((item) => applyTransforms(item, this.model as any, { groups: ['__getData'] }));
         } catch (exception) {
             this.logger.error(exception);
             throw exception;
         }
+    }
+
+    /**
+     * Removes the wire envelope of one message: `{ value, grpcNative }` around a primitive and
+     * `{ value, grpcNullable }` around a nullable result. A nullable primitive carries both, nested.
+     */
+    private unwrapEnvelope(data: any): any {
+        if (data?.grpcNullable) {
+            const value = data.value?.grpcNative ? data.value.value : data.value;
+            return value ?? null;
+        }
+        return data?.grpcNative ? data.value : data;
     }
 
     private async execute<T>(): Promise<T> {

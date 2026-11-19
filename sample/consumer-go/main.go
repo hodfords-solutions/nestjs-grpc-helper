@@ -104,7 +104,7 @@ func main() {
 	call("resolveAddress", func() (any, error) {
 		return client.ResolveAddress(ctx, &pb.ParamNestedDto{Address: "123 Main St"})
 	})
-	// Nullable primitive response: the result is not meaningful (see README).
+	// Nullable primitive response: a nil *string (and no error) when the server returns no value.
 	call("findAddressOrNull", func() (any, error) {
 		return client.FindAddressOrNull(ctx, &pb.ParamNestedDto{Address: "123 Main St"})
 	})

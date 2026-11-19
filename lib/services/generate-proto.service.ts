@@ -8,7 +8,7 @@ import { microserviceStorage } from '../storages/microservice.storage.js';
 import { HbsGeneratorService } from './hbs-generator.service.js';
 import { PropertyOptionType } from '../types/property-option.type.js';
 import { isNil } from 'es-toolkit';
-import { isPrimitiveType } from '../helpers/type.helper.js';
+import { resolveWireResponse } from '../helpers/wire-response.helper.js';
 import {
     GRPC_METHOD_METADATA_KEY,
     GRPC_PARAM_INDEX_METADATA_KEY,
@@ -163,18 +163,9 @@ export class GenerateProtoService extends HbsGeneratorService {
             }
 
             const response = Reflect.getMetadata(RESPONSE_METADATA_KEY, constructor.prototype[propertyKey]);
-            let returnType = 'google.protobuf.Empty';
-            if (response) {
-                if (response.isArray) {
-                    returnType = `Proto${response.responseClass.name}List`;
-                } else if (isPrimitiveType(response.responseClass)) {
-                    returnType = `Native${response.responseClass.name}Value`;
-                } else if (response.isAllowEmpty) {
-                    returnType = `${NullableGrpcClassResponseNamePrefix}${response.responseClass.name}`;
-                    this.nullableResponseTypes.add(response.responseClass.name);
-                } else {
-                    returnType = response.responseClass.name;
-                }
+            const { wireResponseType: returnType, nullableInner } = resolveWireResponse(response);
+            if (nullableInner) {
+                this.nullableResponseTypes.add(nullableInner);
             }
             const isStream = Reflect.getMetadata(GRPC_STREAM_METADATA_KEY, constructor.prototype, propertyKey);
             const returnClause = isStream ? `stream ${returnType}` : returnType;

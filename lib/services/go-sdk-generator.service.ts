@@ -159,6 +159,8 @@ export class GoSdkGeneratorService extends HbsGeneratorService {
                 return goNativeTypes[method.responseType];
             case 'nativeList':
                 return `[]${goNativeTypes[method.responseType]}`;
+            case 'nullableNative':
+                return `*${goNativeTypes[method.responseType]}`;
             default:
                 return `*pb.${toGoCamelCase(method.responseType)}`;
         }
@@ -176,6 +178,9 @@ export class GoSdkGeneratorService extends HbsGeneratorService {
             case 'native':
             case 'nullable':
                 return 'res.GetValue()';
+            case 'nullableNative':
+                // The generated getters are nil-safe, so the second argument is fine when there is no value
+                return 'optional(res.GetValue() != nil, res.GetValue().GetValue())';
             default:
                 return 'res';
         }

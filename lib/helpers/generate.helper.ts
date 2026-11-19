@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { GenerateDocumentService } from '../services/generate-document.service.js';
 import { GenerateMicroserviceService } from '../services/generate-microservice.service.js';
 import { GenerateProtoService } from '../services/generate-proto.service.js';
@@ -7,7 +6,6 @@ import { ProtocService } from '../services/protoc.service.js';
 import { RustSdkGeneratorService } from '../services/rust-sdk-generator.service.js';
 import { SdkDescriptorService } from '../services/sdk-descriptor.service.js';
 import { SDK_LANGUAGES, SdkBuildConfigType, SdkLanguage } from '../types/sdk-build-config.type.js';
-import { SdkDescriptor } from '../types/sdk-descriptor.type.js';
 import { assertSdkOutputs } from './sdk-output.helper.js';
 
 export function resolveSdkLanguages(config: SdkBuildConfigType, languages?: SdkLanguage[]): SdkLanguage[] {
@@ -21,24 +19,6 @@ export function resolveSdkLanguages(config: SdkBuildConfigType, languages?: SdkL
         }
     }
     return languages;
-}
-
-/**
- * A primitive response declared nullable is emitted as Native*Value in the proto, which has no way to
- * say "no value". The Rust and Go SDKs therefore return the primitive type for these methods.
- */
-function warnNullablePrimitives(descriptor: SdkDescriptor): void {
-    const logger = new Logger('GenerateSdk');
-    for (const service of descriptor.services) {
-        for (const method of service.methods) {
-            if (method.isNullablePrimitive) {
-                logger.warn(
-                    `${service.name}.${method.name} declares a nullable primitive response. The proto cannot carry ` +
-                        `"no value" for it, so the Rust and Go SDKs return the primitive type.`
-                );
-            }
-        }
-    }
 }
 
 /**
@@ -68,9 +48,6 @@ export function generateSdk(config: SdkBuildConfigType, languages?: SdkLanguage[
     // Described once for both generators, so each warning about the model is logged once per run
     const descriptor =
         targets.includes('rust') || targets.includes('go') ? new SdkDescriptorService().describe() : undefined;
-    if (descriptor) {
-        warnNullablePrimitives(descriptor);
-    }
     if (targets.includes('ts')) {
         new GenerateMicroserviceService(config).generate();
     }
