@@ -93,6 +93,7 @@ pub(crate) fn build_request<T>(message: T, timeout: Option<Duration>, metadata: 
 
 /// A unary call: the hook around it, the client default timeout as the deadline of all attempts, and
 /// the retry policy of the client. `send` performs one attempt.
+#[allow(dead_code, reason = "a crate whose rpcs are all server streams never calls it")]
 pub(crate) async fn unary<Req, Res, F, Fut>(
     rpc: Rpc,
     client: &ClientOptions,
@@ -116,6 +117,7 @@ where
 }
 
 /// Opens a server stream: the hook around the opening and the call timeout only, never retried.
+#[allow(dead_code, reason = "a crate without a server-streaming rpc never calls it")]
 pub(crate) async fn open_stream<Req, Res, F, Fut>(
     rpc: Rpc,
     client: &ClientOptions,
