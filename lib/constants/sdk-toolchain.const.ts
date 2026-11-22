@@ -19,6 +19,7 @@ export const RUST_SDK_TOOLCHAIN = {
     crates: {
         prost: '0.13',
         tonic: '0.12',
+        tokio: '1',
         tokioStream: '0.1',
         serdeJson: '1',
         thiserror: '1'
