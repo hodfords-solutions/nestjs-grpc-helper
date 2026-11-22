@@ -9,9 +9,11 @@ pub mod pb {
 {{/if}}
 }
 
+pub mod call;
 pub mod client;
 pub mod enums;
 pub mod error;
 
+pub use call::{CallGuard, CallHook, RetryPolicy, Rpc};
 pub use client::*;
 pub use error::SdkError;

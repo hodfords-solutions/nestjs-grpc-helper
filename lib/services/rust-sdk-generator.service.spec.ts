@@ -97,6 +97,7 @@ describe('RustSdkGeneratorService', () => {
         expect(cargo).toContain('version = "0.1.0"');
         expect(cargo).toContain('prost = "0.13"');
         expect(cargo).toContain('tonic = "0.12"');
+        expect(cargo).toContain('tokio = { version = "1", features = ["time"] }');
     });
 
     it('uses the configured crate version', () => {
@@ -152,27 +153,27 @@ describe('RustSdkGeneratorService', () => {
 
         const client = read('src/client.rs');
         expect(client).toContain(
-            'pub async fn find_one(&self, request: pb::FixtureQueryDto, options: CallOptions) -> Result<pb::FixtureItemResponse, SdkError>'
+            'pub async fn find_one(&self, request: pb::FixtureQueryDto, options: impl Into<CallOptions>) -> Result<pb::FixtureItemResponse, SdkError>'
         );
         expect(client).toContain('-> Result<Vec<pb::FixtureItemResponse>, SdkError>');
         expect(client).toContain(
-            'pub async fn get_name(&self, request: pb::FixtureQueryDto, options: CallOptions) -> Result<String, SdkError>'
+            'pub async fn get_name(&self, request: pb::FixtureQueryDto, options: impl Into<CallOptions>) -> Result<String, SdkError>'
         );
         expect(client).toContain('-> Result<f32, SdkError>');
         expect(client).toContain('-> Result<bool, SdkError>');
         expect(client).toContain('-> Result<Vec<String>, SdkError>');
         expect(client).toContain('-> Result<Option<pb::FixtureItemResponse>, SdkError>');
         expect(client).toContain(
-            'pub async fn maybe_get_name(&self, request: pb::FixtureQueryDto, options: CallOptions) -> Result<Option<String>, SdkError>'
+            'pub async fn maybe_get_name(&self, request: pb::FixtureQueryDto, options: impl Into<CallOptions>) -> Result<Option<String>, SdkError>'
         );
         expect(client).toContain('Ok(response.value.map(|native| native.value))');
         expect(client).toContain('pub max_decoding_message_size: Option<usize>');
         expect(client).toContain('inner = inner.max_decoding_message_size(limit);');
         expect(client).toContain('inner = inner.max_encoding_message_size(limit);');
-        expect(client).toContain('pub async fn ping(&self, options: CallOptions) -> Result<(), SdkError>');
+        expect(client).toContain('pub async fn ping(&self, options: impl Into<CallOptions>) -> Result<(), SdkError>');
         expect(client).toContain('Ok(response.items)');
         expect(client).toContain('Ok(response.value)');
-        expect(client).toContain('build_request((), options.timeout.or(self.options.timeout), options.metadata)');
+        expect(client).toContain('call::unary(RPC, &self.options, options.into(), (), |request| {');
     });
 
     it('emits rpcs named after Rust keywords as raw identifiers, like tonic does', () => {
@@ -180,12 +181,13 @@ describe('RustSdkGeneratorService', () => {
 
         const client = read('src/client.rs');
         expect(client).toContain(
-            'pub async fn r#move(&self, request: pb::I18nTextDto, options: CallOptions) -> Result<pb::I18nTextDto, SdkError>'
+            'pub async fn r#move(&self, request: pb::I18nTextDto, options: impl Into<CallOptions>) -> Result<pb::I18nTextDto, SdkError>'
         );
-        expect(client).toContain('self.inner.clone().r#move(request)');
-        expect(client).toContain('pub async fn r#type(&self, options: CallOptions) -> Result<(), SdkError>');
-        expect(client).toContain('self.inner.clone().r#type(request)');
+        expect(client).toContain('async move { inner.r#move(request).await }');
+        expect(client).toContain('pub async fn r#type(&self, options: impl Into<CallOptions>) -> Result<(), SdkError>');
+        expect(client).toContain('async move { inner.r#type(request).await }');
         expect(client).toContain('pub async fn b2b_customers(&self, request: pb::FixtureQueryDto');
+        expect(client).toContain('Rpc { service: "fixturePkg.SdkFixtureMicroservice", method: "move" }');
     });
 
     it.each([
@@ -221,45 +223,95 @@ describe('RustSdkGeneratorService', () => {
 
         const client = read('src/client.rs');
         expect(client).toContain(
-            'pub async fn watch_items(&self, request: pb::FixtureQueryDto, options: CallOptions) -> Result<SdkStream<pb::FixtureItemResponse>, SdkError>'
+            'pub async fn watch_items(&self, request: pb::FixtureQueryDto, options: impl Into<CallOptions>) -> Result<SdkStream<pb::FixtureItemResponse>, SdkError>'
         );
-        expect(client).toContain('build_request(request, options.timeout, options.metadata)');
+        expect(client).toContain('call::open_stream(RPC, &self.options, options.into(), request, |request| {');
     });
 
-    it('applies the client default timeout to a unary method body only', () => {
+    it('sends a unary method through call::unary under its wire name', () => {
         new RustSdkGeneratorService(config, protoc as any).generate();
 
         const body = methodBody(read('src/client.rs'), 'find_one');
-        expect(body).toContain('build_request(request, options.timeout.or(self.options.timeout), options.metadata)');
-        expect(body).toContain('.map_err(SdkError::from_status)');
+        expect(body).toContain(
+            'const RPC: Rpc = Rpc { service: "fixturePkg.SdkFixtureMicroservice", method: "findOne" };'
+        );
+        expect(body).toContain('call::unary(RPC, &self.options, options.into(), request, |request| {');
+        expect(body).toContain('async move { inner.find_one(request).await }');
     });
 
-    it('passes only the call timeout in the streaming method body', () => {
+    it('opens a streaming method through call::open_stream, mapping each chunk error', () => {
         new RustSdkGeneratorService(config, protoc as any).generate();
 
         const body = methodBody(read('src/client.rs'), 'watch_items');
-        expect(body).toContain('build_request(request, options.timeout, options.metadata)');
-        expect(body).not.toContain('self.options.timeout');
-        expect(body.match(/SdkError::from_status/g)).toHaveLength(2);
+        expect(body).toContain('method: "watchItems"');
+        expect(body).toContain('call::open_stream(');
+        expect(body).not.toContain('call::unary(');
+        expect(body).toContain('.map_err(SdkError::from_status)');
     });
 
-    it('maps errors through SdkError::from_status in every method', () => {
+    it('sends every method through call::unary or call::open_stream', () => {
         new RustSdkGeneratorService(config, protoc as any).generate();
 
         const client = read('src/client.rs');
         const names = [...client.matchAll(/pub async fn (\w+)\(&self/g)].map((match) => match[1]);
         expect(names.length).toBeGreaterThan(5);
         for (const name of names) {
-            expect(methodBody(client, name)).toContain('SdkError::from_status');
+            expect(methodBody(client, name)).toMatch(
+                /call::(unary|open_stream)\(RPC, &self\.options, options\.into\(\)/
+            );
         }
+    });
+
+    it('applies the client default timeout and retry to unary calls only', () => {
+        new RustSdkGeneratorService(config, protoc as any).generate();
+
+        const call = read('src/call.rs');
+        const unary = call.slice(
+            call.indexOf('pub(crate) async fn unary'),
+            call.indexOf('pub(crate) async fn open_stream')
+        );
+        const stream = call.slice(call.indexOf('pub(crate) async fn open_stream'), call.indexOf('async fn attempt'));
+        expect(unary).toContain('.or(client.timeout)');
+        expect(unary).toContain('client.retry.as_ref()');
+        expect(stream).not.toContain('client.timeout');
+        expect(stream).not.toContain('client.retry');
+        expect(call.match(/\.map_err\(SdkError::from_status\)/g)).toHaveLength(2);
+        expect(call).toContain('Err(status) => SdkError::from_status(status),');
+    });
+
+    it('never retries business errors and stops retrying at the deadline', () => {
+        new RustSdkGeneratorService(config, protoc as any).generate();
+
+        const call = read('src/call.rs');
+        expect(call).toContain(
+            'matches!(error, SdkError::Status(status) if self.retryable_codes.contains(&status.code()))'
+        );
+        expect(call).toContain('let out_of_time = deadline.is_some_and(|deadline| Instant::now() + wait >= deadline);');
+        expect(call).toContain('retryable_codes: vec![tonic::Code::Unavailable],');
+    });
+
+    it('runs the client hook once around a call and reports the outcome to its guard', () => {
+        new RustSdkGeneratorService(config, protoc as any).generate();
+
+        const call = read('src/call.rs');
+        expect(call).toContain('fn start(&self, rpc: Rpc, metadata: &mut MetadataMap) -> Box<dyn CallGuard>;');
+        expect(call).toContain('fn finish(self: Box<Self>, outcome: Result<(), &SdkError>);');
+        expect(read('src/client.rs')).toContain('pub hook: Option<Arc<dyn CallHook>>,');
+        expect(read('src/lib.rs')).toContain('pub use call::{CallGuard, CallHook, RetryPolicy, Rpc};');
+    });
+
+    it('converts a MetadataMap into call options', () => {
+        new RustSdkGeneratorService(config, protoc as any).generate();
+
+        expect(read('src/client.rs')).toContain('impl From<MetadataMap> for CallOptions {');
     });
 
     it('assigns the metadata before setting the timeout in build_request', () => {
         new RustSdkGeneratorService(config, protoc as any).generate();
 
-        const client = read('src/client.rs');
-        const start = client.indexOf('fn build_request<T>');
-        const body = client.slice(start, client.indexOf('\n}\n', start));
+        const call = read('src/call.rs');
+        const start = call.indexOf('fn build_request<T>');
+        const body = call.slice(start, call.indexOf('\n}\n', start));
         const metadataAt = body.indexOf('*request.metadata_mut() = metadata;');
         const timeoutAt = body.indexOf('request.set_timeout(timeout);');
         expect(metadataAt).toBeGreaterThan(-1);

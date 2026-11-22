@@ -1,7 +1,9 @@
 import 'reflect-metadata';
 // Register the Native*Value response classes exactly like importing the library index does in production
 import '../../lib/responses/native.response.js';
+import { status } from '@grpc/grpc-js';
 import { BadRequestException, Controller, Module, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { GrpcExceptionFilter } from '@hodfords/nestjs-exception';
 import { ResponseModel, ResponseModule } from '@hodfords/nestjs-response';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
@@ -180,5 +182,33 @@ export class BehaviorMicroservice {
     }
 }
 
-@Module({ imports: [ResponseModule.forRoot()], controllers: [BehaviorMicroservice] })
+const flakyCalls = new Map<string, number>();
+
+/**
+ * Called by the retry checks of the Rust consumer. No GrpcExceptionFilter here: it would turn every error into an
+ * ABORTED business error, and these checks need an UNAVAILABLE status.
+ */
+@Controller()
+@RegisterGrpcMicroservice('Fails on purpose before answering, for the retry checks')
+@UsePipes(new ValidationPipe())
+export class FlakyMicroservice {
+    @GrpcAction(
+        'Fail the first `count` calls for `name` (UNAVAILABLE, or a business error for a name starting with "business"), then answer the number of calls so far'
+    )
+    @ResponseModel(Number)
+    flaky(@GrpcValue() query: BehaviorQueryDto): number {
+        const calls = (flakyCalls.get(query.name) ?? 0) + 1;
+        flakyCalls.set(query.name, calls);
+        if (calls > (query.count || 0)) {
+            return calls;
+        }
+        if (query.name.startsWith('business')) {
+            const message = JSON.stringify({ message: 'rejected', code: 400, errors: null });
+            throw new RpcException({ code: status.ABORTED, message });
+        }
+        throw new RpcException({ code: status.UNAVAILABLE, message: 'try again' });
+    }
+}
+
+@Module({ imports: [ResponseModule.forRoot()], controllers: [BehaviorMicroservice, FlakyMicroservice] })
 export class BehaviorModule {}

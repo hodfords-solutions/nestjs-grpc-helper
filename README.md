@@ -117,6 +117,11 @@ For a nullable result the generated TypeScript method returns `Promise<UserRespo
 > The Rust `ClientOptions` struct gained two fields. Code that builds it with a full struct literal
 > (`ClientOptions { timeout: Some(..) }`) stops compiling after the SDK is regenerated; add `..Default::default()`.
 
+> **Upgrading to 12.6:** the Rust `ClientOptions` struct gained `retry` and `hook` (see
+> [Retry and call hooks in Rust](#retry-and-call-hooks-in-rust)); a full struct literal needs `..Default::default()`.
+> Rust methods now take `options: impl Into<CallOptions>`, so a call that passes `Default::default()` as the options no
+> longer infers its type; pass `CallOptions::default()`. The crate now depends on `tokio` (feature `time`).
+
 ### 3. Generate the proto file and start the gRPC server
 
 Generate the proto file before the application starts, then connect the gRPC microservice:
@@ -479,9 +484,58 @@ than tonic's default of 4 MiB are rejected unless the first one is raised; build
 do not break your code. In Go the limit belongs to the connection:
 `grpc.NewClient(address, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(16 * 1024 * 1024)), ...)`.
 
-The crate root re-exports `pb`, `SdkError`, `SdkStream`, `ClientOptions`, `CallOptions` and every client; the enum
-types live in `sdk_name::enums`. A crate name with hyphens is imported with underscores, and the consuming crate needs
-`tokio` (with the `macros` and `rt-multi-thread` features) for the example above.
+The crate root re-exports `pb`, `SdkError`, `SdkStream`, `ClientOptions`, `CallOptions`, `RetryPolicy`, `CallHook`,
+`CallGuard`, `Rpc` and every client; the enum types live in `sdk_name::enums`. A crate name with hyphens is imported
+with underscores, and the consuming crate needs `tokio` (with the `macros` and `rt-multi-thread` features) for the
+example above. A `MetadataMap` converts into `CallOptions`, so `client.find_many(request, metadata)` works too.
+
+#### Retry and call hooks in Rust
+
+`ClientOptions.retry` retries unary calls like the gRPC retry policy: at most `max_attempts` attempts in all, while the
+status is one of `retryable_codes`, waiting a random time up to the current backoff between attempts. The timeout of
+the call (or the client default) bounds all attempts and waits together, and no attempt starts once it has expired.
+Business errors (`SdkError::Service`) and streams are never retried. `RetryPolicy::default()` is 3 attempts on
+`UNAVAILABLE`, backoff 200 ms doubling up to 1 s; only list codes for which sending the request again is safe.
+
+`ClientOptions.hook` runs around every call, unary or stream, for tracing, logging or metadata every call needs. `start`
+receives the rpc (`Rpc { service: "sdkName.AppMicroservice", method: "findMany" }`, the wire names) and the metadata
+before the first attempt, and returns a guard whose `finish` receives the outcome once the call ends: after the last
+attempt of a unary call, or when a stream opened or failed to open.
+
+```rust
+use std::sync::Arc;
+use sdk_name::{AppMicroserviceClient, CallGuard, CallHook, ClientOptions, RetryPolicy, Rpc, SdkError};
+use tonic::metadata::MetadataMap;
+
+#[derive(Debug)]
+struct Logging;
+
+struct LoggingGuard(Rpc);
+
+impl CallHook for Logging {
+    fn start(&self, rpc: Rpc, metadata: &mut MetadataMap) -> Box<dyn CallGuard> {
+        metadata.insert("x-caller", "billing".parse().unwrap());
+        Box::new(LoggingGuard(rpc))
+    }
+}
+
+impl CallGuard for LoggingGuard {
+    fn finish(self: Box<Self>, outcome: Result<(), &SdkError>) {
+        if let Err(error) = outcome {
+            println!("{} failed: {error}", self.0);
+        }
+    }
+}
+
+let options = ClientOptions {
+    retry: Some(RetryPolicy::default()),
+    hook: Some(Arc::new(Logging)),
+    ..Default::default()
+};
+let client = AppMicroserviceClient::connect("http://localhost:50059", options).await?;
+```
+
+In Go, use the retry policy of the gRPC service config and interceptors on the connection instead.
 
 ```go
 package main

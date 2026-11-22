@@ -86,6 +86,7 @@ export class RustSdkGeneratorService extends HbsGeneratorService {
                     services: descriptor.services.map((service) => this.buildServiceView(service))
                 })
             ],
+            ['src/call.rs', this.compileTemplate('rust/call.hbs', {})],
             ['src/error.rs', this.compileTemplate('rust/error.hbs', {})],
             [
                 'src/enums.rs',
@@ -163,6 +164,9 @@ export class RustSdkGeneratorService extends HbsGeneratorService {
         return {
             // Same as tonic: a keyword such as `move` becomes the raw identifier `r#move`
             fnName: toRustIdentifier(snakeName),
+            // The wire path is /<package>.<service>/<method>; the proto package is the SDK name
+            rpcService: `${this.config.name}.${service.name}`,
+            rpcMethod: method.name,
             docLines,
             requestType: method.requestType ? `pb::${rustTypeName(method.requestType)}` : undefined,
             requestArg: method.requestType ? 'request' : '()',

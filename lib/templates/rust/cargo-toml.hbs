@@ -8,6 +8,7 @@ rust-version = "{{rustVersion}}"
 [dependencies]
 prost = "{{crates.prost}}"
 tonic = "{{crates.tonic}}"
+tokio = { version = "{{crates.tokio}}", features = ["time"] }
 tokio-stream = "{{crates.tokioStream}}"
 serde_json = "{{crates.serdeJson}}"
 thiserror = "{{crates.thiserror}}"
