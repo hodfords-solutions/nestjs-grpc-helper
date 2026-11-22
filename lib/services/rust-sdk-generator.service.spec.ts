@@ -279,6 +279,17 @@ describe('RustSdkGeneratorService', () => {
         expect(call).toContain('Err(status) => SdkError::from_status(status),');
     });
 
+    it('allows call::unary and call::open_stream to go unused, for crates without unary or streaming rpcs', () => {
+        new RustSdkGeneratorService(config, protoc as any).generate();
+
+        const call = read('src/call.rs');
+        for (const fnName of ['unary', 'open_stream']) {
+            const signature = call.indexOf(`pub(crate) async fn ${fnName}<`);
+            const attributeLine = call.slice(call.lastIndexOf('\n', signature - 2) + 1, signature);
+            expect(attributeLine).toMatch(/^#\[allow\(dead_code, reason = "[^"]+"\)\]\n$/);
+        }
+    });
+
     it('never retries business errors and stops retrying at the deadline', () => {
         new RustSdkGeneratorService(config, protoc as any).generate();
 
